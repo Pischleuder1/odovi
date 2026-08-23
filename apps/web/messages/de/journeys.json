@@ -97,6 +97,8 @@
       "title": "Geplanter Roadtrip",
       "version": "Version {version}",
       "summary": "{stops} Checkpoints · {distance} · {duration}",
+      "summaryWithCharging": "{stops} Checkpoints · {distance} · {duration} Fahrt + {charging} Laden",
+      "chargeSummary": "{arrival} % → {target} % · {energy} · ca. {duration}",
       "edit": "Plan bearbeiten",
       "offlineSave": "Offline speichern",
       "offlineOpen": "Unterwegs öffnen",
@@ -114,6 +116,45 @@
       "teslaPlanNotFound": "Diese Planversion wurde nicht gefunden.",
       "teslaVehicleMismatch": "Der Plan gehört zu einem anderen Fahrzeug als die Tesla-Verbindung.",
       "teslaSendFailed": "Die Route konnte nicht an den Tesla gesendet werden. Ist das Fahrzeug online und der virtuelle Schlüssel gekoppelt?"
+    },
+    "planActual": {
+      "title": "Plan vs. tatsächlich gefahren",
+      "emptyTitle": "Die Reise wartet noch auf ihre tatsächlichen Fahrten.",
+      "emptyHint": "Sobald Fahrten im Journey-Zeitraum synchronisiert und zugeordnet sind, vergleicht Tripatlas Prognose und Wirklichkeit automatisch.",
+      "refresh": "Ist-Daten aktualisieren",
+      "refreshHint": "Neu synchronisierte Fahrten anhand des Journey-Zeitraums zuordnen",
+      "summary": "{matched} von {total} Etappen · {drives, plural, one {# zugeordnete Fahrt} other {# zugeordnete Fahrten}}",
+      "estimated": "Energie teilweise geschätzt",
+      "metrics": {
+        "distance": "Tatsächliche Distanz",
+        "duration": "Tatsächliche Fahrzeit",
+        "consumption": "Tatsächlicher Verbrauch",
+        "arrivalSoc": "Tatsächlicher Ankunfts-SoC"
+      },
+      "changes": {
+        "title": "Was sich verändert hat",
+        "distanceLonger": "Die gefahrene Route war {value} länger.",
+        "distanceShorter": "Die gefahrene Route war {value} kürzer.",
+        "durationLonger": "Die Fahrt dauerte {value} länger als geplant.",
+        "durationShorter": "Die Fahrt war {value} schneller als geplant.",
+        "consumptionHigher": "Der Verbrauch lag {value} über der Prognose.",
+        "consumptionLower": "Der Verbrauch lag {value} unter der Prognose.",
+        "socHigher": "Du bist mit {value} mehr Akku angekommen.",
+        "socLower": "Du bist mit {value} weniger Akku angekommen.",
+        "onPlan": "Die tatsächliche Reise lag nah an der Prognose."
+      },
+      "coverageHint": "Einige Ist-Werte fehlen. Tripatlas zeigt unvollständige Summen deshalb nicht als exakte Werte.",
+      "legsTitle": "Etappe für Etappe",
+      "planned": "Plan",
+      "actual": "Ist",
+      "drive": "Fahrt {id}",
+      "noMatch": "Noch keine passende Fahrt zugeordnet.",
+      "confidence": {
+        "high": "sicher zugeordnet",
+        "medium": "plausibel zugeordnet",
+        "low": "Reihenfolge-Zuordnung",
+        "hint": "Die Zuordnung nutzt Reihenfolge, Checkpoint-Nähe und Distanz. Die Fahrtdaten selbst werden nie verändert."
+      }
     }
   },
   "offline": {
@@ -128,6 +169,8 @@
     "distance": "Distanz",
     "duration": "Fahrzeit",
     "arrivalSoc": "Ankunft",
+    "chargeTarget": "Ladeziel",
+    "chargeEstimate": "Voraussichtliche Ladezeit",
     "navigate": "Navigation öffnen",
     "previous": "Zurück",
     "next": "Weiter",

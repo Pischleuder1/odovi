@@ -28,7 +28,7 @@ Tessie and similar services are good, but they come with subscription costs, ove
 - **Journeys** - Vacations/trips as a wrapper around drives and charging stops, with KPI dashboard, map of all stages, an [immersive scroll-controlled 3D recap](docs/journey-recap.md), and export as CSV, PDF, and GPX
 - **Insights** - Personal consumption curve: consumption vs. outside temperature and speed, seasonal patterns, share of short trips
 - **Parking analytics** - Vampire drain per parking session, parking durations by place
-- **Roadtrip planner** - Ordered checkpoints, versioned journey plans, real routes (OSRM), elevation profile and your personal consumption profile
+- **Roadtrip planner** - Ordered checkpoints, versioned journey plans, real routes (OSRM), elevation profile, your personal consumption profile, explicit charge targets, and charge-time estimates from your own DC history
 - **Mobile roadtrip companion** - Store a plan on the phone, follow the next stop and key leg metrics even when reception drops
 - **Tesla navigation handoff (optional)** - Send the complete ordered checkpoint list to the vehicle through Tesla Fleet API
 
