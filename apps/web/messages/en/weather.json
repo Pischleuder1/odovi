@@ -37,6 +37,8 @@
     "unknown": "Unknown"
   },
   "unavailable": "Weather currently unavailable",
+  "disabled": "Weather is off until you activate a provider.",
+  "activate": "Review weather providers",
   "feelsLike": "feels like {temp}",
   "todayRange": "Today {min} / {max}",
   "coldHint": "Cold weather noticeably increases consumption."

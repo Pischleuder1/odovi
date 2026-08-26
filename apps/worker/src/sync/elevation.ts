@@ -1,11 +1,11 @@
 import { asc, desc, eq, isNull } from "drizzle-orm";
+import type { ActiveProviderResolution } from "@odovi/core";
 import { drives, routePoints, type Db } from "@odovi/db";
 import { recordSyncRun } from "./state.js";
 
-const SOURCE = "open_meteo";
+const SOURCE = "location_provider";
 const ENTITY = "elevation";
 
-const OPEN_METEO_URL = "https://api.open-meteo.com/v1/elevation";
 // Open-Meteo erlaubt bis zu 100 Koordinaten pro Request.
 const COORDS_PER_REQUEST = 100;
 // Höflichkeitspause zwischen Requests, um die kostenlose API nicht zu fluten.
@@ -20,14 +20,14 @@ export interface ElevationSyncResult {
   pointsFilled: number;
 }
 
-interface PendingPoint {
+export interface PendingPoint {
   id: number;
   lat: number;
   lon: number;
 }
 
 /**
- * Füllt fehlende route_points.elevation_m über die Open-Meteo Elevation API
+ * Füllt fehlende route_points.elevation_m über den aktivierten Provider
  * nach. Kein Watermark nötig (kein Zeitfenster) — Fortschritt ergibt sich
  * direkt daraus, dass elevation_m nach dem Füllen nicht mehr NULL ist,
  * spätere Zyklen holen also automatisch nur noch die verbleibenden Punkte
@@ -36,8 +36,8 @@ interface PendingPoint {
  */
 // Nach einem 429 (Rate-Limit) pausiert die Elevation-Anreicherung, statt
 // jede Minute erneut anzuklopfen. Eskalierend (15 min → ×4 bis 12 h), weil
-// Open-Meteo auch Tageslimits kennt — die Wetter-Card hängt an derselben
-// IP-Quote, Dauerfeuer legt sonst beide Features lahm.
+// Provider auch Tageslimits kennen können. Dauerfeuer würde sonst weitere
+// standortbezogene Funktionen am selben Anschluss beeinträchtigen.
 const RATE_LIMIT_BACKOFF_START_MS = 15 * 60 * 1000;
 const RATE_LIMIT_BACKOFF_MAX_MS = 12 * 60 * 60 * 1000;
 let backoffMs = RATE_LIMIT_BACKOFF_START_MS;
@@ -45,8 +45,10 @@ let backoffUntil = 0;
 
 export async function syncElevations(
   db: Db,
+  provider: ActiveProviderResolution | null,
   maxPointsPerCycle = DEFAULT_MAX_POINTS_PER_CYCLE,
 ): Promise<ElevationSyncResult> {
+  if (!provider) return { pointsFilled: 0 };
   if (Date.now() < backoffUntil) {
     return { pointsFilled: 0 };
   }
@@ -56,7 +58,7 @@ export async function syncElevations(
     let pointsFilled = 0;
     for (let i = 0; i < pending.length; i += COORDS_PER_REQUEST) {
       const chunk = pending.slice(i, i + COORDS_PER_REQUEST);
-      const elevations = await fetchElevations(chunk);
+      const elevations = await fetchElevations(provider, chunk);
 
       for (let j = 0; j < chunk.length; j++) {
         const elevationM = elevations[j];
@@ -85,12 +87,12 @@ export async function syncElevations(
       backoffUntil = Date.now() + backoffMs;
       const retryMinutes = Math.round(backoffMs / 60000);
       console.warn(
-        `[sync:elevation] Open-Meteo Rate-Limit — pausiere ${retryMinutes} min`,
+        `[sync:elevation] ${provider.provider} rate limit — pausing for ${retryMinutes} min`,
       );
       backoffMs = Math.min(backoffMs * 4, RATE_LIMIT_BACKOFF_MAX_MS);
       await recordSyncRun(db, SOURCE, ENTITY, {
         status: "deferred",
-        error: `Open-Meteo Elevation API rate-limited; retrying in about ${retryMinutes} min`,
+        error: `${provider.provider} elevation rate-limited; retrying in about ${retryMinutes} min`,
         rowsUpserted: 0,
       });
       return { pointsFilled: 0 };
@@ -127,19 +129,31 @@ async function loadPendingPoints(
   return rows;
 }
 
+type FetchLike = typeof fetch;
+
 /** GET .../elevation?latitude=lat1,lat2,...&longitude=lon1,lon2,... */
-async function fetchElevations(points: PendingPoint[]): Promise<(number | null)[]> {
-  const url = new URL(OPEN_METEO_URL);
+export async function fetchElevations(
+  provider: ActiveProviderResolution,
+  points: PendingPoint[],
+  fetcher: FetchLike = fetch,
+): Promise<(number | null)[]> {
+  const endpoint = provider.endpoints.elevation ?? provider.endpoints.default;
+  if (!endpoint) throw new Error(`${provider.provider} has no elevation endpoint`);
+  const url = new URL(endpoint);
   url.searchParams.set("latitude", points.map((p) => p.lat).join(","));
   url.searchParams.set("longitude", points.map((p) => p.lon).join(","));
 
-  const res = await fetch(url);
+  const headers = new Headers();
+  if (provider.credentialHeader && provider.credential) {
+    headers.set(provider.credentialHeader, provider.credential);
+  }
+  const res = await fetcher(url, { headers });
   if (!res.ok) {
-    throw new Error(`Open-Meteo Elevation API: HTTP ${res.status}`);
+    throw new Error(`${provider.provider} elevation: HTTP ${res.status}`);
   }
   const body = (await res.json()) as { elevation?: number[] };
   if (!Array.isArray(body.elevation)) {
-    throw new Error("Open-Meteo Elevation API: unerwartete Antwort (kein elevation-Array)");
+    throw new Error(`${provider.provider} elevation returned no elevation array`);
   }
   return body.elevation;
 }

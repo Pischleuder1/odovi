@@ -61,7 +61,9 @@ export default async function PlannerPage({
       context.status.lat,
       context.status.lon,
     );
-    if (weather) defaultTempC = Math.round(weather.temperature);
+    if (weather.status === "ok") {
+      defaultTempC = Math.round(weather.weather.temperature);
+    }
   }
 
   const defaultSoc =

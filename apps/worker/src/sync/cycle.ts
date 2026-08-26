@@ -14,6 +14,7 @@ import { syncElevations } from "./elevation.js";
 import { syncDriveWeather } from "./driveWeather.js";
 import { applyClassificationRules } from "./classifyRules.js";
 import { applyAutoChargeCosts } from "./chargeCosts.js";
+import { loadWorkerLocationProviderPolicy } from "../locationProviders/policy.js";
 
 export interface SyncCycleOptions {
   appTimezone: string;
@@ -39,10 +40,16 @@ export async function runSyncCycle(
   const rulesResult = await applyClassificationRules(db, options.appTimezone);
   const chargeCostsResult = await applyAutoChargeCosts(db);
   const softwareUpdatesResult = await syncSoftwareUpdates(db, tm, vehicleMap);
-  const elevationResult = options.elevationEnabled
-    ? await syncElevations(db, options.elevationMaxPointsPerCycle)
+  const providerPolicy = await loadWorkerLocationProviderPolicy(db);
+  const elevationProvider = providerPolicy.resolve("elevation");
+  const weatherProvider = providerPolicy.resolve("weather");
+  const elevationResult = options.elevationEnabled && elevationProvider.status === "active"
+    ? await syncElevations(db, elevationProvider, options.elevationMaxPointsPerCycle)
     : { pointsFilled: 0 };
-  const driveWeatherResult = await syncDriveWeather(db);
+  const driveWeatherResult = await syncDriveWeather(
+    db,
+    weatherProvider.status === "active" ? weatherProvider : null,
+  );
 
   console.log(
     `[odovi-worker] sync ok: ${vehicleMap.size} vehicle(s), ` +
