@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "version": "0.2.0",
+  "candidate": "0.2.0-rc.1",
+  "images": {
+    "web": "ghcr.io/jsc2304/odovi-web",
+    "worker": "ghcr.io/jsc2304/odovi-worker"
+  },
+  "compose": "release/0.2.0/docker-compose.yml",
+  "releaseNotes": "docs/releases/0.2.0.md",
+  "changelog": "CHANGELOG.md",
+  "packages": [
+    "package.json",
+    "apps/web/package.json",
+    "apps/worker/package.json",
+    "packages/core/package.json",
+    "packages/db/package.json",
+    "packages/runtime-config/package.json",
+    "dev/fixtures/package.json",
+    "acceptance/release-stack/package.json"
+  ],
+  "architectures": [
+    "linux/amd64",
+    "linux/arm64"
+  ],
+  "requiredAcceptanceIssues": [
+    27,
+    28,
+    29,
+    31,
+    32,
+    38
+  ],
+  "supportedRuntimes": {
+    "application": "Node.js 22 (included in the images)",
+    "database": "PostgreSQL 17",
+    "orchestration": "Docker Engine with Docker Compose v2"
+  },
+  "teslaMateRange": "Pending compatibility gate #38; target 4.0.1 through 4.2.0",
+  "testedPlatforms": [
+    {
+      "platform": "linux/amd64 on GitHub-hosted Ubuntu",
+      "coverage": "Complete disposable-stack release acceptance"
+    },
+    {
+      "platform": "linux/arm64 through QEMU BuildKit",
+      "coverage": "Image build and metadata validation"
+    }
+  ],
+  "knownLimitations": [
+    "The linux/arm64 image is build-validated through QEMU; native arm64 runtime acceptance remains a release-readiness gate.",
+    "The target TeslaMate 4.0.1 through 4.2.0 range remains pending until compatibility gate #38 lands.",
+    "One vehicle per installation is the current supported focus.",
+    "Odovi requires an existing supported TeslaMate database and does not bundle TeslaMate."
+  ]
+}

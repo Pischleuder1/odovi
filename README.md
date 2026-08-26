@@ -82,6 +82,14 @@ Tests: `pnpm test` · typecheck: `pnpm lint` · more: [CONTRIBUTING.md](CONTRIBU
 
 Docker Compose on a home server/NAS/Raspberry Pi in your LAN or VPN (for example Tailscale), connected to the existing TeslaMate Postgres through a read-only role.
 
+The supported public installation path is the immutable Compose asset attached
+to a Stable Self-hosted Release. It pins web and worker by digest and is
+promoted from an accepted Release Candidate without rebuilding. Until such a
+release is explicitly approved and published, the source-build steps below are
+for development and advanced operators; they do not describe a public release.
+The release mechanics and non-publishing dry run are documented in
+[`docs/releases/pipeline.md`](docs/releases/pipeline.md).
+
 Upgrading an installation created before the Odovi rename? Follow
 [`docs/rename-to-odovi.md`](docs/rename-to-odovi.md) before starting the renamed
 Compose stack so the existing PostgreSQL volume remains attached.
@@ -137,6 +145,8 @@ least:
   documented in the runtime configuration reference
 
 ### 3. Start the stack
+
+For development or an advanced source installation:
 
 ```bash
 docker compose up -d --build

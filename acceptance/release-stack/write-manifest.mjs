@@ -8,6 +8,7 @@ const dependencyGates = [
   { issue: 31, contract: "readiness distinct from liveness", enforced: process.env.ODOVI_ACCEPTANCE_READINESS_PATH !== "/api/health" },
   { issue: 32, contract: "Provider Review and explicit provider-disabled state", enforced: process.env.ODOVI_EXPECT_PROVIDER_DISABLED_UI === "1" },
   { issue: 33, contract: "map-disabled fallback and click-only external navigation", enforced: process.env.ODOVI_EXPECT_MAP_PROVIDER_POLICY === "1" },
+  { issue: 38, contract: "supported TeslaMate compatibility range", enforced: process.env.ODOVI_EXPECT_TESLAMATE_COMPAT === "1" },
 ];
 
 const manifest = {
