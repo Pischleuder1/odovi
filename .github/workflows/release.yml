@@ -173,6 +173,7 @@ jobs:
         env:
           ODOVI_ACCEPTANCE_VERSION: 0.2.0
           ODOVI_ACCEPTANCE_RUN_ID: dry-run-${{ github.run_id }}-${{ github.run_attempt }}
+          ODOVI_EXPECT_TESLAMATE_COMPAT: "1"
         run: ./scripts/release-acceptance.sh
 
       - name: Upload dry-run acceptance evidence
@@ -314,6 +315,7 @@ jobs:
           ODOVI_ACCEPTANCE_BUILD: "0"
           ODOVI_ACCEPTANCE_VERSION: 0.2.0
           ODOVI_ACCEPTANCE_RUN_ID: candidate-${{ github.run_id }}-${{ github.run_attempt }}
+          ODOVI_EXPECT_TESLAMATE_COMPAT: "1"
         run: |
           web_digest="$(node -p 'require("./published/published-web.json").digest')"
           worker_digest="$(node -p 'require("./published/published-worker.json").digest')"
