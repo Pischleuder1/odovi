@@ -13,6 +13,41 @@
 #       — no extra network config needed, this is the default assumption below.
 
 services:
+  config-check:
+    build:
+      context: .
+      dockerfile: apps/worker/Dockerfile
+    image: odovi-worker:latest
+    command: ["node", "../../packages/runtime-config/dist/check.js"]
+    restart: "no"
+    # env_file lets the validator diagnose unknown keys as well as validate
+    # the effective values below. ODOVI_ENV_FILE supports acceptance fixtures.
+    env_file:
+      - ${ODOVI_ENV_FILE:-.env}
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      TESLAMATE_DATABASE_URL: ${TESLAMATE_DATABASE_URL:?Set TESLAMATE_DATABASE_URL in .env}
+      ODOVI_DB_USER: ${ODOVI_DB_USER:-odovi}
+      ODOVI_DB_NAME: ${ODOVI_DB_NAME:-odovi}
+      ODOVI_DB_VOLUME_NAME: ${ODOVI_DB_VOLUME_NAME:-odovi-db-data}
+      WEB_PORT: ${WEB_PORT:-3000}
+      APP_TIMEZONE: ${APP_TIMEZONE:-Europe/Zurich}
+      SYNC_INTERVAL_SECONDS: ${SYNC_INTERVAL_SECONDS:-60}
+      INITIAL_ADMIN_PASSWORD: ${INITIAL_ADMIN_PASSWORD:-}
+      OSRM_URL: ${OSRM_URL:-}
+      FORCE_SECURE_COOKIES: ${FORCE_SECURE_COOKIES:-false}
+      ELEVATION_ENABLED: ${ELEVATION_ENABLED:-true}
+      ELEVATION_MAX_POINTS_PER_CYCLE: ${ELEVATION_MAX_POINTS_PER_CYCLE:-}
+      TESLA_CLIENT_ID: ${TESLA_CLIENT_ID:-}
+      TESLA_CLIENT_SECRET: ${TESLA_CLIENT_SECRET:-}
+      TESLA_REDIRECT_URI: ${TESLA_REDIRECT_URI:-}
+      TESLA_PARTNER_DOMAIN: ${TESLA_PARTNER_DOMAIN:-}
+      TESLA_TOKEN_ENCRYPTION_KEY: ${TESLA_TOKEN_ENCRYPTION_KEY:-}
+      TESLA_PUBLIC_KEY_PEM_BASE64: ${TESLA_PUBLIC_KEY_PEM_BASE64:-}
+      TESLA_COMMAND_PROXY_URL: ${TESLA_COMMAND_PROXY_URL:-}
+      TESLA_COMMAND_API_URL: ${TESLA_COMMAND_API_URL:-}
+      TESLA_FLEET_API_BASE_URL: ${TESLA_FLEET_API_BASE_URL:-}
+
   db:
     image: postgres:17-alpine
     restart: unless-stopped
@@ -39,6 +74,8 @@ services:
     environment:
       DATABASE_URL: postgres://${ODOVI_DB_USER:-odovi}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@db:5432/${ODOVI_DB_NAME:-odovi}
     depends_on:
+      config-check:
+        condition: service_completed_successfully
       db:
         condition: service_healthy
 
@@ -54,6 +91,8 @@ services:
       DATABASE_URL: postgres://${ODOVI_DB_USER:-odovi}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@db:5432/${ODOVI_DB_NAME:-odovi}
       APP_TIMEZONE: ${APP_TIMEZONE:-Europe/Zurich}
       INITIAL_ADMIN_PASSWORD: ${INITIAL_ADMIN_PASSWORD:-}
+      OSRM_URL: ${OSRM_URL:-}
+      FORCE_SECURE_COOKIES: ${FORCE_SECURE_COOKIES:-false}
       # Optional, nur für die Verbindungs-Diagnose in Settings (read-only
       # Testquery). Im Normalbetrieb liest ausschließlich der Worker die
       # TeslaMate-DB — dieser Wert kann leer bleiben.
@@ -66,8 +105,10 @@ services:
       TESLA_PUBLIC_KEY_PEM_BASE64: ${TESLA_PUBLIC_KEY_PEM_BASE64:-}
       TESLA_COMMAND_PROXY_URL: ${TESLA_COMMAND_PROXY_URL:-}
       TESLA_COMMAND_API_URL: ${TESLA_COMMAND_API_URL:-}
-      TESLA_FLEET_API_BASE_URL: ${TESLA_FLEET_API_BASE_URL:-https://fleet-api.prd.eu.vn.cloud.tesla.com}
+      TESLA_FLEET_API_BASE_URL: ${TESLA_FLEET_API_BASE_URL:-}
     depends_on:
+      config-check:
+        condition: service_completed_successfully
       db:
         condition: service_healthy
       migrate:
@@ -82,13 +123,21 @@ services:
     environment:
       DATABASE_URL: postgres://${ODOVI_DB_USER:-odovi}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@db:5432/${ODOVI_DB_NAME:-odovi}
       TESLAMATE_DATABASE_URL: ${TESLAMATE_DATABASE_URL:?Set TESLAMATE_DATABASE_URL in .env}
+      APP_TIMEZONE: ${APP_TIMEZONE:-Europe/Zurich}
       SYNC_INTERVAL_SECONDS: ${SYNC_INTERVAL_SECONDS:-60}
+      ELEVATION_ENABLED: ${ELEVATION_ENABLED:-true}
+      ELEVATION_MAX_POINTS_PER_CYCLE: ${ELEVATION_MAX_POINTS_PER_CYCLE:-}
     depends_on:
+      config-check:
+        condition: service_completed_successfully
       db:
         condition: service_healthy
       migrate:
         condition: service_completed_successfully
     # No published port — sync loop only, no inbound traffic.
+    # A sync slice may contain bounded provider backfills; allow it to finish
+    # after SIGTERM before Docker escalates to SIGKILL.
+    stop_grace_period: 10m
 
 volumes:
   odovi-db-data:

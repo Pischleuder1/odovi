@@ -107,6 +107,7 @@ services:
     environment:
       DATABASE_URL: postgres://odovi:odovi-demo@odovi-db:5432/odovi
       TESLAMATE_DATABASE_URL: postgres://teslamate:teslamate-demo@teslamate-db:5432/teslamate
+      APP_TIMEZONE: Europe/Zurich
       # Short interval so the demo fills up fast instead of the production
       # default of 60s.
       SYNC_INTERVAL_SECONDS: 15

@@ -8,6 +8,7 @@ import {
   type RoadtripPlanSnapshot,
   type RoadtripStop,
 } from "@odovi/core";
+import { parseRoutingUrl } from "@odovi/runtime-config";
 import { validateSession } from "../auth/session";
 import { resolveBaseConsumption, resolveChargingProfile } from "../planner";
 
@@ -22,8 +23,9 @@ import { resolveBaseConsumption, resolveChargingProfile } from "../planner";
 // Basis-URL des OSRM-Routing-Servers. Default ist der öffentliche Demo-Server;
 // eine eigene Instanz wird über OSRM_URL gesetzt (in der UI klein ausgewiesen).
 const OSRM_DEFAULT_URL = "https://router.project-osrm.org";
-const OSRM_URL = process.env.OSRM_URL ?? OSRM_DEFAULT_URL;
-const OSRM_IS_DEFAULT = process.env.OSRM_URL == null;
+const CONFIGURED_OSRM_URL = parseRoutingUrl(process.env.OSRM_URL);
+const OSRM_URL = CONFIGURED_OSRM_URL ?? OSRM_DEFAULT_URL;
+const OSRM_IS_DEFAULT = CONFIGURED_OSRM_URL == null;
 
 const OPEN_METEO_ELEVATION_URL = "https://api.open-meteo.com/v1/elevation";
 

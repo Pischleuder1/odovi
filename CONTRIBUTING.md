@@ -33,7 +33,9 @@ pnpm --filter @odovi/worker dev
 pnpm --filter @odovi/web dev
 ```
 
-The worker needs `DATABASE_URL` and `TESLAMATE_DATABASE_URL`; see `.env.example` for the expected local values. The web app runs at `http://localhost:3000` by default.
+The worker needs `DATABASE_URL` and `TESLAMATE_DATABASE_URL`; see
+`.env.development.example` for the expected local values. The web app runs at
+`http://localhost:3000` by default.
 
 ## Checks
 

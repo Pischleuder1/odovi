@@ -4,6 +4,7 @@ import { cookies, headers } from "next/headers";
 import { createHash, randomBytes } from "node:crypto";
 import { eq } from "drizzle-orm";
 import { sessions, users } from "@odovi/db";
+import { parseBooleanSetting } from "@odovi/runtime-config";
 import { db } from "../db";
 import { LEGACY_SESSION_COOKIE, SESSION_COOKIE } from "../config";
 
@@ -23,7 +24,9 @@ function hashToken(token: string): string {
  * lässt sich das Flag erzwingen.
  */
 async function cookieSecure(): Promise<boolean> {
-  if (process.env.FORCE_SECURE_COOKIES === "true") return true;
+  if (parseBooleanSetting("FORCE_SECURE_COOKIES", process.env.FORCE_SECURE_COOKIES, false)) {
+    return true;
+  }
   const h = await headers();
   const proto =
     h.get("x-forwarded-proto") ??

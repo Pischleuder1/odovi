@@ -15,6 +15,7 @@
     "@react-pdf/renderer": "^4.5.1",
     "@odovi/core": "workspace:*",
     "@odovi/db": "workspace:*",
+    "@odovi/runtime-config": "workspace:*",
     "csv-stringify": "^6.8.1",
     "date-fns": "^4.1.0",
     "drizzle-orm": "^0.45.2",

@@ -1,5 +1,6 @@
 import { gt } from "drizzle-orm";
 import { createDb, syncState } from "@odovi/db";
+import { parseWorkerRuntimeConfig } from "@odovi/runtime-config";
 import { createTeslamateClient, probeTeslamateSchema } from "./teslamate/client.js";
 import { runSyncCycle } from "./sync/cycle.js";
 import { rematchPlaces } from "./sync/rematch.js";
@@ -27,7 +28,8 @@ async function main(): Promise<void> {
 
   switch (command) {
     case "resync": {
-      const tm = createTeslamateClient(requireEnv("TESLAMATE_DATABASE_URL"));
+      const config = parseWorkerRuntimeConfig(process.env);
+      const tm = createTeslamateClient(config.teslamateDatabaseUrl);
       await probeTeslamateSchema(tm);
 
       const fromIdx = args.indexOf("--from");
@@ -48,7 +50,11 @@ async function main(): Promise<void> {
         console.log("Alle Watermarks zurückgesetzt (voller Re-Sync).");
       }
 
-      await runSyncCycle(db, tm);
+      await runSyncCycle(db, tm, {
+        appTimezone: config.appTimezone,
+        elevationEnabled: config.elevationEnabled,
+        elevationMaxPointsPerCycle: config.elevationMaxPointsPerCycle,
+      });
       break;
     }
 

@@ -71,7 +71,7 @@ pnpm install
 pnpm dev:db                                # odovi-db :5432 + fixture teslamate-db :5433
 pnpm db:seed:teslamate                     # ~140 trips, charging, geofences (Zurich area)
 DATABASE_URL=postgres://odovi:odovi@localhost:5432/odovi pnpm db:migrate
-pnpm --filter @odovi/worker dev        # Sync loop (needs DATABASE_URL + TESLAMATE_DATABASE_URL, see .env.example)
+pnpm --filter @odovi/worker dev        # Sync loop (needs DATABASE_URL + TESLAMATE_DATABASE_URL, see .env.development.example)
 pnpm --filter @odovi/web dev           # http://localhost:3000
 ```
 
@@ -123,11 +123,15 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO odovi_ro;
 cp .env.example .env
 ```
 
-Set at least:
+The complete release contract, defaults, validation rules, and consumer mapping
+are in [`docs/runtime-configuration.md`](docs/runtime-configuration.md). Set at
+least:
 
 - `POSTGRES_PASSWORD` - password for the new Odovi-owned Postgres (required, no default)
 - `TESLAMATE_DATABASE_URL` - connection string for the `odovi_ro` role against the TeslaMate database (LAN/Tailscale host or Compose service name, see comments in `docker-compose.yml`)
-- optional `WEB_PORT` (default `3000`), `APP_TIMEZONE`, `SYNC_INTERVAL_SECONDS`, `OSRM_URL` (your own routing server for the planner)
+- optional behavior such as `WEB_PORT`, `APP_TIMEZONE`, `SYNC_INTERVAL_SECONDS`,
+  `OSRM_URL`, secure cookies, elevation, and Tesla provider settings only as
+  documented in the runtime configuration reference
 
 ### 3. Start the stack
 
@@ -135,7 +139,10 @@ Set at least:
 docker compose up -d --build
 ```
 
-This builds `apps/web` and `apps/worker`, lets the `migrate` service apply Drizzle migrations once (`restart: "no"`, it must complete successfully), and then starts `db`, `web`, and `worker` permanently (`restart: unless-stopped`).
+This validates the release configuration once, builds `apps/web` and
+`apps/worker`, lets the `migrate` service apply Drizzle migrations once
+(`restart: "no"`, it must complete successfully), and then starts `db`, `web`,
+and `worker` permanently (`restart: unless-stopped`).
 
 ### 4. First sign-in
 

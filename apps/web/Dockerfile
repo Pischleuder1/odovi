@@ -19,20 +19,23 @@ FROM base AS deps
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY packages/core/package.json packages/core/package.json
 COPY packages/db/package.json packages/db/package.json
+COPY packages/runtime-config/package.json packages/runtime-config/package.json
 COPY apps/web/package.json apps/web/package.json
 # dev/fixtures is a workspace member per pnpm-workspace.yaml; pnpm needs its
 # manifest present to resolve the lockfile even though nothing here installs it.
 COPY dev/fixtures/package.json dev/fixtures/package.json
-RUN pnpm install --frozen-lockfile --filter @odovi/web... --filter @odovi/core --filter @odovi/db
+RUN pnpm install --frozen-lockfile --filter @odovi/web... --filter @odovi/core --filter @odovi/db --filter @odovi/runtime-config
 
 # ---- build: compile core+db, then build web ----------------------------
 FROM deps AS build
 COPY packages/core packages/core
 COPY packages/db packages/db
+COPY packages/runtime-config packages/runtime-config
 COPY apps/web apps/web
 COPY tsconfig.base.json tsconfig.base.json
 RUN pnpm --filter @odovi/core build \
  && pnpm --filter @odovi/db build \
+ && pnpm --filter @odovi/runtime-config build \
  && pnpm --filter @odovi/web build
 
 # ---- runtime -------------------------------------------------------------
@@ -49,6 +52,8 @@ RUN groupadd --system --gid 1001 odovi \
 COPY --from=build --chown=odovi:odovi /repo/apps/web/.next/standalone ./
 COPY --from=build --chown=odovi:odovi /repo/apps/web/.next/static ./apps/web/.next/static
 COPY --from=build --chown=odovi:odovi /repo/apps/web/public ./apps/web/public
+COPY --from=build --chown=odovi:odovi /repo/packages/runtime-config/package.json ./packages/runtime-config/package.json
+COPY --from=build --chown=odovi:odovi /repo/packages/runtime-config/dist ./packages/runtime-config/dist
 
 USER odovi
 EXPOSE 3000
@@ -61,4 +66,4 @@ ENV HOSTNAME=0.0.0.0
 HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
   CMD node -e "fetch('http://127.0.0.1:'+(process.env.PORT||3000)+'/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
 
-CMD ["node", "apps/web/server.js"]
+CMD ["sh", "-c", "node packages/runtime-config/dist/process-check.js web && exec node apps/web/server.js"]

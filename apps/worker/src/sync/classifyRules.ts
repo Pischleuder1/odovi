@@ -13,9 +13,6 @@ export interface ClassifyRulesResult {
   applied: number;
 }
 
-// Anzeige-Zeitzone für die Wochentags-Bedingung (Konvention: Worker liest die
-// App-Timezone aus der Umgebung, Default Europe/Zurich — vgl. web lib/config.ts).
-const APP_TIMEZONE = process.env.APP_TIMEZONE ?? "Europe/Zurich";
 // Deckelt die Arbeit pro Zyklus — der nächste Tick holt den Rest.
 const BATCH_LIMIT = 500;
 
@@ -112,6 +109,7 @@ async function loadCandidateDrives(
  */
 export async function applyClassificationRules(
   db: Db,
+  appTimezone: string,
 ): Promise<ClassifyRulesResult> {
   const rules = await loadEnabledRules(db);
   if (rules.length === 0) return { applied: 0 };
@@ -126,7 +124,7 @@ export async function applyClassificationRules(
         {
           startPlaceId: drive.startPlaceId,
           endPlaceId: drive.endPlaceId,
-          weekdayIso: isoWeekday(drive.startTime, APP_TIMEZONE),
+          weekdayIso: isoWeekday(drive.startTime, appTimezone),
         },
         rules,
       );
