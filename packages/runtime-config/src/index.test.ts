@@ -96,9 +96,14 @@ describe("release configuration", () => {
   });
 
   it("diagnoses unknown and development-only settings", () => {
-    expect(unknownReleaseSettings({ ...REQUIRED, DATABASE_URL: "postgres://dev" })).toEqual([
-      "DATABASE_URL",
-    ]);
+    expect(
+      unknownReleaseSettings({
+        ...REQUIRED,
+        DATABASE_URL: "postgres://dev",
+        ODOVI_VERSION: "0.2.0-rc.1",
+        ODOVI_COMMIT_SHA: "75f5917e8750",
+      }),
+    ).toEqual(["DATABASE_URL"]);
   });
 });
 

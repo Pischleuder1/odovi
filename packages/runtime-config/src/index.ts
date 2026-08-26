@@ -504,6 +504,8 @@ const IGNORED_RUNTIME_KEYS = new Set([
   "HOSTNAME",
   "NODE_ENV",
   "NODE_VERSION",
+  "ODOVI_COMMIT_SHA",
+  "ODOVI_VERSION",
   "PATH",
   "PWD",
   "SHLVL",

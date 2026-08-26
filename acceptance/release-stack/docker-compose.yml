@@ -6,6 +6,23 @@
 # remain project-scoped so `down --volumes` cannot touch an operator stack.
 
 services:
+  config-check:
+    build:
+      context: ../..
+      dockerfile: apps/worker/Dockerfile
+      args:
+        ODOVI_VERSION: ${ODOVI_ACCEPTANCE_VERSION:?Set ODOVI_ACCEPTANCE_VERSION}
+        ODOVI_COMMIT_SHA: ${ODOVI_ACCEPTANCE_GIT_COMMIT:?Set ODOVI_ACCEPTANCE_GIT_COMMIT}
+    image: ${ODOVI_WORKER_IMAGE:?Set an exact ODOVI_WORKER_IMAGE tag}
+    command: ["node", "../../packages/runtime-config/dist/check.js"]
+    restart: "no"
+    environment:
+      POSTGRES_PASSWORD: odovi-acceptance
+      TESLAMATE_DATABASE_URL: postgres://teslamate:teslamate-acceptance@teslamate-db:5432/teslamate
+      APP_TIMEZONE: Europe/Zurich
+      SYNC_INTERVAL_SECONDS: 5
+      ELEVATION_ENABLED: "true"
+
   db:
     image: postgres:17-alpine
     restart: unless-stopped
@@ -56,12 +73,17 @@ services:
     build:
       context: ../..
       dockerfile: apps/worker/Dockerfile
+      args:
+        ODOVI_VERSION: ${ODOVI_ACCEPTANCE_VERSION:?Set ODOVI_ACCEPTANCE_VERSION}
+        ODOVI_COMMIT_SHA: ${ODOVI_ACCEPTANCE_GIT_COMMIT:?Set ODOVI_ACCEPTANCE_GIT_COMMIT}
     image: ${ODOVI_WORKER_IMAGE:?Set an exact ODOVI_WORKER_IMAGE tag}
     command: ["node", "dist/migrate.js"]
     restart: "no"
     environment:
       DATABASE_URL: postgres://odovi:odovi-acceptance@db:5432/odovi
     depends_on:
+      config-check:
+        condition: service_completed_successfully
       db:
         condition: service_healthy
     networks: [release]
@@ -70,6 +92,9 @@ services:
     build:
       context: ../..
       dockerfile: apps/web/Dockerfile
+      args:
+        ODOVI_VERSION: ${ODOVI_ACCEPTANCE_VERSION:?Set ODOVI_ACCEPTANCE_VERSION}
+        ODOVI_COMMIT_SHA: ${ODOVI_ACCEPTANCE_GIT_COMMIT:?Set ODOVI_ACCEPTANCE_GIT_COMMIT}
     image: ${ODOVI_WEB_IMAGE:?Set an exact ODOVI_WEB_IMAGE tag}
     restart: unless-stopped
     ports:
@@ -84,6 +109,8 @@ services:
       - ./egress-guard.cjs:/opt/odovi-acceptance/egress-guard.cjs:ro
       - ${ODOVI_ACCEPTANCE_EVIDENCE_DIR:?Set ODOVI_ACCEPTANCE_EVIDENCE_DIR}:/acceptance-evidence
     depends_on:
+      config-check:
+        condition: service_completed_successfully
       db:
         condition: service_healthy
       migrate:
@@ -94,6 +121,9 @@ services:
     build:
       context: ../..
       dockerfile: apps/worker/Dockerfile
+      args:
+        ODOVI_VERSION: ${ODOVI_ACCEPTANCE_VERSION:?Set ODOVI_ACCEPTANCE_VERSION}
+        ODOVI_COMMIT_SHA: ${ODOVI_ACCEPTANCE_GIT_COMMIT:?Set ODOVI_ACCEPTANCE_GIT_COMMIT}
     image: ${ODOVI_WORKER_IMAGE:?Set an exact ODOVI_WORKER_IMAGE tag}
     restart: unless-stopped
     environment:
@@ -107,6 +137,8 @@ services:
       - ./egress-guard.cjs:/opt/odovi-acceptance/egress-guard.cjs:ro
       - ${ODOVI_ACCEPTANCE_EVIDENCE_DIR:?Set ODOVI_ACCEPTANCE_EVIDENCE_DIR}:/acceptance-evidence
     depends_on:
+      config-check:
+        condition: service_completed_successfully
       db:
         condition: service_healthy
       migrate:
