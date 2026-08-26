@@ -12,6 +12,10 @@ import {
 } from "@odovi/core";
 import { locationProviderDecisions } from "@odovi/db";
 import { db } from "../db";
+import {
+  locationProviderClientConfig,
+  type LocationProviderClientConfig,
+} from "./clientConfig";
 
 const capabilities = new Set<string>(LOCATION_CAPABILITIES);
 const modes = new Set<string>(["disabled", "public", "custom"] satisfies ProviderMode[]);
@@ -44,6 +48,7 @@ export interface ProviderReviewSnapshot {
   requiresReview: boolean;
   activeCount: number;
   items: ProviderReviewItem[];
+  clientConfig: LocationProviderClientConfig;
 }
 
 function isCapability(value: string): value is LocationCapability {
@@ -141,5 +146,6 @@ export async function getProviderReviewSnapshot(): Promise<ProviderReviewSnapsho
     requiresReview: items.some((item) => item.requiresReview),
     activeCount: items.filter((item) => item.status === "active").length,
     items,
+    clientConfig: locationProviderClientConfig(policy),
   };
 }

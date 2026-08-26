@@ -172,6 +172,8 @@
     "chargeTarget": "Ladeziel",
     "chargeEstimate": "Voraussichtliche Ladezeit",
     "navigate": "Navigation öffnen",
+    "navigationDisabled": "Externe Navigation ist aus. Dein gespeicherter Roadtrip bleibt vollständig verfügbar.",
+    "activateNavigation": "Externe Navigation aktivieren",
     "previous": "Zurück",
     "next": "Weiter",
     "complete": "Ankommen",

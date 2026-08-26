@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowLeft, BatteryCharging, Check, ChevronLeft, ChevronRight, MapPin, Navigation, RotateCcw, Wifi, WifiOff } from "lucide-react";
 import type { OfflineRoadtrip } from "../(app)/journeys/[id]/OfflinePlanButton";
 import {
@@ -8,6 +8,10 @@ import {
   OFFLINE_ROADTRIP_STORAGE_KEY,
 } from "../(app)/journeys/[id]/OfflinePlanButton";
 import { buttonClasses } from "../../components/ui/Button";
+import {
+  buildExternalNavigationUrl,
+  type ExternalNavigationConfig,
+} from "../../lib/locationProviders/clientConfig";
 
 const PROGRESS_KEY = "odovi:offline-roadtrip-progress:v1";
 const LEGACY_PROGRESS_KEY = "tripatlas:offline-roadtrip-progress:v1";
@@ -16,7 +20,8 @@ type Labels = Record<
   | "title" | "emptyTitle" | "emptyHint" | "back" | "version" | "saved"
   | "nextStop" | "arrived" | "distance" | "duration" | "arrivalSoc"
   | "chargeTarget" | "chargeEstimate"
-  | "navigate" | "previous" | "next" | "complete" | "routeComplete"
+  | "navigate" | "navigationDisabled" | "activateNavigation"
+  | "previous" | "next" | "complete" | "routeComplete"
   | "reset" | "offlineReady" | "online" | "offline",
   string
 >;
@@ -27,7 +32,13 @@ function formatDuration(seconds: number): string {
   return hours > 0 ? `${hours} h ${minutes} min` : `${minutes} min`;
 }
 
-export function OfflineRoadtripCompanion({ labels }: { labels: Labels }) {
+export function OfflineRoadtripCompanion({
+  labels,
+  externalNavigation,
+}: {
+  labels: Labels;
+  externalNavigation: ExternalNavigationConfig;
+}) {
   const [trip, setTrip] = useState<OfflineRoadtrip | null>(null);
   const [currentIndex, setCurrentIndex] = useState(1);
   const [loaded, setLoaded] = useState(false);
@@ -73,10 +84,12 @@ export function OfflineRoadtripCompanion({ labels }: { labels: Labels }) {
   const charge = stop
     ? trip?.plan.charging?.stops.find((candidate) => candidate.stopId === stop.id)
     : null;
-  const mapsUrl = useMemo(() => {
-    if (!stop) return "#";
-    return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(`${stop.lat},${stop.lon}`)}`;
-  }, [stop]);
+
+  const openExternalNavigation = () => {
+    if (!stop || externalNavigation.status !== "active") return;
+    const url = buildExternalNavigationUrl(externalNavigation, stop);
+    if (url) window.open(url, "_blank", "noopener,noreferrer");
+  };
 
   return (
     <main className="min-h-dvh bg-neutral-950 px-4 pb-[calc(2rem+env(safe-area-inset-bottom))] pt-[calc(1rem+env(safe-area-inset-top))] text-white">
@@ -141,9 +154,29 @@ export function OfflineRoadtripCompanion({ labels }: { labels: Labels }) {
                     </p>
                   </div>
                 )}
-                <a href={mapsUrl} target="_blank" rel="noreferrer" className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-white px-4 py-3 font-semibold text-sky-950">
-                  <Navigation aria-hidden size={18} /> {labels.navigate}
-                </a>
+                {externalNavigation.status === "active" ? (
+                  <button
+                    type="button"
+                    data-testid="external-navigation"
+                    onClick={openExternalNavigation}
+                    className="mt-5 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-white px-4 py-3 font-semibold text-sky-950"
+                  >
+                    <Navigation aria-hidden size={18} /> {labels.navigate}
+                  </button>
+                ) : (
+                  <div
+                    data-testid="external-navigation-disabled"
+                    className="mt-5 rounded-xl border border-sky-300/30 bg-sky-950/50 p-3 text-sm text-sky-100"
+                  >
+                    <p>{labels.navigationDisabled}</p>
+                    <a
+                      href="/settings#provider-review"
+                      className="mt-2 inline-flex min-h-11 items-center font-semibold underline underline-offset-2"
+                    >
+                      {labels.activateNavigation}
+                    </a>
+                  </div>
+                )}
               </section>
             ) : null}
 

@@ -1,6 +1,7 @@
 "use client";
 import dynamic from "next/dynamic";
 import type { RoutePointTuple } from "../../../../lib/driveRoute";
+import { MapTileGate } from "../../../../components/LocationProviderClientConfig";
 
 // Leaflet touches window/document at import time, so the map must never be
 // part of the server-rendered bundle (same pattern as places/PlaceForm.tsx).
@@ -15,5 +16,9 @@ const DriveMap = dynamic(() => import("./DriveMap").then((m) => m.DriveMap), {
 });
 
 export function DriveMapLoader({ points }: { points: RoutePointTuple[] }) {
-  return <DriveMap points={points} />;
+  return (
+    <MapTileGate className="h-64 w-full sm:h-[360px]">
+      {(mapTiles) => <DriveMap points={points} mapTiles={mapTiles} />}
+    </MapTileGate>
+  );
 }

@@ -115,7 +115,10 @@ export const PUBLIC_LOCATION_PROVIDERS: Record<
     operatingLimits:
       "Ordinary interactive viewing only, with attribution and normal browser caching; no bulk download or offline prefetch.",
     disclosureVersion: LOCATION_PROVIDER_DISCLOSURE_VERSION,
-    endpoints: { tiles: "https://tile.openstreetmap.org/{z}/{x}/{y}.png" },
+    endpoints: {
+      tiles: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+      attribution: "https://www.openstreetmap.org/copyright",
+    },
   },
   addressSearch: {
     capability: "addressSearch",

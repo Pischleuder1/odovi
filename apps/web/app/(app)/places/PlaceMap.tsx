@@ -2,6 +2,11 @@
 import { useEffect, useRef } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import type { ActiveMapTileConfig } from "../../../lib/locationProviders/clientConfig";
+import {
+  addConfiguredMapTiles,
+  createConfiguredMap,
+} from "../../../lib/locationProviders/mapTiles.client";
 
 // Fallback view when no coordinates are set yet: Zürich city center.
 const FALLBACK_CENTER: [number, number] = [47.3769, 8.5417];
@@ -12,6 +17,7 @@ export interface PlaceMapProps {
   lon: number | null;
   radiusM: number;
   onChange: (lat: number, lon: number) => void;
+  mapTiles: ActiveMapTileConfig;
 }
 
 /**
@@ -21,7 +27,7 @@ export interface PlaceMapProps {
  * radius. Must be loaded via next/dynamic with ssr: false, since Leaflet
  * touches `window`/`document` at import time.
  */
-export function PlaceMap({ lat, lon, radiusM, onChange }: PlaceMapProps) {
+export function PlaceMap({ lat, lon, radiusM, onChange, mapTiles }: PlaceMapProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<L.Map | null>(null);
   const markerRef = useRef<L.Marker | null>(null);
@@ -38,15 +44,12 @@ export function PlaceMap({ lat, lon, radiusM, onChange }: PlaceMapProps) {
       ? [lat as number, lon as number]
       : FALLBACK_CENTER;
 
-    const map = L.map(containerRef.current, {
+    const map = createConfiguredMap(containerRef.current, {
       center,
       zoom: hasCoords ? 15 : FALLBACK_ZOOM,
     });
 
-    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      maxZoom: 19,
-      attribution: "&copy; OpenStreetMap contributors",
-    }).addTo(map);
+    addConfiguredMapTiles(map, mapTiles);
 
     const icon = L.divIcon({
       className: "",

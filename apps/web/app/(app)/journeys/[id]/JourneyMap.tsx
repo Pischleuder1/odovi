@@ -2,6 +2,11 @@
 import { useEffect, useRef } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import type { ActiveMapTileConfig } from "../../../../lib/locationProviders/clientConfig";
+import {
+  addConfiguredMapTiles,
+  createConfiguredMap,
+} from "../../../../lib/locationProviders/mapTiles.client";
 
 export interface JourneyMapTrack {
   driveId: number;
@@ -21,6 +26,7 @@ export interface JourneyMapProps {
   charges: JourneyMapCharge[];
   /** Journey accent color (journeys.color); falls back to Route Cobalt. */
   color?: string | null;
+  mapTiles: ActiveMapTileConfig;
 }
 
 function markerIcon(color: string, size = 14): L.DivIcon {
@@ -43,7 +49,7 @@ const CHARGE_ICON = markerIcon("#d97706", 12); // amber-600: charge stop
  * (journey color, or a neutral default) plus charge-stop markers, fit to the
  * combined bounds of everything drawn.
  */
-export function JourneyMap({ tracks, charges, color }: JourneyMapProps) {
+export function JourneyMap({ tracks, charges, color, mapTiles }: JourneyMapProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<L.Map | null>(null);
 
@@ -53,15 +59,12 @@ export function JourneyMap({ tracks, charges, color }: JourneyMapProps) {
     const drawable = tracks.filter((t) => t.points.length >= 2);
     if (drawable.length === 0 && charges.length === 0) return;
 
-    const map = L.map(containerRef.current, {
+    const map = createConfiguredMap(containerRef.current, {
       scrollWheelZoom: false,
       zoomControl: true,
     });
 
-    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      maxZoom: 19,
-      attribution: "&copy; OpenStreetMap contributors",
-    }).addTo(map);
+    addConfiguredMapTiles(map, mapTiles);
 
     const lineColor = color ?? "#3441e3"; // Odovi Route Cobalt
     const bounds = L.latLngBounds([]);

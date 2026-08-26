@@ -2,10 +2,16 @@
 import { useEffect, useRef } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import type { ActiveMapTileConfig } from "../../../../lib/locationProviders/clientConfig";
+import {
+  addConfiguredMapTiles,
+  createConfiguredMap,
+} from "../../../../lib/locationProviders/mapTiles.client";
 
 export interface ChargeMapProps {
   lat: number;
   lon: number;
+  mapTiles: ActiveMapTileConfig;
 }
 
 const CHARGE_ICON = L.divIcon({
@@ -20,7 +26,7 @@ const CHARGE_ICON = L.divIcon({
  * no react-leaflet, must be loaded via next/dynamic with ssr: false.
  * scrollWheelZoom stays off until the user clicks into the map.
  */
-export function ChargeMap({ lat, lon }: ChargeMapProps) {
+export function ChargeMap({ lat, lon, mapTiles }: ChargeMapProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<L.Map | null>(null);
 
@@ -28,15 +34,12 @@ export function ChargeMap({ lat, lon }: ChargeMapProps) {
     if (!containerRef.current || mapRef.current) return;
 
     const center: L.LatLngTuple = [lat, lon];
-    const map = L.map(containerRef.current, {
+    const map = createConfiguredMap(containerRef.current, {
       scrollWheelZoom: false,
       zoomControl: true,
     });
 
-    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      maxZoom: 19,
-      attribution: "&copy; OpenStreetMap contributors",
-    }).addTo(map);
+    addConfiguredMapTiles(map, mapTiles);
 
     L.marker(center, { icon: CHARGE_ICON }).addTo(map);
     map.setView(center, 15);
@@ -49,7 +52,7 @@ export function ChargeMap({ lat, lon }: ChargeMapProps) {
       map.remove();
       mapRef.current = null;
     };
-  }, [lat, lon]);
+  }, [lat, lon, mapTiles]);
 
   return (
     <div

@@ -172,6 +172,8 @@
     "chargeTarget": "Charging target",
     "chargeEstimate": "Estimated charge time",
     "navigate": "Open navigation",
+    "navigationDisabled": "External navigation is off. Your saved roadtrip remains fully available.",
+    "activateNavigation": "Activate external navigation",
     "previous": "Back",
     "next": "Next",
     "complete": "Arrive",

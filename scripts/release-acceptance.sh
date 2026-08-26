@@ -27,10 +27,11 @@ export ODOVI_ACCEPTANCE_READINESS_PATH="${ODOVI_ACCEPTANCE_READINESS_PATH:-/api/
 export ODOVI_ACCEPTANCE_READINESS_URL="$ODOVI_ACCEPTANCE_BASE_URL$ODOVI_ACCEPTANCE_READINESS_PATH"
 export ODOVI_EXPECT_RELEASE_IDENTITY="${ODOVI_EXPECT_RELEASE_IDENTITY:-1}"
 export ODOVI_EXPECT_PROVIDER_DISABLED_UI="${ODOVI_EXPECT_PROVIDER_DISABLED_UI:-1}"
+export ODOVI_EXPECT_MAP_PROVIDER_POLICY="${ODOVI_EXPECT_MAP_PROVIDER_POLICY:-1}"
 export ODOVI_WEB_IMAGE="${ODOVI_WEB_IMAGE:-odovi-web:$tag_version}"
 export ODOVI_WORKER_IMAGE="${ODOVI_WORKER_IMAGE:-odovi-worker:$tag_version}"
 export ODOVI_FIXTURES_IMAGE="${ODOVI_FIXTURES_IMAGE:-odovi-fixtures:$tag_version}"
-export ODOVI_ACCEPTANCE_EGRESS_ALLOWLIST="${ODOVI_ACCEPTANCE_EGRESS_ALLOWLIST:-api.open-meteo.com,archive-api.open-meteo.com,tile.openstreetmap.org,nominatim.openstreetmap.org,router.project-osrm.org}"
+export ODOVI_ACCEPTANCE_EGRESS_ALLOWLIST="${ODOVI_ACCEPTANCE_EGRESS_ALLOWLIST:-api.open-meteo.com,archive-api.open-meteo.com,tile.openstreetmap.org,nominatim.openstreetmap.org,router.project-osrm.org,www.google.com}"
 export ODOVI_ACCEPTANCE_BROWSER_EGRESS_LOG="$evidence_dir/browser-egress.ndjson"
 export ODOVI_ACCEPTANCE_SETUP_TOKEN="$setup_token"
 
@@ -146,7 +147,7 @@ run_playwright \
 export ODOVI_ACCEPTANCE_PHASE="coverage"
 run_playwright \
   --project=desktop --project=mobile \
-  tests/coverage.spec.ts
+  tests/coverage.spec.ts tests/provider-maps.spec.ts
 
 "${compose[@]}" restart web worker
 wait_for_http "$ODOVI_ACCEPTANCE_BASE_URL/api/health" "web after restart"

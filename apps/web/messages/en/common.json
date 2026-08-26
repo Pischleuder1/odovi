@@ -25,5 +25,12 @@
     "title": "No vehicle available yet",
     "hint": "Odovi has not synced a vehicle from TeslaMate yet. Check the connection and sync under More.",
     "action": "Check setup"
+  },
+  "locationProviders": {
+    "mapTiles": {
+      "title": "Map background is off",
+      "description": "Routes, places, and journey details remain available without sending the visible area to a map provider.",
+      "activate": "Activate map background"
+    }
   }
 }

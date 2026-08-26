@@ -1,5 +1,6 @@
 "use client";
 import dynamic from "next/dynamic";
+import { MapTileGate } from "../../../../components/LocationProviderClientConfig";
 
 const ChargeMap = dynamic(() => import("./ChargeMap").then((m) => m.ChargeMap), {
   ssr: false,
@@ -9,5 +10,9 @@ const ChargeMap = dynamic(() => import("./ChargeMap").then((m) => m.ChargeMap), 
 });
 
 export function ChargeMapLoader({ lat, lon }: { lat: number; lon: number }) {
-  return <ChargeMap lat={lat} lon={lon} />;
+  return (
+    <MapTileGate className="h-48 w-full sm:h-56">
+      {(mapTiles) => <ChargeMap lat={lat} lon={lon} mapTiles={mapTiles} />}
+    </MapTileGate>
+  );
 }

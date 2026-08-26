@@ -3,9 +3,15 @@ import { useEffect, useRef } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import type { RoutePointTuple } from "../../../../lib/driveRoute";
+import type { ActiveMapTileConfig } from "../../../../lib/locationProviders/clientConfig";
+import {
+  addConfiguredMapTiles,
+  createConfiguredMap,
+} from "../../../../lib/locationProviders/mapTiles.client";
 
 export interface DriveMapProps {
   points: RoutePointTuple[];
+  mapTiles: ActiveMapTileConfig;
 }
 
 function markerIcon(color: string): L.DivIcon {
@@ -29,7 +35,7 @@ const END_ICON = markerIcon("#dc2626"); // red-600: end
  * scrollWheelZoom stays off until the user clicks into the map, so the
  * page doesn't get scroll-hijacked while scrolling past the card.
  */
-export function DriveMap({ points }: DriveMapProps) {
+export function DriveMap({ points, mapTiles }: DriveMapProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<L.Map | null>(null);
 
@@ -39,15 +45,12 @@ export function DriveMap({ points }: DriveMapProps) {
 
     const latLngs: L.LatLngTuple[] = points.map((p) => [p[0], p[1]]);
 
-    const map = L.map(containerRef.current, {
+    const map = createConfiguredMap(containerRef.current, {
       scrollWheelZoom: false,
       zoomControl: true,
     });
 
-    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      maxZoom: 19,
-      attribution: "&copy; OpenStreetMap contributors",
-    }).addTo(map);
+    addConfiguredMapTiles(map, mapTiles);
 
     const polyline = L.polyline(latLngs, {
       color: "#3441e3", // Odovi Route Cobalt
