@@ -3,6 +3,7 @@
 import { useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import type { Bin } from "@odovi/core";
+import styles from "./Insights.module.css";
 
 // Gemeinsame SVG-Geometrie, an DriveChart/ChargeChart (M18/M19) angelehnt:
 // 600×200-viewBox, dark-mode-aware currentColor-Klassen, min/max-Achsenlabels.
@@ -95,7 +96,7 @@ export function ScatterBinnedChart({
       <svg
         ref={svgRef}
         viewBox={`0 0 ${CHART_WIDTH} ${CHART_HEIGHT}`}
-        className="h-52 w-full touch-none"
+        className={styles.chart}
         role="img"
         aria-label={ariaLabel}
         onMouseLeave={() => setHover(null)}
@@ -154,7 +155,7 @@ export function ScatterBinnedChart({
             cx={toX(p.x)}
             cy={toY(p.y)}
             r={2}
-            className="fill-neutral-400/40 dark:fill-neutral-500/40"
+            className="fill-sky-600/15 dark:fill-sky-500/20"
           />
         ))}
 
@@ -163,7 +164,7 @@ export function ScatterBinnedChart({
           <path
             d={linePath}
             fill="none"
-            className="text-blue-600 dark:text-blue-400"
+            className="text-sky-700 dark:text-sky-400"
             stroke="currentColor"
             strokeWidth={2}
             strokeLinejoin="round"
@@ -177,7 +178,7 @@ export function ScatterBinnedChart({
             cx={toX(b.xCenter)}
             cy={toY(b.meanY)}
             r={hover === i ? 5 : 3.5}
-            className="text-blue-600 dark:text-blue-400"
+            className="text-sky-700 dark:text-sky-400"
             fill="currentColor"
             stroke="white"
             strokeWidth={1}
@@ -187,16 +188,12 @@ export function ScatterBinnedChart({
       </svg>
 
       {/* Tooltip-Zeile: Bin-Mittel bei Hover, sonst dezente Legende. */}
-      <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
-        <span className="inline-flex items-center gap-1.5 text-blue-700 dark:text-blue-400">
-          <span
-            aria-hidden
-            className="inline-block h-2 w-2 rounded-full bg-blue-600 dark:bg-blue-400"
-          />
+      <div className={styles.legend}>
+        <span className={styles.legendRoute}>
           {t("charts.scatterLegend", { step: xStep, unit: xUnit })}
         </span>
         {hover != null && bins[hover] && (
-          <span className="tabular-nums text-neutral-600 dark:text-neutral-300">
+          <span className={styles.legendValue}>
             {numFmt.format(Math.round(bins[hover]!.xCenter))} {xUnit}:{" "}
             {numFmt.format(Math.round(bins[hover]!.meanY))} {yUnit} ·{" "}
             {t("driveCountLabel", { count: bins[hover]!.count })}
@@ -240,12 +237,14 @@ export function MonthChart({ months }: { months: MonthDatum[] }) {
   const linePath = months
     .map((m, i) => `${i === 0 ? "M" : "L"} ${barX(i).toFixed(1)} ${consToY(m.meanConsumption).toFixed(1)}`)
     .join(" ");
+  const showMonthLabel = (index: number) =>
+    n <= 16 || index === 0 || index === n - 1 || (index % 3 === 0 && index < n - 2);
 
   return (
     <div>
       <svg
         viewBox={`0 0 ${CHART_WIDTH} ${CHART_HEIGHT}`}
-        className="h-52 w-full touch-none"
+        className={styles.monthChart}
         role="img"
         aria-label={t("charts.monthChartAriaLabel")}
         onMouseLeave={() => setHover(null)}
@@ -265,7 +264,7 @@ export function MonthChart({ months }: { months: MonthDatum[] }) {
           );
         })}
 
-        {/* km-Balken (emerald) */}
+        {/* km-Balken (Cobalt) */}
         {months.map((m, i) => {
           const y = kmToY(m.km);
           return (
@@ -278,19 +277,19 @@ export function MonthChart({ months }: { months: MonthDatum[] }) {
               rx={3}
               className={
                 hover === i
-                  ? "fill-emerald-500 dark:fill-emerald-400"
-                  : "fill-emerald-500/70 dark:fill-emerald-400/70"
+                  ? "fill-violet-600 dark:fill-violet-400"
+                  : "fill-violet-600/70 dark:fill-violet-500/70"
               }
               onMouseEnter={() => setHover(i)}
             />
           );
         })}
 
-        {/* Verbrauchslinie (blau) */}
+        {/* Verbrauchslinie (Glacier) */}
         <path
           d={linePath}
           fill="none"
-          className="text-blue-600 dark:text-blue-400"
+          className="text-sky-700 dark:text-sky-400"
           stroke="currentColor"
           strokeWidth={2}
           strokeLinejoin="round"
@@ -302,7 +301,7 @@ export function MonthChart({ months }: { months: MonthDatum[] }) {
             cx={barX(i)}
             cy={consToY(m.meanConsumption)}
             r={hover === i ? 5 : 3.5}
-            className="text-blue-600 dark:text-blue-400"
+            className="text-sky-700 dark:text-sky-400"
             fill="currentColor"
             stroke="white"
             strokeWidth={1}
@@ -316,7 +315,7 @@ export function MonthChart({ months }: { months: MonthDatum[] }) {
           y={PADDING.top}
           textAnchor="end"
           dominantBaseline="hanging"
-          className="fill-emerald-700 text-[9px] dark:fill-emerald-400"
+          className="fill-violet-700 text-[9px] dark:fill-violet-400"
         >
           {numFmt.format(kmMax)} km
         </text>
@@ -328,37 +327,37 @@ export function MonthChart({ months }: { months: MonthDatum[] }) {
             y={i === 0 ? PADDING.top : PLOT_BOTTOM}
             textAnchor="end"
             dominantBaseline={i === 0 ? "hanging" : "auto"}
-            className="fill-blue-700 text-[9px] dark:fill-blue-400"
+            className="fill-sky-700 text-[9px] dark:fill-sky-400"
           >
             {numFmt.format(val)}
           </text>
         ))}
 
         {/* Monatslabels */}
-        {months.map((m, i) => (
-          <text
-            key={`ml-${i}`}
-            x={barX(i)}
-            y={PLOT_BOTTOM + 14}
-            textAnchor="middle"
-            className="fill-neutral-500 text-[9px] dark:fill-neutral-400"
-          >
-            {m.label}
-          </text>
-        ))}
+        {months.map((m, i) =>
+          showMonthLabel(i) ? (
+            <text
+              key={`ml-${i}`}
+              x={barX(i)}
+              y={PLOT_BOTTOM + 14}
+              textAnchor="middle"
+              className="fill-neutral-500 text-[9px] dark:fill-neutral-400"
+            >
+              {m.label}
+            </text>
+          ) : null,
+        )}
       </svg>
 
-      <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
-        <span className="inline-flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400">
-          <span aria-hidden className="inline-block h-2 w-2 rounded-sm bg-emerald-500 dark:bg-emerald-400" />
+      <div className={styles.legend}>
+        <span className={styles.legendCobalt}>
           km
         </span>
-        <span className="inline-flex items-center gap-1.5 text-blue-700 dark:text-blue-400">
-          <span aria-hidden className="inline-block h-2 w-2 rounded-full bg-blue-600 dark:bg-blue-400" />
+        <span className={styles.legendRoute}>
           {t("charts.monthChartConsumptionLegend")}
         </span>
         {hover != null && months[hover] && (
-          <span className="tabular-nums text-neutral-600 dark:text-neutral-300">
+          <span className={styles.legendValue}>
             {months[hover]!.label}: {numFmt.format(Math.round(months[hover]!.km))} km ·{" "}
             {numFmt.format(Math.round(months[hover]!.meanConsumption))} Wh/km ·{" "}
             {t("driveCountLabel", { count: months[hover]!.driveCount })}
@@ -391,7 +390,7 @@ export function WeekdayChart({ days }: { days: WeekdayDatum[] }) {
     <div>
       <svg
         viewBox={`0 0 ${CHART_WIDTH} ${CHART_HEIGHT}`}
-        className="h-52 w-full touch-none"
+        className={styles.weekdayChart}
         role="img"
         aria-label={t("charts.weekdayChartAriaLabel")}
         onMouseLeave={() => setHover(null)}
@@ -434,8 +433,8 @@ export function WeekdayChart({ days }: { days: WeekdayDatum[] }) {
               rx={3}
               className={
                 hover === i
-                  ? "fill-amber-500 dark:fill-amber-400"
-                  : "fill-amber-500/70 dark:fill-amber-400/70"
+                  ? "fill-violet-600 dark:fill-violet-400"
+                  : "fill-violet-600/70 dark:fill-violet-500/70"
               }
               onMouseEnter={() => setHover(i)}
             />
@@ -463,13 +462,12 @@ export function WeekdayChart({ days }: { days: WeekdayDatum[] }) {
         ))}
       </svg>
 
-      <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
-        <span className="inline-flex items-center gap-1.5 text-amber-700 dark:text-amber-400">
-          <span aria-hidden className="inline-block h-2 w-2 rounded-sm bg-amber-500 dark:bg-amber-400" />
+      <div className={styles.legend}>
+        <span className={styles.legendCobalt}>
           {t("charts.weekdayChartLegend")}
         </span>
         {hover != null && days[hover] && (
-          <span className="tabular-nums text-neutral-600 dark:text-neutral-300">
+          <span className={styles.legendValue}>
             {days[hover]!.label}: {numFmt.format(Math.round(days[hover]!.km))} km ·{" "}
             {t("driveCountLabel", { count: days[hover]!.count })}
           </span>
@@ -508,10 +506,10 @@ export function ShortTripDonut({
       : null;
 
   return (
-    <div className="flex flex-wrap items-center gap-6">
+    <div className={styles.donutLayout}>
       <svg
         viewBox="0 0 120 120"
-        className="h-32 w-32 shrink-0 -rotate-90"
+        className={styles.donut}
         role="img"
         aria-label={t("charts.shortTripAriaLabel", { pct })}
       >
@@ -531,7 +529,7 @@ export function ShortTripDonut({
           strokeWidth={14}
           strokeLinecap="round"
           strokeDasharray={`${dash} ${C - dash}`}
-          className="text-orange-500 dark:text-orange-400"
+          className={styles.donutArc}
           stroke="currentColor"
         />
         <text
@@ -546,21 +544,21 @@ export function ShortTripDonut({
         </text>
       </svg>
 
-      <div className="min-w-0 flex-1 space-y-2 text-sm">
-        <p className="text-neutral-700 dark:text-neutral-300">
+      <div className={styles.donutCopy}>
+        <p>
           <span className="font-semibold tabular-nums">{shortCount}</span>{" "}
           {t("charts.shortTripOf")}{" "}
           <span className="tabular-nums">{totalCount}</span> {t("charts.shortTripTail")}
         </p>
         {shortMeanConsumption != null && overallMeanConsumption != null && (
-          <div className="flex flex-wrap gap-x-6 gap-y-1">
-            <span className="text-neutral-500 dark:text-neutral-400">
+          <div className={styles.donutStats}>
+            <span>
               {t("charts.avgShortTrip")}{" "}
               <span className="font-medium tabular-nums text-neutral-900 dark:text-neutral-100">
                 {numFmt.format(Math.round(shortMeanConsumption))} Wh/km
               </span>
             </span>
-            <span className="text-neutral-500 dark:text-neutral-400">
+            <span>
               {t("charts.avgOverall")}{" "}
               <span className="font-medium tabular-nums text-neutral-900 dark:text-neutral-100">
                 {numFmt.format(Math.round(overallMeanConsumption))} Wh/km
@@ -569,7 +567,7 @@ export function ShortTripDonut({
           </div>
         )}
         {surplus != null && surplus > 0.01 && (
-          <p className="text-orange-700 dark:text-orange-400">
+          <p className={styles.surplus}>
             {t("charts.surplusPrefix")}{" "}
             <span className="font-semibold tabular-nums">
               +{Math.round(surplus * 100)}%

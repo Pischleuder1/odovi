@@ -2,6 +2,7 @@
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import type { Vehicle } from "../../../lib/queries";
+import styles from "./Insights.module.css";
 
 /** Fahrzeug-Umschalter — Pass-through über ?vehicle= (wie Kalender/Tag). */
 export function InsightsVehicleSwitcher({
@@ -18,7 +19,7 @@ export function InsightsVehicleSwitcher({
       aria-label={t("vehicleSwitcherLabel")}
       value={current}
       onChange={(e) => router.push(`/insights?vehicle=${e.target.value}`)}
-      className="rounded-lg border border-neutral-300 bg-white px-3 py-1.5 text-sm text-neutral-900 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100"
+      className={styles.vehicleSwitcher}
     >
       {vehicles.map((v) => (
         <option key={v.id} value={v.id}>
