@@ -59,26 +59,69 @@ test("provider activation uses direct, touch-sized controls", async ({ page }) =
   await expect(providerChoices).toHaveCount(0);
 });
 
-test("manual language selection persists", async ({ page }, testInfo) => {
+test("manual language selection persists", async ({ page }) => {
   await page.goto("/login");
   await page.getByRole("button", { name: "EN", exact: true }).click();
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await expect(page.locator('meta[name="description"]')).toHaveAttribute(
+    "content",
+    /trip logbook/i,
+  );
+  await expect.poll(async () => {
+    const response = await page.request.get("/manifest.webmanifest");
+    return (await response.json()) as { description?: string; lang?: string };
+  }).toMatchObject({ description: expect.stringMatching(/trip logbook/i), lang: "en" });
   await page.reload();
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
   await page.getByRole("button", { name: "DE", exact: true }).click();
   await expect(page.locator("html")).toHaveAttribute("lang", "de");
+  await expect(page.locator('meta[name="description"]')).toHaveAttribute(
+    "content",
+    /Fahrtenarchiv/i,
+  );
+  await expect.poll(async () => {
+    const response = await page.request.get("/manifest.webmanifest");
+    return (await response.json()) as { description?: string; lang?: string };
+  }).toMatchObject({ description: expect.stringMatching(/Fahrtenarchiv/i), lang: "de" });
+  await page.reload();
+  await expect(page.locator("html")).toHaveAttribute("lang", "de");
+});
 
-  if (process.env.ODOVI_EXPECT_BROWSER_LOCALE === "1") {
-    await page.context().clearCookies();
-    await page.reload();
-    const expected = testInfo.project.name === "mobile" ? "de" : "en";
-    await expect(page.locator("html")).toHaveAttribute("lang", expected);
-  } else {
+test("browser language selects German and otherwise falls back to English", async ({
+  browser,
+}, testInfo) => {
+  test.skip(testInfo.project.name !== "desktop", "one exact negotiation run is sufficient");
+
+  if (process.env.ODOVI_EXPECT_BROWSER_LOCALE !== "1") {
     noteDeferredContract(
       testInfo,
       "#29",
       "Manual persistence is covered; browser-language detection and English fallback follow in #29.",
     );
+    return;
+  }
+
+  for (const { browserLocale, expected } of [
+    { browserLocale: "de-DE", expected: "de" },
+    { browserLocale: "fr-FR", expected: "en" },
+  ]) {
+    const context = await browser.newContext({
+      baseURL: process.env.ODOVI_ACCEPTANCE_BASE_URL,
+      locale: browserLocale,
+    });
+    await installBrowserEgressGuard(context);
+    const freshPage = await context.newPage();
+    await freshPage.goto("/login");
+    await expect(freshPage.locator("html")).toHaveAttribute("lang", expected);
+
+    if (browserLocale === "de-DE") {
+      await freshPage.getByRole("button", { name: "EN", exact: true }).click();
+      await expect(freshPage.locator("html")).toHaveAttribute("lang", "en");
+      await freshPage.reload();
+      await expect(freshPage.locator("html")).toHaveAttribute("lang", "en");
+    }
+
+    await context.close();
   }
 });
 

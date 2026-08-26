@@ -1,15 +1,17 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
+import { getLocale } from "next-intl/server";
 import { validateSession } from "../../lib/auth/session";
 import { getVehicles } from "../../lib/queries";
 import { BottomNav, SideNav } from "../../components/Nav";
 import { ThemeToggle, type ThemeChoice } from "../../components/ThemeToggle";
-import { LocaleSwitcher, type Locale } from "../../components/LocaleSwitcher";
+import { LocaleSwitcher } from "../../components/LocaleSwitcher";
 import { BrandWordmark } from "../../components/BrandWordmark";
 import { getProviderReviewSnapshot } from "../../lib/locationProviders/policy";
 import { ProviderReviewNotice } from "./ProviderReviewNotice";
 import { LocationProviderClientConfigProvider } from "../../components/LocationProviderClientConfig";
+import { DEFAULT_LOCALE, isLocale } from "../../lib/locale";
 
 export const dynamic = "force-dynamic";
 
@@ -27,17 +29,13 @@ export default async function AppLayout({
   ]);
   const vehicleName = vehicles[0]?.displayName ?? "—";
 
-  const cookieStore = await cookies();
+  const [cookieStore, requestLocale] = await Promise.all([cookies(), getLocale()]);
+  const locale = isLocale(requestLocale) ? requestLocale : DEFAULT_LOCALE;
   const cookieTheme =
     cookieStore.get("odovi_theme")?.value ??
     cookieStore.get("tripatlas_theme")?.value;
   const theme: ThemeChoice =
     cookieTheme === "light" || cookieTheme === "dark" ? cookieTheme : "system";
-  const cookieLocale =
-    cookieStore.get("odovi_locale")?.value ??
-    cookieStore.get("tripatlas_locale")?.value;
-  const locale: Locale = cookieLocale === "en" ? "en" : "de";
-
   return (
     <LocationProviderClientConfigProvider config={providerReview.clientConfig}>
       <div className="min-h-dvh bg-neutral-50 text-neutral-900 md:flex dark:bg-neutral-950 dark:text-neutral-100">
