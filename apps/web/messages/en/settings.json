@@ -220,11 +220,19 @@
   "loggingOut": "Logging out…",
   "diagnostics": {
     "title": "Diagnostics",
+    "operationalStatus": {
+      "healthy": "Odovi is ready",
+      "degraded": "Odovi is ready with limited optional or synchronization functions",
+      "not_ready": "Odovi is not ready"
+    },
     "db": "Odovi database",
     "dbReachable": "reachable",
     "dbUnreachableFallback": "not reachable",
+    "migrations": "Database migrations current",
+    "protectedApplication": "Protected application available",
     "workerSync": "Worker / sync",
     "empty": "No sync data available.",
+    "rowFailure": "The last run failed. Recovery steps are shown below; technical details remain in the container logs.",
     "lastSuccess": "last success {time}",
     "neverSuccessful": "never successful",
     "badges": {
@@ -237,7 +245,11 @@
       "drives": "Drives",
       "charges": "Charging sessions",
       "parks": "Parking sessions",
-      "vehicles": "Vehicles"
+      "vehicles": "Vehicles",
+      "worker": "Worker heartbeat",
+      "schema": "TeslaMate schema",
+      "elevation": "Elevation provider",
+      "driveWeather": "Weather provider"
     },
     "teslamateTest": {
       "title": "TeslaMate direct test",
@@ -248,14 +260,22 @@
       "unknownError": "Unknown error while testing.",
       "envNotSetMessage": "TESLAMATE_DATABASE_URL is not set in the web container. That's fine in normal operation — only the worker needs it.",
       "successMessage": "Connection successful — {count} drives found in the TeslaMate database.",
-      "unknownConnectionError": "Unknown error connecting."
+      "unknownConnectionError": "Unknown error connecting.",
+      "connectionFailed": "TeslaMate is not reachable from the web container. Check the database container or host, network and TESLAMATE_DATABASE_URL.",
+      "authenticationFailed": "TeslaMate rejected the database login. Check the documented read-only user and password in TESLAMATE_DATABASE_URL.",
+      "timeout": "The TeslaMate connection timed out. Check the host, Docker network, firewall and database availability."
     },
     "hints": {
       "dbUnreachable": "The Odovi database is not reachable. Is the db container running? Is DATABASE_URL correctly set in the web container?",
       "neverSynced": "Never synced yet. Is the worker container running? Is TESLAMATE_DATABASE_URL set in the worker?",
       "someNeverSynced": "At least one area has never synced successfully. Check the worker logs: docker compose logs worker.",
       "stale": "The last successful sync was a while ago. Is the worker container still running? Check the docker logs: docker compose logs worker.",
-      "runFailed": "At least one sync run failed — see the error message below the relevant row."
+      "runFailed": "At least one sync run failed — see the error message below the relevant row.",
+      "migrationsIncomplete": "Database migrations are incomplete. Run docker compose up migrate, wait for it to finish successfully, then restart web and worker.",
+      "protectedUnavailable": "The protected application schema is unavailable. Check docker compose logs migrate and restore the database from a verified backup if migration failed part-way.",
+      "teslamateUnavailable": "TeslaMate could not be checked. Confirm that its database is running and TESLAMATE_DATABASE_URL in the worker uses the documented read-only role, then restart the worker.",
+      "teslamateIncompatible": "The connected TeslaMate schema is outside the supported range. Check the installed TeslaMate version against the release notes before restarting the worker.",
+      "optionalProviderUnavailable": "An activated map, search, routing, weather or elevation provider is unavailable. The Core Archive remains usable. Check internet/DNS and the provider endpoint or disable that capability under Provider Review."
     }
   },
   "errors": {

@@ -1,4 +1,14 @@
 {
+  "recovery": {
+    "eyebrow": "Odovi is not ready",
+    "title": "The local application cannot be served right now",
+    "description": "Your archive has not been deleted. A required local service or database migration is unavailable.",
+    "database": "Check that the database container is running: docker compose ps",
+    "migrations": "Run the migration service and wait for success: docker compose up migrate",
+    "logs": "If the problem remains, inspect: docker compose logs db migrate web",
+    "retry": "Try again",
+    "status": "Open readiness status"
+  },
   "theme": {
     "light": "Light",
     "dark": "Dark",

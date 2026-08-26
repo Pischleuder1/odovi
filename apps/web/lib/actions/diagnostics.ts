@@ -2,6 +2,7 @@
 import postgres from "postgres";
 import { getTranslations } from "next-intl/server";
 import { validateSession } from "../auth/session";
+import { diagnosticErrorCode } from "../readiness-model";
 
 export interface TeslamateTestResult {
   ok: boolean;
@@ -44,10 +45,16 @@ export async function testTeslamateConnection(): Promise<TeslamateTestResult> {
       }),
     };
   } catch (err) {
+    const code = diagnosticErrorCode(err);
+    const key =
+      code === "authentication_failed"
+        ? "diagnostics.teslamateTest.authenticationFailed"
+        : code === "timeout"
+          ? "diagnostics.teslamateTest.timeout"
+          : "diagnostics.teslamateTest.connectionFailed";
     return {
       ok: false,
-      message:
-        err instanceof Error ? err.message : t("diagnostics.teslamateTest.unknownConnectionError"),
+      message: t(key),
     };
   } finally {
     if (sql) await sql.end({ timeout: 1 });

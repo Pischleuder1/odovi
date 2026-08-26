@@ -34,6 +34,7 @@ const manifest = {
     composeLogs: "compose.log",
     imageInspect: "image-inspect.json",
     egressSummary: "egress-summary.json",
+    readinessStates: "readiness-states.ndjson",
     playwrightResults: [
       "playwright-journey.json",
       "playwright-coverage.json",

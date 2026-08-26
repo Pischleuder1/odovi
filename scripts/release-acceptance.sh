@@ -23,7 +23,7 @@ export ODOVI_ACCEPTANCE_PROJECT="$project"
 export ODOVI_ACCEPTANCE_PORT="$port"
 export ODOVI_ACCEPTANCE_EVIDENCE_DIR="$evidence_dir"
 export ODOVI_ACCEPTANCE_BASE_URL="http://127.0.0.1:$port"
-export ODOVI_ACCEPTANCE_READINESS_PATH="${ODOVI_ACCEPTANCE_READINESS_PATH:-/api/health}"
+export ODOVI_ACCEPTANCE_READINESS_PATH="${ODOVI_ACCEPTANCE_READINESS_PATH:-/api/ready}"
 export ODOVI_ACCEPTANCE_READINESS_URL="$ODOVI_ACCEPTANCE_BASE_URL$ODOVI_ACCEPTANCE_READINESS_PATH"
 export ODOVI_EXPECT_RELEASE_IDENTITY="${ODOVI_EXPECT_RELEASE_IDENTITY:-1}"
 export ODOVI_EXPECT_BROWSER_LOCALE="${ODOVI_EXPECT_BROWSER_LOCALE:-1}"
@@ -32,7 +32,7 @@ export ODOVI_EXPECT_MAP_PROVIDER_POLICY="${ODOVI_EXPECT_MAP_PROVIDER_POLICY:-1}"
 export ODOVI_WEB_IMAGE="${ODOVI_WEB_IMAGE:-odovi-web:$tag_version}"
 export ODOVI_WORKER_IMAGE="${ODOVI_WORKER_IMAGE:-odovi-worker:$tag_version}"
 export ODOVI_FIXTURES_IMAGE="${ODOVI_FIXTURES_IMAGE:-odovi-fixtures:$tag_version}"
-export ODOVI_ACCEPTANCE_EGRESS_ALLOWLIST="${ODOVI_ACCEPTANCE_EGRESS_ALLOWLIST:-api.open-meteo.com,archive-api.open-meteo.com,tile.openstreetmap.org,nominatim.openstreetmap.org,router.project-osrm.org,www.google.com}"
+export ODOVI_ACCEPTANCE_EGRESS_ALLOWLIST="${ODOVI_ACCEPTANCE_EGRESS_ALLOWLIST:-api.open-meteo.com,archive-api.open-meteo.com,tile.openstreetmap.org,nominatim.openstreetmap.org,router.project-osrm.org,www.google.com,controlled-tiles.invalid}"
 export ODOVI_ACCEPTANCE_BROWSER_EGRESS_LOG="$evidence_dir/browser-egress.ndjson"
 export ODOVI_ACCEPTANCE_SETUP_TOKEN="$setup_token"
 
@@ -73,6 +73,41 @@ wait_for_http() {
     sleep 2
   done
   echo "Timed out waiting for $label at $url" >&2
+  return 1
+}
+
+assert_readiness_state() {
+  local expected="$1"
+  local label="$2"
+  node --input-type=module - "$ODOVI_ACCEPTANCE_READINESS_URL" "$expected" "$label" \
+    "$evidence_dir/readiness-states.ndjson" <<'NODE'
+import fs from "node:fs";
+const [url, expected, label, evidence] = process.argv.slice(2);
+const response = await fetch(url, { signal: AbortSignal.timeout(15_000) });
+const body = await response.json();
+const expectedHttp = expected === "not_ready" ? 503 : 200;
+if (response.status !== expectedHttp || body.status !== expected) {
+  throw new Error(
+    `${label}: expected ${expected}/${expectedHttp}, got ${body.status}/${response.status}`,
+  );
+}
+fs.appendFileSync(
+  evidence,
+  `${JSON.stringify({ label, expected, httpStatus: response.status, body })}\n`,
+);
+NODE
+}
+
+wait_for_readiness_state() {
+  local expected="$1"
+  local label="$2"
+  for ((i = 1; i <= 60; i++)); do
+    if assert_readiness_state "$expected" "$label" >/dev/null 2>&1; then
+      return 0
+    fi
+    sleep 2
+  done
+  echo "Timed out waiting for readiness state '$expected' ($label)" >&2
   return 1
 }
 
@@ -153,11 +188,59 @@ run_playwright \
 "${compose[@]}" restart web worker
 wait_for_http "$ODOVI_ACCEPTANCE_BASE_URL/api/health" "web after restart"
 wait_for_http "$ODOVI_ACCEPTANCE_READINESS_URL" "configured readiness contract"
+wait_for_readiness_state "healthy" "healthy-after-restart"
 
 export ODOVI_ACCEPTANCE_PHASE="restart"
 run_playwright \
   --project=desktop \
   tests/restart.spec.ts
+
+# Worker, TeslaMate and optional providers degrade the product without making
+# the Core Archive unavailable. Each failure is exercised independently.
+"${compose[@]}" stop worker
+"${compose[@]}" exec -T db psql -v ON_ERROR_STOP=1 -U odovi -d odovi -c \
+  "update sync_state set last_status='ok', last_success_at=now()-interval '10 minutes' where source='odovi' and entity='worker'" >/dev/null
+assert_readiness_state "degraded" "worker-stale"
+"${compose[@]}" start worker
+wait_for_readiness_state "healthy" "worker-recovered"
+
+"${compose[@]}" exec -T db psql -v ON_ERROR_STOP=1 -U odovi -d odovi -c \
+  "insert into sync_state(source,entity,last_run_at,last_status,last_error,rows_upserted) values ('location_provider','acceptance_outage',now(),'error','upstream_unavailable',0) on conflict (source,entity) do update set last_run_at=excluded.last_run_at,last_status=excluded.last_status,last_error=excluded.last_error" >/dev/null
+assert_readiness_state "degraded" "optional-provider-outage"
+"${compose[@]}" exec -T db psql -v ON_ERROR_STOP=1 -U odovi -d odovi -c \
+  "delete from sync_state where source='location_provider' and entity='acceptance_outage'" >/dev/null
+wait_for_readiness_state "healthy" "optional-provider-recovered"
+
+"${compose[@]}" exec -T db psql -v ON_ERROR_STOP=1 -U odovi -d odovi -c \
+  "update sync_state set last_run_at=now(),last_status='error',last_error='incompatible_schema' where source='teslamate' and entity='schema'" >/dev/null
+assert_readiness_state "degraded" "teslamate-schema-incompatible"
+"${compose[@]}" exec -T db psql -v ON_ERROR_STOP=1 -U odovi -d odovi -c \
+  "update sync_state set last_run_at=now(),last_success_at=now(),last_status='ok',last_error=null where source='teslamate' and entity='schema'" >/dev/null
+wait_for_readiness_state "healthy" "teslamate-schema-recovered"
+
+# Missing migration evidence and a missing protected-app table are required
+# failures: readiness is 503 while process liveness remains 200.
+"${compose[@]}" exec -T db psql -v ON_ERROR_STOP=1 -U odovi -d odovi -c \
+  "update drizzle.__drizzle_migrations set created_at=0 where created_at=(select max(created_at) from drizzle.__drizzle_migrations)" >/dev/null
+assert_readiness_state "not_ready" "migration-incomplete"
+wait_for_http "$ODOVI_ACCEPTANCE_BASE_URL/api/health" "liveness during incomplete migration"
+"${compose[@]}" exec -T db psql -v ON_ERROR_STOP=1 -U odovi -d odovi -c \
+  "update drizzle.__drizzle_migrations set created_at=1787776816727 where created_at=0" >/dev/null
+wait_for_readiness_state "healthy" "migration-recovered"
+
+"${compose[@]}" exec -T db psql -v ON_ERROR_STOP=1 -U odovi -d odovi -c \
+  "alter table users rename to users_readiness_test" >/dev/null
+assert_readiness_state "not_ready" "protected-application-unavailable"
+wait_for_http "$ODOVI_ACCEPTANCE_BASE_URL/api/health" "liveness without protected application"
+"${compose[@]}" exec -T db psql -v ON_ERROR_STOP=1 -U odovi -d odovi -c \
+  "alter table users_readiness_test rename to users" >/dev/null
+wait_for_readiness_state "healthy" "protected-application-recovered"
+
+"${compose[@]}" stop db
+wait_for_http "$ODOVI_ACCEPTANCE_BASE_URL/api/health" "liveness without database"
+assert_readiness_state "not_ready" "database-unavailable"
+"${compose[@]}" start db
+wait_for_readiness_state "healthy" "database-recovered"
 
 node "$repo_root/acceptance/release-stack/verify-egress.mjs" \
   "$evidence_dir/container-egress.ndjson" \

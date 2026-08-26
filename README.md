@@ -157,6 +157,37 @@ This validates the release configuration once, builds `apps/web` and
 (`restart: "no"`, it must complete successfully), and then starts `db`, `web`,
 and `worker` permanently (`restart: unless-stopped`).
 
+### Operational status and recovery
+
+Odovi exposes two intentionally different unauthenticated probes:
+
+```bash
+curl -fsS http://localhost:${WEB_PORT:-3000}/api/health  # process liveness only
+curl -fsS http://localhost:${WEB_PORT:-3000}/api/ready   # product readiness
+```
+
+`/api/health` stays healthy while the HTTP process runs. `/api/ready` returns
+HTTP 503 (`not_ready`) when the Odovi database, required migration, or protected
+application schema is unavailable. A stopped/stale worker, incompatible or
+unreachable TeslaMate schema, or activated optional provider outage returns
+HTTP 200 with `degraded`: the Core Archive remains available while sync or the
+named optional capability needs attention. The public response contains stable
+codes and timestamps, never connection strings or raw upstream errors.
+
+Open **More → Diagnostics** for localized recovery steps. Useful first checks:
+
+```bash
+docker compose ps
+docker compose logs db migrate web worker
+docker compose up migrate
+docker compose up -d web worker
+```
+
+Do not rerun or manually edit migrations before taking a verified database
+backup. Optional weather, map, search, routing and elevation failures do not
+require restoring the database; check internet/DNS and the activated provider,
+or disable that capability under Provider Review.
+
 ### 4. First sign-in
 
 Generate a short-lived setup token on the Odovi host, copy it into `.env`, and

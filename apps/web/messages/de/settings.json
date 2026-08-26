@@ -220,11 +220,19 @@
   "loggingOut": "Abmelden…",
   "diagnostics": {
     "title": "Diagnose",
+    "operationalStatus": {
+      "healthy": "Odovi ist bereit",
+      "degraded": "Odovi ist bereit, einzelne optionale Funktionen oder der Sync sind eingeschränkt",
+      "not_ready": "Odovi ist nicht bereit"
+    },
     "db": "Odovi-Datenbank",
     "dbReachable": "erreichbar",
     "dbUnreachableFallback": "nicht erreichbar",
+    "migrations": "Datenbankmigrationen aktuell",
+    "protectedApplication": "Geschützte Anwendung verfügbar",
     "workerSync": "Worker / Sync",
     "empty": "Noch keine Sync-Daten vorhanden.",
+    "rowFailure": "Der letzte Lauf ist fehlgeschlagen. Schritte zur Behebung stehen unten; technische Details bleiben in den Container-Logs.",
     "lastSuccess": "letzter Erfolg {time}",
     "neverSuccessful": "noch nie erfolgreich",
     "badges": {
@@ -237,7 +245,11 @@
       "drives": "Fahrten",
       "charges": "Ladevorgänge",
       "parks": "Parkvorgänge",
-      "vehicles": "Fahrzeuge"
+      "vehicles": "Fahrzeuge",
+      "worker": "Worker-Status",
+      "schema": "TeslaMate-Schema",
+      "elevation": "Höhenanbieter",
+      "driveWeather": "Wetteranbieter"
     },
     "teslamateTest": {
       "title": "TeslaMate-Direkttest",
@@ -248,14 +260,22 @@
       "unknownError": "Unbekannter Fehler beim Testen.",
       "envNotSetMessage": "TESLAMATE_DATABASE_URL ist im Web-Container nicht gesetzt. Das ist im Normalbetrieb in Ordnung — nur der Worker braucht sie.",
       "successMessage": "Verbindung erfolgreich — {count} Fahrten in der TeslaMate-DB gefunden.",
-      "unknownConnectionError": "Unbekannter Fehler bei der Verbindung."
+      "unknownConnectionError": "Unbekannter Fehler bei der Verbindung.",
+      "connectionFailed": "TeslaMate ist aus dem Web-Container nicht erreichbar. Prüfe Datenbank-Container oder Host, Netzwerk und TESLAMATE_DATABASE_URL.",
+      "authenticationFailed": "TeslaMate hat die Datenbank-Anmeldung abgelehnt. Prüfe den dokumentierten Read-only-Benutzer und das Passwort in TESLAMATE_DATABASE_URL.",
+      "timeout": "Die TeslaMate-Verbindung hat das Zeitlimit überschritten. Prüfe Host, Docker-Netzwerk, Firewall und Datenbank-Verfügbarkeit."
     },
     "hints": {
       "dbUnreachable": "Die Odovi-Datenbank ist nicht erreichbar. Läuft der db-Container? Ist DATABASE_URL im web-Container korrekt gesetzt?",
       "neverSynced": "Noch nie synchronisiert. Läuft der Worker-Container? Ist TESLAMATE_DATABASE_URL im Worker gesetzt?",
       "someNeverSynced": "Mindestens ein Bereich wurde noch nie erfolgreich synchronisiert. Worker-Logs prüfen: docker compose logs worker.",
       "stale": "Letzter erfolgreicher Sync liegt länger zurück. Läuft der Worker-Container noch? Docker-Logs prüfen: docker compose logs worker.",
-      "runFailed": "Mindestens ein Sync-Lauf ist fehlgeschlagen — Fehlermeldung unten bei der jeweiligen Zeile."
+      "runFailed": "Mindestens ein Sync-Lauf ist fehlgeschlagen — Fehlermeldung unten bei der jeweiligen Zeile.",
+      "migrationsIncomplete": "Die Datenbankmigrationen sind unvollständig. Führe docker compose up migrate aus, warte auf einen erfolgreichen Abschluss und starte danach web und worker neu.",
+      "protectedUnavailable": "Das Schema der geschützten Anwendung ist nicht verfügbar. Prüfe docker compose logs migrate und stelle die Datenbank aus einem geprüften Backup wieder her, falls die Migration nur teilweise lief.",
+      "teslamateUnavailable": "TeslaMate konnte nicht geprüft werden. Prüfe, ob dessen Datenbank läuft und TESLAMATE_DATABASE_URL im Worker die dokumentierte Read-only-Rolle nutzt. Starte danach den Worker neu.",
+      "teslamateIncompatible": "Das verbundene TeslaMate-Schema liegt außerhalb des unterstützten Bereichs. Vergleiche die installierte TeslaMate-Version mit den Release Notes, bevor du den Worker neu startest.",
+      "optionalProviderUnavailable": "Ein aktivierter Karten-, Such-, Routing-, Wetter- oder Höhenanbieter ist nicht erreichbar. Das Core Archive bleibt nutzbar. Prüfe Internet/DNS und den Provider-Endpunkt oder deaktiviere die Funktion unter Anbieterprüfung."
     }
   },
   "errors": {

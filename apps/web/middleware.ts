@@ -18,8 +18,8 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  // Everything except /login, the health check, Next internals and static files.
+  // Everything except /login, operational probes, Next internals and static files.
   matcher: [
-    "/((?!login|roadtrip-offline|api/health|sw\\.js|\\.well-known/appspecific/com\\.tesla\\.3p\\.public-key\\.pem|_next/static|_next/image|favicon.ico|manifest\\.webmanifest|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
+    "/((?!login|roadtrip-offline|api/health|api/ready|sw\\.js|\\.well-known/appspecific/com\\.tesla\\.3p\\.public-key\\.pem|_next/static|_next/image|favicon.ico|manifest\\.webmanifest|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
   ],
 };
