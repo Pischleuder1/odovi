@@ -10,6 +10,7 @@
     "test": "node --test scripts/check-production-audit.test.mjs && corepack pnpm --filter @odovi/core --filter @odovi/db --filter @odovi/runtime-config build && corepack pnpm -r test",
     "audit:prod": "node scripts/check-production-audit.mjs",
     "test:compose-config": "ODOVI_ENV_FILE=tests/runtime-config/required.env docker compose --env-file tests/runtime-config/required.env config --quiet && ODOVI_ENV_FILE=tests/runtime-config/optional.env docker compose --env-file tests/runtime-config/optional.env config --quiet",
+    "setup-token": "node scripts/generate-setup-token.mjs",
     "lint": "corepack pnpm --filter @odovi/core --filter @odovi/db --filter @odovi/runtime-config build && corepack pnpm -r lint",
     "db:generate": "corepack pnpm --filter @odovi/db generate",
     "db:migrate": "corepack pnpm --filter @odovi/db migrate",

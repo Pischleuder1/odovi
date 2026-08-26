@@ -14,27 +14,77 @@ test("fresh release journey: setup, sync, day, classification, export, version p
     await expect(page.locator("html")).toHaveAttribute("lang", "en");
     await expect(page.getByText("First-time setup: set a password")).toBeVisible();
 
+    const setupToken = process.env.ODOVI_ACCEPTANCE_SETUP_TOKEN;
+    expect(setupToken, "runner must provide the one-time setup token").toMatch(
+      /^v1\.\d{10}\.[a-f0-9]{64}$/,
+    );
+    const replayPage = await context.newPage();
+    await replayPage.goto("/login");
+    await replayPage.getByLabel(/setup token/i).fill(setupToken!);
+    const replayPasswords = replayPage.getByLabel(/Password|Repeat password/i);
+    await replayPasswords.nth(0).fill(password);
+    await replayPasswords.nth(1).fill(password);
+
     const inputs = page.getByLabel(/Password|Repeat password/i);
+    const tokenInput = page.getByLabel(/setup token/i);
+    await tokenInput.fill(setupToken!);
     await inputs.nth(0).fill("too-short");
     await inputs.nth(1).fill("different-value");
     await page.getByRole("button", { name: "Set password" }).click();
     await expect(page.getByText("The passwords do not match.", { exact: true })).toBeVisible();
 
-    const setupToken = process.env.ODOVI_ACCEPTANCE_SETUP_TOKEN;
-    if (setupToken) {
-      await page.getByLabel(/setup token/i).fill(setupToken);
-    } else {
-      noteDeferredContract(
-        testInfo,
-        "#27",
-        "The harness is token-ready; the current app still uses the legacy first-visitor bootstrap.",
-      );
-    }
+    const missingPage = await context.newPage();
+    await missingPage.goto("/login");
+    const missingPasswords = missingPage.getByLabel(/Password|Repeat password/i);
+    await missingPasswords.nth(0).fill(password);
+    await missingPasswords.nth(1).fill(password);
+    await missingPage
+      .getByLabel(/setup token/i)
+      .evaluate((input) => input.removeAttribute("required"));
+    await Promise.all([
+      missingPage.waitForResponse((response) =>
+        response.request().method() === "POST" && response.url().endsWith("/login"),
+      ),
+      missingPage.getByRole("button", { name: "Set password" }).click(),
+    ]);
+    await expect(
+      missingPage.getByText("The setup token is missing, invalid, or expired.", { exact: true }),
+    ).toBeVisible();
+    await missingPage.close();
+
+    const incorrectPage = await context.newPage();
+    await incorrectPage.goto("/login");
+    const incorrectPasswords = incorrectPage.getByLabel(/Password|Repeat password/i);
+    await incorrectPasswords.nth(0).fill(password);
+    await incorrectPasswords.nth(1).fill(password);
+    await incorrectPage
+      .getByLabel(/setup token/i)
+      .fill(`v1.${Math.floor(Date.now() / 1000)}.${"0".repeat(64)}`);
+    await Promise.all([
+      incorrectPage.waitForResponse((response) =>
+        response.request().method() === "POST" && response.url().endsWith("/login"),
+      ),
+      incorrectPage.getByRole("button", { name: "Set password" }).click(),
+    ]);
+    await expect(
+      incorrectPage.getByText("The setup token is missing, invalid, or expired.", { exact: true }),
+    ).toBeVisible();
+    await incorrectPage.close();
 
     await inputs.nth(0).fill(password);
     await inputs.nth(1).fill(password);
-    await page.getByRole("button", { name: "Set password" }).click();
+    await Promise.all([
+      page.waitForResponse((response) => response.request().method() === "POST"),
+      page.getByRole("button", { name: "Set password" }).click(),
+    ]);
     await expect(page).toHaveURL(/\/$/);
+
+    await Promise.all([
+      replayPage.waitForResponse((response) => response.request().method() === "POST"),
+      replayPage.getByRole("button", { name: "Set password" }).click(),
+    ]);
+    await expect(replayPage.getByText("A user already exists.", { exact: true })).toBeVisible();
+    await replayPage.close();
   });
 
   await test.step("first synchronization and day view", async () => {

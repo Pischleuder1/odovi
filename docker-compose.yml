@@ -36,7 +36,7 @@ services:
       WEB_PORT: ${WEB_PORT:-3000}
       APP_TIMEZONE: ${APP_TIMEZONE:-Europe/Zurich}
       SYNC_INTERVAL_SECONDS: ${SYNC_INTERVAL_SECONDS:-60}
-      INITIAL_ADMIN_PASSWORD: ${INITIAL_ADMIN_PASSWORD:-}
+      ODOVI_SETUP_TOKEN: ${ODOVI_SETUP_TOKEN:-}
       OSRM_URL: ${OSRM_URL:-}
       FORCE_SECURE_COOKIES: ${FORCE_SECURE_COOKIES:-false}
       ELEVATION_ENABLED: ${ELEVATION_ENABLED:-true}
@@ -99,7 +99,7 @@ services:
     environment:
       DATABASE_URL: postgres://${ODOVI_DB_USER:-odovi}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@db:5432/${ODOVI_DB_NAME:-odovi}
       APP_TIMEZONE: ${APP_TIMEZONE:-Europe/Zurich}
-      INITIAL_ADMIN_PASSWORD: ${INITIAL_ADMIN_PASSWORD:-}
+      ODOVI_SETUP_TOKEN: ${ODOVI_SETUP_TOKEN:-}
       OSRM_URL: ${OSRM_URL:-}
       FORCE_SECURE_COOKIES: ${FORCE_SECURE_COOKIES:-false}
       # Optional, nur für die Verbindungs-Diagnose in Settings (read-only

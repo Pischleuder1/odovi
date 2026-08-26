@@ -67,10 +67,15 @@ function buildBaseFields(t: Awaited<ReturnType<typeof getTranslations>>) {
  * vision.md §20.4), aber in der MVP-Detail-UI nicht angezeigt.
  */
 export async function autoAssignJourney(journeyId: number): Promise<void> {
+  const t = await getTranslations("journeys");
+  const user = await validateSession();
+  if (!user) throw new Error(t("errors.notAuthenticated"));
+
+  const parsedJourneyId = z.number().int().positive().parse(journeyId);
   const rows = await db
     .select({ startTime: journeys.startTime, endTime: journeys.endTime })
     .from(journeys)
-    .where(eq(journeys.id, journeyId))
+    .where(eq(journeys.id, parsedJourneyId))
     .limit(1);
   const j = rows[0];
   if (!j) return;
@@ -103,9 +108,9 @@ export async function autoAssignJourney(journeyId: number): Promise<void> {
       itemType: string;
       itemId: number;
     }> = [
-      ...driveIds.map((id) => ({ journeyId, itemType: "drive", itemId: id })),
-      ...chargeIds.map((id) => ({ journeyId, itemType: "charge", itemId: id })),
-      ...parkIds.map((id) => ({ journeyId, itemType: "park", itemId: id })),
+      ...driveIds.map((id) => ({ journeyId: parsedJourneyId, itemType: "drive", itemId: id })),
+      ...chargeIds.map((id) => ({ journeyId: parsedJourneyId, itemType: "charge", itemId: id })),
+      ...parkIds.map((id) => ({ journeyId: parsedJourneyId, itemType: "park", itemId: id })),
     ];
 
     if (values.length > 0) {
@@ -125,9 +130,9 @@ export async function autoAssignJourney(journeyId: number): Promise<void> {
 
     // Verwaiste Auto-Rows entfernen: assignedBy='auto', nicht excluded, aber
     // ihr Item fällt nicht (mehr) ins Fenster (Zeitraum wurde verkleinert).
-    await pruneStaleAutoRows(tx, journeyId, "drive", driveIds);
-    await pruneStaleAutoRows(tx, journeyId, "charge", chargeIds);
-    await pruneStaleAutoRows(tx, journeyId, "park", parkIds);
+    await pruneStaleAutoRows(tx, parsedJourneyId, "drive", driveIds);
+    await pruneStaleAutoRows(tx, parsedJourneyId, "charge", chargeIds);
+    await pruneStaleAutoRows(tx, parsedJourneyId, "park", parkIds);
   });
 }
 

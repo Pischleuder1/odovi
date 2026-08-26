@@ -14,6 +14,7 @@ run_id="${ODOVI_ACCEPTANCE_RUN_ID:-$(date -u +%Y%m%dT%H%M%SZ)-${short_commit}}"
 evidence_dir="${ODOVI_ACCEPTANCE_EVIDENCE_DIR:-$repo_root/acceptance-results/$run_id}"
 build_images="${ODOVI_ACCEPTANCE_BUILD:-1}"
 keep_stack="${ODOVI_ACCEPTANCE_KEEP_STACK:-0}"
+setup_token="${ODOVI_ACCEPTANCE_SETUP_TOKEN:-$(node "$repo_root/scripts/generate-setup-token.mjs")}"
 
 export ODOVI_ACCEPTANCE_STARTED_AT="$started_at"
 export ODOVI_ACCEPTANCE_GIT_COMMIT="$git_commit"
@@ -30,6 +31,7 @@ export ODOVI_WORKER_IMAGE="${ODOVI_WORKER_IMAGE:-odovi-worker:$tag_version}"
 export ODOVI_FIXTURES_IMAGE="${ODOVI_FIXTURES_IMAGE:-odovi-fixtures:$tag_version}"
 export ODOVI_ACCEPTANCE_EGRESS_ALLOWLIST="${ODOVI_ACCEPTANCE_EGRESS_ALLOWLIST:-api.open-meteo.com,archive-api.open-meteo.com,tile.openstreetmap.org,nominatim.openstreetmap.org,router.project-osrm.org}"
 export ODOVI_ACCEPTANCE_BROWSER_EGRESS_LOG="$evidence_dir/browser-egress.ndjson"
+export ODOVI_ACCEPTANCE_SETUP_TOKEN="$setup_token"
 
 compose=(docker compose --project-name "$project" --file "$compose_file")
 run_status="failed"
@@ -115,7 +117,9 @@ for image in "$ODOVI_WEB_IMAGE" "$ODOVI_WORKER_IMAGE" "$ODOVI_FIXTURES_IMAGE"; d
   fi
 done
 
-"${compose[@]}" config >"$evidence_dir/compose-config.yml"
+"${compose[@]}" config \
+  | sed -E 's/^([[:space:]]+ODOVI_SETUP_TOKEN:).*/\1 <redacted>/' \
+  >"$evidence_dir/compose-config.yml"
 
 if [[ "$build_images" == "1" ]]; then
   # `migrate` and `worker` deliberately share one exact worker image.

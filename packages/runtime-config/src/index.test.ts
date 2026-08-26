@@ -27,6 +27,7 @@ describe("release configuration", () => {
       APP_TIMEZONE: "America/New_York",
       WEB_PORT: "8443",
       SYNC_INTERVAL_SECONDS: "120",
+      ODOVI_SETUP_TOKEN: `v1.1800000000.${"a".repeat(64)}`,
       OSRM_URL: "http://router.internal:5000/",
       FORCE_SECURE_COOKIES: "true",
       ELEVATION_ENABLED: "true",
@@ -42,6 +43,7 @@ describe("release configuration", () => {
     });
     expect(config.web.osrmUrl).toBe("http://router.internal:5000");
     expect(config.web.forceSecureCookies).toBe(true);
+    expect(config.web.setupToken).toMatch(/^v1\./);
     expect(config.web.tesla?.commandApiUrl).toBe("https://commands.example");
     expect(config.worker.appTimezone).toBe("America/New_York");
     expect(config.worker.elevationMaxPointsPerCycle).toBe(250);
@@ -79,6 +81,12 @@ describe("release configuration", () => {
     expect(() =>
       parseReleaseRuntimeConfig({ ...REQUIRED, TESLA_CLIENT_ID: "only-one-setting" }),
     ).toThrow(/TESLA_CLIENT_SECRET is required/);
+  });
+
+  it("rejects a hand-written setup token", () => {
+    expect(() =>
+      parseReleaseRuntimeConfig({ ...REQUIRED, ODOVI_SETUP_TOKEN: "guessable" }),
+    ).toThrow(/pnpm setup-token/);
   });
 
   it("rejects a malformed Tesla public key before web startup", () => {

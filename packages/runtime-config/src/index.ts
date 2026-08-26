@@ -13,7 +13,7 @@ export const RELEASE_SETTING_NAMES = [
   "WEB_PORT",
   "APP_TIMEZONE",
   "SYNC_INTERVAL_SECONDS",
-  "INITIAL_ADMIN_PASSWORD",
+  "ODOVI_SETUP_TOKEN",
   "OSRM_URL",
   "FORCE_SECURE_COOKIES",
   "ELEVATION_ENABLED",
@@ -57,7 +57,7 @@ export interface TeslaProviderConfig {
 export interface WebRuntimeConfig {
   databaseUrl: string;
   appTimezone: string;
-  initialAdminPassword?: string;
+  setupToken?: string;
   teslamateDatabaseUrl?: string;
   osrmUrl?: string;
   forceSecureCookies: boolean;
@@ -86,6 +86,16 @@ export interface ReleaseRuntimeConfig {
 function present(value: string | undefined): string | undefined {
   const trimmed = value?.trim();
   return trimmed ? trimmed : undefined;
+}
+
+function parseSetupToken(value: string | undefined, issues: string[]): string | undefined {
+  const configured = present(value);
+  if (!configured) return undefined;
+  if (!/^v1\.\d{10}\.[a-f0-9]{64}$/.test(configured)) {
+    issues.push("ODOVI_SETUP_TOKEN must be generated with pnpm setup-token");
+    return undefined;
+  }
+  return configured;
 }
 
 function required(env: Environment, name: string, issues: string[]): string {
@@ -339,6 +349,7 @@ export function parseWebRuntimeConfig(env: Environment): WebRuntimeConfig {
     issues,
   );
   const appTimezone = collectTimezone(env.APP_TIMEZONE, issues);
+  const setupToken = parseSetupToken(env.ODOVI_SETUP_TOKEN, issues);
   const osrmUrl = parseUrl("OSRM_URL", env.OSRM_URL, ["http:", "https:"], issues);
   const forceSecureCookies = collectBoolean(
     "FORCE_SECURE_COOKIES",
@@ -351,7 +362,7 @@ export function parseWebRuntimeConfig(env: Environment): WebRuntimeConfig {
   return {
     databaseUrl,
     appTimezone,
-    initialAdminPassword: present(env.INITIAL_ADMIN_PASSWORD),
+    setupToken,
     teslamateDatabaseUrl,
     osrmUrl,
     forceSecureCookies,
@@ -437,6 +448,7 @@ export function parseReleaseRuntimeConfig(env: Environment): ReleaseRuntimeConfi
   const teslamateDatabaseUrl =
     parseDatabaseUrl("TESLAMATE_DATABASE_URL", env.TESLAMATE_DATABASE_URL, true, issues) ?? "";
   const appTimezone = collectTimezone(env.APP_TIMEZONE, issues);
+  const setupToken = parseSetupToken(env.ODOVI_SETUP_TOKEN, issues);
   const syncIntervalSeconds = parseInteger(
     "SYNC_INTERVAL_SECONDS",
     env.SYNC_INTERVAL_SECONDS,
@@ -483,7 +495,7 @@ export function parseReleaseRuntimeConfig(env: Environment): ReleaseRuntimeConfi
     webPort,
     web: {
       appTimezone,
-      initialAdminPassword: present(env.INITIAL_ADMIN_PASSWORD),
+      setupToken,
       teslamateDatabaseUrl,
       osrmUrl,
       forceSecureCookies,

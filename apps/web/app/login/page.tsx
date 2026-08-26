@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { getTranslations } from "next-intl/server";
-import { maybeSeedFromEnv, usersTableIsEmpty } from "../../lib/auth/actions";
+import { usersTableIsEmpty } from "../../lib/auth/bootstrapState";
 import { validateSession } from "../../lib/auth/session";
 import { BrandWordmark } from "../../components/BrandWordmark";
 import { LocaleSwitcher, type Locale } from "../../components/LocaleSwitcher";
@@ -14,9 +14,6 @@ export default async function LoginPage() {
   if (await validateSession()) {
     redirect("/");
   }
-
-  // Honour INITIAL_ADMIN_PASSWORD by seeding on first visit.
-  await maybeSeedFromEnv();
 
   const bootstrap = await usersTableIsEmpty();
   const t = await getTranslations("auth");

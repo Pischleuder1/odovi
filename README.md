@@ -52,8 +52,9 @@ Tessie and similar services are good, but they come with subscription costs, ove
 No Tesla, no TeslaMate? The demo stack starts a fully populated app with six weeks of synthetic driving data:
 
 ```bash
+export ODOVI_SETUP_TOKEN="v1.$(date +%s).$(openssl rand -hex 32)"
 docker compose -f docker-compose.demo.yml up -d --build
-# -> http://localhost:3000, login: demo1234
+# -> http://localhost:3000; use the setup token above and choose a password
 ```
 
 Details: [docs/demo.md](docs/demo.md)
@@ -146,7 +147,18 @@ and `worker` permanently (`restart: unless-stopped`).
 
 ### 4. First sign-in
 
-On first startup, an admin account is bootstrapped. Optionally set a password beforehand through `INITIAL_ADMIN_PASSWORD` in `.env`; otherwise one is set during the first login flow (with password confirmation).
+Generate a short-lived setup token on the Odovi host, copy it into `.env`, and
+restart the web service before opening the first-login form:
+
+```bash
+pnpm setup-token
+# copy the output to ODOVI_SETUP_TOKEN in .env
+docker compose up -d web
+```
+
+The token expires after 24 hours and can create only the first `admin` account.
+Remove `ODOVI_SETUP_TOKEN` from `.env` after setup. Future sign-ins use only the
+administrator password chosen in the form.
 
 ### 5. HTTPS / remote access
 

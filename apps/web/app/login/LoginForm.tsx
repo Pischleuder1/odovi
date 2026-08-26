@@ -55,6 +55,24 @@ export function LoginForm({ bootstrap }: { bootstrap: boolean }) {
       {bootstrap && (
         <label className="flex flex-col gap-1.5">
           <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+            {t("setupTokenLabel")}
+          </span>
+          <input
+            type="password"
+            name="setupToken"
+            autoComplete="off"
+            required
+            className={fieldClasses}
+          />
+          <span className="text-xs text-neutral-500 dark:text-neutral-400">
+            {t("setupTokenHint")}
+          </span>
+        </label>
+      )}
+
+      {bootstrap && (
+        <label className="flex flex-col gap-1.5">
+          <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
             {t("passwordRepeatLabel")}
           </span>
           <input

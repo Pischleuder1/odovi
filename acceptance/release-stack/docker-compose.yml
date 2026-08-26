@@ -102,6 +102,7 @@ services:
     environment:
       DATABASE_URL: postgres://odovi:odovi-acceptance@db:5432/odovi
       APP_TIMEZONE: Europe/Zurich
+      ODOVI_SETUP_TOKEN: ${ODOVI_ACCEPTANCE_SETUP_TOKEN:?Set ODOVI_ACCEPTANCE_SETUP_TOKEN}
       NODE_OPTIONS: --require=/opt/odovi-acceptance/egress-guard.cjs
       ODOVI_ACCEPTANCE_EGRESS_LOG: /acceptance-evidence/container-egress.ndjson
       ODOVI_ACCEPTANCE_EGRESS_ALLOWLIST: ${ODOVI_ACCEPTANCE_EGRESS_ALLOWLIST:-}
