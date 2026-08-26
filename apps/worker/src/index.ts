@@ -44,7 +44,6 @@ async function main(): Promise<void> {
       try {
         await runSyncCycle(connection.db, tm, {
           appTimezone: config.appTimezone,
-          elevationEnabled: config.elevationEnabled,
           elevationMaxPointsPerCycle: config.elevationMaxPointsPerCycle,
         });
         await recordSyncRun(connection.db, "odovi", "worker", {

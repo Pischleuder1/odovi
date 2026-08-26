@@ -1,14 +1,14 @@
 import { appendFileSync } from "node:fs";
 import type { BrowserContext, Request } from "@playwright/test";
 
-const declaredHosts = new Set(
-  (process.env.ODOVI_ACCEPTANCE_EGRESS_ALLOWLIST ?? "")
+const controlledHosts = new Set(
+  (process.env.ODOVI_ACCEPTANCE_CONTROLLED_HOSTS ?? "")
     .split(",")
     .map((value) => value.trim().toLowerCase())
     .filter(Boolean),
 );
 
-function appendRequest(request: Request, declared: boolean) {
+function appendRequest(request: Request, controlled: boolean, outcome: "allowed" | "blocked") {
   const logPath = process.env.ODOVI_ACCEPTANCE_BROWSER_EGRESS_LOG;
   if (!logPath) return;
   const url = new URL(request.url());
@@ -20,14 +20,15 @@ function appendRequest(request: Request, declared: boolean) {
       method: request.method(),
       host: url.hostname,
       pathname: url.pathname,
-      declared,
-      outcome: "blocked",
+      search: url.search,
+      controlled,
+      outcome,
     })}\n`,
     "utf8",
   );
 }
 
-/** Blocks all browser egress outside the acceptance app and records the intent. */
+/** Blocks undeclared browser egress and locally fulfills controlled handoffs. */
 export async function installBrowserEgressGuard(context: BrowserContext) {
   const appHost = new URL(process.env.ODOVI_ACCEPTANCE_BASE_URL!).hostname;
   await context.route(/^https?:\/\//, async (route) => {
@@ -37,8 +38,13 @@ export async function installBrowserEgressGuard(context: BrowserContext) {
       await route.continue();
       return;
     }
+    if (controlledHosts.has(host)) {
+      appendRequest(request, true, "allowed");
+      await route.fulfill({ status: 204 });
+      return;
+    }
 
-    appendRequest(request, declaredHosts.has(host));
+    appendRequest(request, false, "blocked");
     await route.abort("blockedbyclient");
   });
 }

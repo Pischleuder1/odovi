@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "echo \"Run pnpm --filter @odovi/web dev (or worker/db) — no root dev process\"",
     "build": "corepack pnpm -r build",
-    "test": "node --test scripts/check-production-audit.test.mjs scripts/release.test.mjs && corepack pnpm --filter @odovi/core --filter @odovi/db --filter @odovi/runtime-config build && corepack pnpm -r test",
+    "test": "node --test scripts/check-production-audit.test.mjs scripts/egress-verifier.test.mjs scripts/location-provider-boundary.test.mjs scripts/release.test.mjs && corepack pnpm --filter @odovi/core --filter @odovi/db --filter @odovi/runtime-config build && corepack pnpm -r test",
     "audit:prod": "node scripts/check-production-audit.mjs",
     "release:check": "node scripts/check-release-consistency.mjs release/0.2.0/release.json",
     "test:compose-config": "ODOVI_ENV_FILE=tests/runtime-config/required.env docker compose --env-file tests/runtime-config/required.env config --quiet && ODOVI_ENV_FILE=tests/runtime-config/optional.env docker compose --env-file tests/runtime-config/optional.env config --quiet",

@@ -18,7 +18,6 @@ import { loadWorkerLocationProviderPolicy } from "../locationProviders/policy.js
 
 export interface SyncCycleOptions {
   appTimezone: string;
-  elevationEnabled: boolean;
   elevationMaxPointsPerCycle?: number;
 }
 
@@ -43,7 +42,7 @@ export async function runSyncCycle(
   const providerPolicy = await loadWorkerLocationProviderPolicy(db);
   const elevationProvider = providerPolicy.resolve("elevation");
   const weatherProvider = providerPolicy.resolve("weather");
-  const elevationResult = options.elevationEnabled && elevationProvider.status === "active"
+  const elevationResult = elevationProvider.status === "active"
     ? await syncElevations(db, elevationProvider, options.elevationMaxPointsPerCycle)
     : { pointsFilled: 0 };
   const driveWeatherResult = await syncDriveWeather(

@@ -52,7 +52,6 @@ async function main(): Promise<void> {
 
       await runSyncCycle(db, tm, {
         appTimezone: config.appTimezone,
-        elevationEnabled: config.elevationEnabled,
         elevationMaxPointsPerCycle: config.elevationMaxPointsPerCycle,
       });
       break;

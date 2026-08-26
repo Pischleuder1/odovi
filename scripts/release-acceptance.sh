@@ -32,8 +32,10 @@ export ODOVI_EXPECT_MAP_PROVIDER_POLICY="${ODOVI_EXPECT_MAP_PROVIDER_POLICY:-1}"
 export ODOVI_WEB_IMAGE="${ODOVI_WEB_IMAGE:-odovi-web:$tag_version}"
 export ODOVI_WORKER_IMAGE="${ODOVI_WORKER_IMAGE:-odovi-worker:$tag_version}"
 export ODOVI_FIXTURES_IMAGE="${ODOVI_FIXTURES_IMAGE:-odovi-fixtures:$tag_version}"
-export ODOVI_ACCEPTANCE_EGRESS_ALLOWLIST="${ODOVI_ACCEPTANCE_EGRESS_ALLOWLIST:-api.open-meteo.com,archive-api.open-meteo.com,tile.openstreetmap.org,nominatim.openstreetmap.org,router.project-osrm.org,www.google.com,controlled-tiles.invalid}"
+export ODOVI_ACCEPTANCE_CONTROLLED_HOSTS="${ODOVI_ACCEPTANCE_CONTROLLED_HOSTS:-provider,controlled-navigation.invalid}"
+export ODOVI_ACCEPTANCE_PROVIDER_CREDENTIAL="${ODOVI_ACCEPTANCE_PROVIDER_CREDENTIAL:-odovi-acceptance-provider}"
 export ODOVI_ACCEPTANCE_BROWSER_EGRESS_LOG="$evidence_dir/browser-egress.ndjson"
+export ODOVI_ACCEPTANCE_PROVIDER_LOG="$evidence_dir/provider-requests.ndjson"
 export ODOVI_ACCEPTANCE_SETUP_TOKEN="$setup_token"
 
 compose=(docker compose --project-name "$project" --file "$compose_file")
@@ -41,8 +43,8 @@ run_status="failed"
 stack_owned="0"
 
 mkdir -p "$evidence_dir"
-touch "$evidence_dir/container-egress.ndjson" "$evidence_dir/browser-egress.ndjson"
-chmod 666 "$evidence_dir/container-egress.ndjson" "$evidence_dir/browser-egress.ndjson"
+touch "$evidence_dir/container-egress.ndjson" "$evidence_dir/browser-egress.ndjson" "$evidence_dir/provider-requests.ndjson"
+chmod 666 "$evidence_dir/container-egress.ndjson" "$evidence_dir/browser-egress.ndjson" "$evidence_dir/provider-requests.ndjson"
 
 capture_evidence() {
   set +e
@@ -127,6 +129,37 @@ wait_for_fixture_day() {
   return 1
 }
 
+verify_upgrade_path() {
+  "${compose[@]}" exec -T db createdb -U odovi odovi_upgrade
+  "${compose[@]}" run --rm --no-deps legacy-migrate
+  "${compose[@]}" run --rm --no-deps \
+    -e DATABASE_URL=postgres://odovi:odovi-acceptance@db:5432/odovi_upgrade migrate
+  "${compose[@]}" exec -T db psql -v ON_ERROR_STOP=1 -U odovi -d odovi_upgrade \
+    >"$evidence_dir/upgrade-provider-review.txt" <<'SQL'
+do $$
+begin
+  if (select count(*) from location_provider_decisions) <> 0 then
+    raise exception 'provider decisions must be empty immediately after upgrade';
+  end if;
+end $$;
+insert into location_provider_decisions
+  (capability, mode, provider, disclosure_version, decided_by)
+select capability, 'disabled', 'none', '2026-08-26', 'acceptance-upgrade'
+from unnest(array['weather','elevation','mapTiles','addressSearch','routing','externalNavigation']) capability;
+do $$
+begin
+  if (select count(*) from location_provider_decisions where mode = 'disabled') <> 6 then
+    raise exception 'upgrade Provider Review did not persist all six disabled decisions';
+  end if;
+  if to_regclass('public.drives') is null or to_regclass('public.route_points') is null then
+    raise exception 'core archive schema was not preserved';
+  end if;
+end $$;
+select capability, mode, provider, disclosure_version, decided_by
+from location_provider_decisions order by capability;
+SQL
+}
+
 run_playwright() {
   (
     cd "$repo_root/acceptance/release-stack"
@@ -183,7 +216,19 @@ run_playwright \
 export ODOVI_ACCEPTANCE_PHASE="coverage"
 run_playwright \
   --project=desktop --project=mobile \
-  tests/coverage.spec.ts tests/provider-maps.spec.ts
+  tests/coverage.spec.ts
+
+verify_upgrade_path
+node "$repo_root/acceptance/release-stack/verify-egress.mjs" --expect-zero \
+  "$evidence_dir/container-egress.ndjson" \
+  "$evidence_dir/browser-egress.ndjson" >"$evidence_dir/zero-egress-summary.json"
+
+export ODOVI_ACCEPTANCE_PHASE="provider-contracts"
+run_playwright --project=desktop tests/provider-contracts.spec.ts
+node "$repo_root/acceptance/release-stack/verify-provider-contracts.mjs" \
+  "$evidence_dir/provider-requests.ndjson" \
+  "$evidence_dir/browser-egress.ndjson" \
+  "$evidence_dir/provider-contract-summary.json"
 
 "${compose[@]}" restart web worker
 wait_for_http "$ODOVI_ACCEPTANCE_BASE_URL/api/health" "web after restart"

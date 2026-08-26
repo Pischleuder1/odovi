@@ -144,7 +144,7 @@ function attributionFor(provider: ActiveProviderResolution): AddressSearchAttrib
   return provider.mode === "public"
     ? {
         label: "© OpenStreetMap contributors",
-        url: "https://www.openstreetmap.org/copyright",
+        url: provider.endpoints.attribution ?? provider.contactUrl,
       }
     : { label: provider.provider, url: provider.contactUrl };
 }

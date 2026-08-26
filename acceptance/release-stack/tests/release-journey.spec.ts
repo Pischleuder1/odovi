@@ -7,6 +7,7 @@ test("fresh release journey: setup, sync, day, classification, export, version p
   page,
 }, testInfo) => {
   await installBrowserEgressGuard(context);
+  let driveHref = "";
 
   await test.step("language selection and setup validation", async () => {
     await page.goto("/login");
@@ -95,6 +96,8 @@ test("fresh release journey: setup, sync, day, classification, export, version p
     await page.goto(`/day/${date}`);
     await expect(page.locator("[data-testid=day-totals]")).toBeVisible();
     await expect(page.locator("[data-drive-classification]").first()).toBeVisible();
+    driveHref = (await page.locator('a[href^="/drives/"]').first().getAttribute("href")) ?? "";
+    expect(driveHref).toMatch(/^\/drives\/\d+$/);
   });
 
   await test.step("keyboard classification", async () => {
@@ -112,6 +115,16 @@ test("fresh release journey: setup, sync, day, classification, export, version p
     const download = await downloadPromise;
     expect(download.suggestedFilename()).toMatch(/^odovi-tag-\d{4}-\d{2}-\d{2}\.csv$/);
     expect(await download.createReadStream()).not.toBeNull();
+  });
+
+  await test.step("manual annotation is searchable without a provider", async () => {
+    await page.goto(driveHref);
+    await page.locator('textarea[name="notes"]').fill("Acceptance annotation");
+    await page.getByRole("button", { name: /Save|Speichern/i }).click();
+    await expect(page.getByText(/Saved|Gespeichert/i, { exact: true })).toBeVisible();
+    await page.goto("/search?q=Acceptance%20annotation");
+    await expect(page.locator("[data-testid=search-summary]")).toContainText(/1 drive|1 Fahrt/i);
+    await expect(page.locator(`a[href="${driveHref}"]`).last()).toBeVisible();
   });
 
   await test.step("discoverable release identity path", async () => {

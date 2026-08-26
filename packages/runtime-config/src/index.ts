@@ -73,7 +73,6 @@ export interface WorkerRuntimeConfig {
   teslamateDatabaseUrl: string;
   appTimezone: string;
   syncIntervalSeconds: number;
-  elevationEnabled: boolean;
   elevationMaxPointsPerCycle?: number;
 }
 
@@ -379,10 +378,13 @@ export function parseWorkerRuntimeConfig(env: Environment): WorkerRuntimeConfig 
     86400,
     issues,
   );
-  const elevationEnabled = collectBoolean(
+  // Accepted only so a v0.1.1 environment can complete the supported rename
+  // upgrade. This legacy switch no longer activates or disables anything;
+  // Provider Review is the sole location-provider boundary.
+  collectBoolean(
     "ELEVATION_ENABLED",
     env.ELEVATION_ENABLED,
-    true,
+    false,
     issues,
   );
   const elevationMaxPointsPerCycle = present(env.ELEVATION_MAX_POINTS_PER_CYCLE)
@@ -395,18 +397,12 @@ export function parseWorkerRuntimeConfig(env: Environment): WorkerRuntimeConfig 
         issues,
       )
     : undefined;
-  if (!elevationEnabled && elevationMaxPointsPerCycle != null) {
-    issues.push(
-      "ELEVATION_MAX_POINTS_PER_CYCLE has no effect when ELEVATION_ENABLED=false; remove it or enable elevation",
-    );
-  }
   if (issues.length > 0) throw new RuntimeConfigurationError("worker runtime", issues);
   return {
     databaseUrl,
     teslamateDatabaseUrl,
     appTimezone,
     syncIntervalSeconds,
-    elevationEnabled,
     elevationMaxPointsPerCycle,
   };
 }
@@ -458,10 +454,11 @@ export function parseReleaseRuntimeConfig(env: Environment): ReleaseRuntimeConfi
     false,
     issues,
   );
-  const elevationEnabled = collectBoolean(
+  // Legacy compatibility only; see parseWorkerRuntimeConfig.
+  collectBoolean(
     "ELEVATION_ENABLED",
     env.ELEVATION_ENABLED,
-    true,
+    false,
     issues,
   );
   const elevationMaxPointsPerCycle = present(env.ELEVATION_MAX_POINTS_PER_CYCLE)
@@ -474,11 +471,6 @@ export function parseReleaseRuntimeConfig(env: Environment): ReleaseRuntimeConfi
         issues,
       )
     : undefined;
-  if (!elevationEnabled && elevationMaxPointsPerCycle != null) {
-    issues.push(
-      "ELEVATION_MAX_POINTS_PER_CYCLE has no effect when ELEVATION_ENABLED=false; remove it or enable elevation",
-    );
-  }
   const tesla = parseTeslaProviderConfig(env, issues);
   if (issues.length > 0) throw new RuntimeConfigurationError("release", issues);
   return {
@@ -498,7 +490,6 @@ export function parseReleaseRuntimeConfig(env: Environment): ReleaseRuntimeConfi
       teslamateDatabaseUrl,
       appTimezone,
       syncIntervalSeconds,
-      elevationEnabled,
       elevationMaxPointsPerCycle,
     },
   };

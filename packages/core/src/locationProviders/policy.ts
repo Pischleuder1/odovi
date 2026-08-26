@@ -128,7 +128,10 @@ export const PUBLIC_LOCATION_PROVIDERS: Record<
     operatingLimits:
       "Low-volume, identified, user-triggered searches only; public use is rate-limited and has no availability guarantee.",
     disclosureVersion: LOCATION_PROVIDER_DISCLOSURE_VERSION,
-    endpoints: { search: "https://nominatim.openstreetmap.org/search" },
+    endpoints: {
+      search: "https://nominatim.openstreetmap.org/search",
+      attribution: "https://www.openstreetmap.org/copyright",
+    },
   },
   routing: {
     capability: "routing",

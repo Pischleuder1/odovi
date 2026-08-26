@@ -18,7 +18,7 @@ describe("release configuration", () => {
     expect(config.web.appTimezone).toBe("Europe/Zurich");
     expect(config.web.forceSecureCookies).toBe(false);
     expect(config.worker.syncIntervalSeconds).toBe(60);
-    expect(config.worker.elevationEnabled).toBe(true);
+    expect(config.worker.elevationMaxPointsPerCycle).toBeUndefined();
   });
 
   it("accepts and routes every optional setting", () => {
@@ -54,7 +54,7 @@ describe("release configuration", () => {
         POSTGRES_PASSWORD: "unsafe/password",
         APP_TIMEZONE: "Moon/Base",
         FORCE_SECURE_COOKIES: "yes",
-        ELEVATION_ENABLED: "false",
+        ELEVATION_ENABLED: "sometimes",
         ELEVATION_MAX_POINTS_PER_CYCLE: "100",
       }),
     ).toThrowError(RuntimeConfigurationError);
@@ -64,15 +64,30 @@ describe("release configuration", () => {
         POSTGRES_PASSWORD: "unsafe/password",
         APP_TIMEZONE: "Moon/Base",
         FORCE_SECURE_COOKIES: "yes",
-        ELEVATION_ENABLED: "false",
+        ELEVATION_ENABLED: "sometimes",
         ELEVATION_MAX_POINTS_PER_CYCLE: "100",
       });
     } catch (error) {
       expect(String(error)).toContain("POSTGRES_PASSWORD must be URL-safe");
       expect(String(error)).toContain("valid IANA time zone");
       expect(String(error)).toContain("must be exactly true or false");
-      expect(String(error)).toContain("has no effect");
+      expect(String(error)).toContain("must be exactly true or false");
     }
+  });
+
+  it("accepts the legacy elevation switch without making it an activation path", () => {
+    const enabled = parseReleaseRuntimeConfig({
+      ...REQUIRED,
+      ELEVATION_ENABLED: "true",
+      ELEVATION_MAX_POINTS_PER_CYCLE: "250",
+    });
+    const disabled = parseReleaseRuntimeConfig({
+      ...REQUIRED,
+      ELEVATION_ENABLED: "false",
+      ELEVATION_MAX_POINTS_PER_CYCLE: "250",
+    });
+    expect(enabled.worker).toEqual(disabled.worker);
+    expect(enabled.worker.elevationMaxPointsPerCycle).toBe(250);
   });
 
   it("rejects partial Tesla provider activation", () => {

@@ -21,7 +21,23 @@ services:
       TESLAMATE_DATABASE_URL: postgres://teslamate:teslamate-acceptance@teslamate-db:5432/teslamate
       APP_TIMEZONE: Europe/Zurich
       SYNC_INTERVAL_SECONDS: 5
-      ELEVATION_ENABLED: "true"
+
+  provider:
+    image: ${ODOVI_WORKER_IMAGE:?Set an exact ODOVI_WORKER_IMAGE tag}
+    command: ["node", "/opt/odovi-acceptance/controlled-provider.mjs"]
+    restart: unless-stopped
+    environment:
+      ODOVI_ACCEPTANCE_PROVIDER_LOG: /acceptance-evidence/provider-requests.ndjson
+      ODOVI_ACCEPTANCE_PROVIDER_CREDENTIAL: ${ODOVI_ACCEPTANCE_PROVIDER_CREDENTIAL:?Set the controlled credential}
+    volumes:
+      - ./controlled-provider.mjs:/opt/odovi-acceptance/controlled-provider.mjs:ro
+      - ${ODOVI_ACCEPTANCE_EVIDENCE_DIR:?Set ODOVI_ACCEPTANCE_EVIDENCE_DIR}:/acceptance-evidence
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:8080/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+    networks: [release]
 
   db:
     image: postgres:17-alpine
@@ -88,6 +104,23 @@ services:
         condition: service_healthy
     networks: [release]
 
+  legacy-migrate:
+    profiles: [tools]
+    image: ${ODOVI_WORKER_IMAGE:?Set an exact ODOVI_WORKER_IMAGE tag}
+    command: ["sh", "/opt/odovi-acceptance/legacy-migrate.sh"]
+    restart: "no"
+    environment:
+      DATABASE_URL: postgres://odovi:odovi-acceptance@db:5432/odovi_upgrade
+      NODE_OPTIONS: --require=/opt/odovi-acceptance/egress-guard.cjs
+      ODOVI_ACCEPTANCE_EGRESS_LOG: /acceptance-evidence/container-egress.ndjson
+      ODOVI_ACCEPTANCE_CONTROLLED_HOSTS: ${ODOVI_ACCEPTANCE_CONTROLLED_HOSTS:?Set controlled hosts}
+    volumes:
+      - ./egress-guard.cjs:/opt/odovi-acceptance/egress-guard.cjs:ro
+      - ./legacy-migrate.sh:/opt/odovi-acceptance/legacy-migrate.sh:ro
+      - ./v0.1.1-journal.json:/opt/odovi-acceptance/v0.1.1-journal.json:ro
+      - ${ODOVI_ACCEPTANCE_EVIDENCE_DIR:?Set ODOVI_ACCEPTANCE_EVIDENCE_DIR}:/acceptance-evidence
+    networks: [release]
+
   web:
     build:
       context: ../..
@@ -105,7 +138,13 @@ services:
       ODOVI_SETUP_TOKEN: ${ODOVI_ACCEPTANCE_SETUP_TOKEN:?Set ODOVI_ACCEPTANCE_SETUP_TOKEN}
       NODE_OPTIONS: --require=/opt/odovi-acceptance/egress-guard.cjs
       ODOVI_ACCEPTANCE_EGRESS_LOG: /acceptance-evidence/container-egress.ndjson
-      ODOVI_ACCEPTANCE_EGRESS_ALLOWLIST: ${ODOVI_ACCEPTANCE_EGRESS_ALLOWLIST:-}
+      ODOVI_ACCEPTANCE_CONTROLLED_HOSTS: ${ODOVI_ACCEPTANCE_CONTROLLED_HOSTS:?Set controlled hosts}
+      ODOVI_LOCATION_PROVIDER_WEATHER_CREDENTIAL: ${ODOVI_ACCEPTANCE_PROVIDER_CREDENTIAL:?Set the controlled credential}
+      ODOVI_LOCATION_PROVIDER_ELEVATION_CREDENTIAL: ${ODOVI_ACCEPTANCE_PROVIDER_CREDENTIAL:?Set the controlled credential}
+      ODOVI_LOCATION_PROVIDER_MAP_TILES_CREDENTIAL: ${ODOVI_ACCEPTANCE_PROVIDER_CREDENTIAL:?Set the controlled credential}
+      ODOVI_LOCATION_PROVIDER_ADDRESS_SEARCH_CREDENTIAL: ${ODOVI_ACCEPTANCE_PROVIDER_CREDENTIAL:?Set the controlled credential}
+      ODOVI_LOCATION_PROVIDER_ROUTING_CREDENTIAL: ${ODOVI_ACCEPTANCE_PROVIDER_CREDENTIAL:?Set the controlled credential}
+      ODOVI_LOCATION_PROVIDER_EXTERNAL_NAVIGATION_CREDENTIAL: ${ODOVI_ACCEPTANCE_PROVIDER_CREDENTIAL:?Set the controlled credential}
     volumes:
       - ./egress-guard.cjs:/opt/odovi-acceptance/egress-guard.cjs:ro
       - ${ODOVI_ACCEPTANCE_EVIDENCE_DIR:?Set ODOVI_ACCEPTANCE_EVIDENCE_DIR}:/acceptance-evidence
@@ -116,6 +155,8 @@ services:
         condition: service_healthy
       migrate:
         condition: service_completed_successfully
+      provider:
+        condition: service_healthy
     networks: [release, browser-access]
 
   worker:
@@ -133,7 +174,13 @@ services:
       SYNC_INTERVAL_SECONDS: 5
       NODE_OPTIONS: --require=/opt/odovi-acceptance/egress-guard.cjs
       ODOVI_ACCEPTANCE_EGRESS_LOG: /acceptance-evidence/container-egress.ndjson
-      ODOVI_ACCEPTANCE_EGRESS_ALLOWLIST: ${ODOVI_ACCEPTANCE_EGRESS_ALLOWLIST:-}
+      ODOVI_ACCEPTANCE_CONTROLLED_HOSTS: ${ODOVI_ACCEPTANCE_CONTROLLED_HOSTS:?Set controlled hosts}
+      ODOVI_LOCATION_PROVIDER_WEATHER_CREDENTIAL: ${ODOVI_ACCEPTANCE_PROVIDER_CREDENTIAL:?Set the controlled credential}
+      ODOVI_LOCATION_PROVIDER_ELEVATION_CREDENTIAL: ${ODOVI_ACCEPTANCE_PROVIDER_CREDENTIAL:?Set the controlled credential}
+      ODOVI_LOCATION_PROVIDER_MAP_TILES_CREDENTIAL: ${ODOVI_ACCEPTANCE_PROVIDER_CREDENTIAL:?Set the controlled credential}
+      ODOVI_LOCATION_PROVIDER_ADDRESS_SEARCH_CREDENTIAL: ${ODOVI_ACCEPTANCE_PROVIDER_CREDENTIAL:?Set the controlled credential}
+      ODOVI_LOCATION_PROVIDER_ROUTING_CREDENTIAL: ${ODOVI_ACCEPTANCE_PROVIDER_CREDENTIAL:?Set the controlled credential}
+      ODOVI_LOCATION_PROVIDER_EXTERNAL_NAVIGATION_CREDENTIAL: ${ODOVI_ACCEPTANCE_PROVIDER_CREDENTIAL:?Set the controlled credential}
     volumes:
       - ./egress-guard.cjs:/opt/odovi-acceptance/egress-guard.cjs:ro
       - ${ODOVI_ACCEPTANCE_EVIDENCE_DIR:?Set ODOVI_ACCEPTANCE_EVIDENCE_DIR}:/acceptance-evidence
@@ -146,6 +193,8 @@ services:
         condition: service_completed_successfully
       seed:
         condition: service_completed_successfully
+      provider:
+        condition: service_healthy
     networks: [release]
 
 networks:
