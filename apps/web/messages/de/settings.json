@@ -122,6 +122,16 @@
       "public": "Öffentlich — {provider}",
       "custom": "Eigener Endpunkt"
     },
+    "activation": {
+      "enable": "Diese Funktion aktivieren",
+      "enabledHint": "Standortdaten werden nur gesendet, wenn die Funktion sie benötigt.",
+      "disabledHint": "Aus — für diese Funktion werden keine Standortdaten gesendet.",
+      "chooseProvider": "Verbindung auswählen",
+      "publicProvider": "{provider} verwenden",
+      "publicHint": "Empfohlen für eine schnelle persönliche Einrichtung.",
+      "customProvider": "Eigenen Anbieter verwenden",
+      "customHint": "Für einen selbst betriebenen oder separat vereinbarten Endpunkt."
+    },
     "fields": {
       "purpose": "Zweck",
       "transmittedData": "Übertragene Daten",

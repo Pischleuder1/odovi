@@ -122,6 +122,16 @@
       "public": "Public — {provider}",
       "custom": "Custom endpoint"
     },
+    "activation": {
+      "enable": "Enable this feature",
+      "enabledHint": "Location data is sent only when this feature needs it.",
+      "disabledHint": "Off — no location data is sent for this feature.",
+      "chooseProvider": "Choose how it connects",
+      "publicProvider": "Use {provider}",
+      "publicHint": "Recommended for a quick personal setup.",
+      "customProvider": "Use my own provider",
+      "customHint": "For a self-hosted or separately contracted endpoint."
+    },
     "fields": {
       "purpose": "Purpose",
       "transmittedData": "Data transmitted",

@@ -13,7 +13,11 @@ const INITIAL_STATE: ProviderDecisionActionState = { ok: false };
 
 function ProviderCapabilityForm({ item }: { item: ProviderReviewItem }) {
   const t = useTranslations("settings.providerReview");
-  const [mode, setMode] = useState<ProviderMode>(item.decision?.mode ?? "disabled");
+  const initialMode = item.decision?.mode ?? "disabled";
+  const [enabled, setEnabled] = useState(initialMode !== "disabled");
+  const [providerMode, setProviderMode] = useState<Exclude<ProviderMode, "disabled">>(
+    initialMode === "custom" ? "custom" : "public",
+  );
   const [state, action, pending] = useActionState(
     updateLocationProviderDecision,
     INITIAL_STATE,
@@ -89,22 +93,90 @@ function ProviderCapabilityForm({ item }: { item: ProviderReviewItem }) {
 
       <form action={action} className="mt-4 border-t border-neutral-200 pt-4 dark:border-neutral-800">
         <input type="hidden" name="capability" value={item.capability} />
-        <label className="block text-sm font-medium" htmlFor={`${item.capability}-mode`}>
-          {t("fields.mode")}
-        </label>
-        <select
-          id={`${item.capability}-mode`}
+        <input
+          type="hidden"
           name="mode"
-          value={mode}
-          onChange={(event) => setMode(event.target.value as ProviderMode)}
-          className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-950"
-        >
-          <option value="disabled">{t("modes.disabled")}</option>
-          <option value="public">{t("modes.public", { provider: item.publicProvider.name })}</option>
-          <option value="custom">{t("modes.custom")}</option>
-        </select>
+          value={enabled ? providerMode : "disabled"}
+        />
 
-        {mode === "custom" && (
+        <label
+          className="flex min-h-14 cursor-pointer items-start gap-3 rounded-lg border border-neutral-300 bg-neutral-50 px-4 py-3 dark:border-neutral-700 dark:bg-neutral-950"
+          htmlFor={`${item.capability}-enabled`}
+        >
+          <input
+            id={`${item.capability}-enabled`}
+            type="checkbox"
+            checked={enabled}
+            onChange={(event) => setEnabled(event.target.checked)}
+            className="mt-0.5 h-5 w-5 shrink-0 accent-emerald-600"
+          />
+          <span>
+            <span className="block text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+              {t("activation.enable")}
+            </span>
+            <span className="mt-0.5 block text-sm text-neutral-600 dark:text-neutral-400">
+              {enabled ? t("activation.enabledHint") : t("activation.disabledHint")}
+            </span>
+          </span>
+        </label>
+
+        {enabled && (
+          <fieldset className="mt-4">
+            <legend className="text-sm font-medium">{t("activation.chooseProvider")}</legend>
+            <div className="mt-2 grid gap-2 sm:grid-cols-2">
+              <label
+                className={`flex min-h-14 cursor-pointer items-start gap-3 rounded-lg border px-4 py-3 ${
+                  providerMode === "public"
+                    ? "border-emerald-600 bg-emerald-50 dark:border-emerald-500 dark:bg-emerald-950/40"
+                    : "border-neutral-300 dark:border-neutral-700"
+                }`}
+              >
+                <input
+                  type="radio"
+                  name={`${item.capability}-provider-choice`}
+                  value="public"
+                  checked={providerMode === "public"}
+                  onChange={() => setProviderMode("public")}
+                  className="mt-0.5 h-5 w-5 shrink-0 accent-emerald-600"
+                />
+                <span>
+                  <span className="block text-sm font-semibold">
+                    {t("activation.publicProvider", { provider: item.publicProvider.name })}
+                  </span>
+                  <span className="mt-0.5 block text-xs text-neutral-600 dark:text-neutral-400">
+                    {t("activation.publicHint")}
+                  </span>
+                </span>
+              </label>
+              <label
+                className={`flex min-h-14 cursor-pointer items-start gap-3 rounded-lg border px-4 py-3 ${
+                  providerMode === "custom"
+                    ? "border-emerald-600 bg-emerald-50 dark:border-emerald-500 dark:bg-emerald-950/40"
+                    : "border-neutral-300 dark:border-neutral-700"
+                }`}
+              >
+                <input
+                  type="radio"
+                  name={`${item.capability}-provider-choice`}
+                  value="custom"
+                  checked={providerMode === "custom"}
+                  onChange={() => setProviderMode("custom")}
+                  className="mt-0.5 h-5 w-5 shrink-0 accent-emerald-600"
+                />
+                <span>
+                  <span className="block text-sm font-semibold">
+                    {t("activation.customProvider")}
+                  </span>
+                  <span className="mt-0.5 block text-xs text-neutral-600 dark:text-neutral-400">
+                    {t("activation.customHint")}
+                  </span>
+                </span>
+              </label>
+            </div>
+          </fieldset>
+        )}
+
+        {enabled && providerMode === "custom" && (
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
             <label className="text-sm">
               <span className="font-medium">{t("fields.providerName")}</span>
@@ -164,7 +236,7 @@ function ProviderCapabilityForm({ item }: { item: ProviderReviewItem }) {
           <button
             type="submit"
             disabled={pending}
-            className="rounded-md bg-neutral-900 px-3 py-2 text-sm font-medium text-white disabled:opacity-50 dark:bg-neutral-100 dark:text-neutral-900"
+            className="min-h-11 rounded-md bg-neutral-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50 dark:bg-neutral-100 dark:text-neutral-900"
           >
             {pending ? t("saving") : t("saveDecision")}
           </button>
