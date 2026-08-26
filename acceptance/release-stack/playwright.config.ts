@@ -36,7 +36,7 @@ export default defineConfig({
     {
       name: "mobile",
       testMatch: /coverage\.spec\.ts/,
-      use: { ...devices["iPhone 13"], locale: "de-DE" },
+      use: { ...devices["iPhone 13"], browserName: "chromium", locale: "de-DE" },
     },
   ],
 });
