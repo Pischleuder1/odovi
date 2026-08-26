@@ -100,6 +100,7 @@ function ProviderCapabilityForm({ item }: { item: ProviderReviewItem }) {
         />
 
         <label
+          data-testid="provider-activation-control"
           className="flex min-h-14 cursor-pointer items-start gap-3 rounded-lg border border-neutral-300 bg-neutral-50 px-4 py-3 dark:border-neutral-700 dark:bg-neutral-950"
           htmlFor={`${item.capability}-enabled`}
         >
@@ -125,6 +126,7 @@ function ProviderCapabilityForm({ item }: { item: ProviderReviewItem }) {
             <legend className="text-sm font-medium">{t("activation.chooseProvider")}</legend>
             <div className="mt-2 grid gap-2 sm:grid-cols-2">
               <label
+                data-testid="provider-choice"
                 className={`flex min-h-14 cursor-pointer items-start gap-3 rounded-lg border px-4 py-3 ${
                   providerMode === "public"
                     ? "border-emerald-600 bg-emerald-50 dark:border-emerald-500 dark:bg-emerald-950/40"
@@ -149,6 +151,7 @@ function ProviderCapabilityForm({ item }: { item: ProviderReviewItem }) {
                 </span>
               </label>
               <label
+                data-testid="provider-choice"
                 className={`flex min-h-14 cursor-pointer items-start gap-3 rounded-lg border px-4 py-3 ${
                   providerMode === "custom"
                     ? "border-emerald-600 bg-emerald-50 dark:border-emerald-500 dark:bg-emerald-950/40"

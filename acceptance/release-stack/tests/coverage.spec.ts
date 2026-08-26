@@ -31,6 +31,34 @@ test("core archive remains usable while external providers are denied", async ({
   }
 });
 
+test("provider activation uses direct, touch-sized controls", async ({ page }) => {
+  await login(page);
+  await page.goto("/settings#provider-review");
+
+  const card = page.locator("#provider-review article").first();
+  await expect(card).toBeVisible();
+  await expect(card.locator("select")).toHaveCount(0);
+
+  const checkbox = card.getByRole("checkbox");
+  const activationControl = card.getByTestId("provider-activation-control");
+  const activationBox = await activationControl.boundingBox();
+  expect(activationBox?.height).toBeGreaterThanOrEqual(44);
+
+  await checkbox.check();
+  const providerChoices = card.getByTestId("provider-choice");
+  await expect(providerChoices).toHaveCount(2);
+  for (const choice of await providerChoices.all()) {
+    const choiceBox = await choice.boundingBox();
+    expect(choiceBox?.height).toBeGreaterThanOrEqual(44);
+  }
+
+  await card.getByRole("radio", { name: /own provider|eigenen anbieter/i }).check();
+  await expect(card.getByRole("textbox", { name: /provider name|anbietername/i })).toBeVisible();
+
+  await checkbox.uncheck();
+  await expect(providerChoices).toHaveCount(0);
+});
+
 test("manual language selection persists", async ({ page }, testInfo) => {
   await page.goto("/login");
   await page.getByRole("button", { name: "EN", exact: true }).click();
