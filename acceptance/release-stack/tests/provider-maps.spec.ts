@@ -18,7 +18,9 @@ async function saveMode(
   mode: "public" | "custom",
 ) {
   const card = await providerCard(page, capability);
-  await card.locator("select[name=mode]").selectOption(mode);
+  const enabled = card.getByRole("checkbox");
+  if (!(await enabled.isChecked())) await enabled.check();
+  await card.locator(`input[type="radio"][value="${mode}"]`).check();
   return card;
 }
 

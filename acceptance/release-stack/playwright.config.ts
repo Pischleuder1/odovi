@@ -36,7 +36,7 @@ export default defineConfig({
     {
       name: "mobile",
       testMatch: /coverage\.spec\.ts/,
-      use: { ...devices["Pixel 5"], locale: "de-DE" },
+      use: { ...devices["iPhone 13"], locale: "de-DE" },
     },
   ],
 });
