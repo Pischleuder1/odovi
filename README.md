@@ -90,7 +90,9 @@ Compose stack so the existing PostgreSQL volume remains attached.
 
 - Docker + Docker Compose (plugin) on the target device (Raspberry Pi, NAS, home server)
 - >= 4 GB RAM
-- A running TeslaMate installation with reachable Postgres (LAN, VPN, or same Docker host)
+- A running TeslaMate v4.0.1 through v4.2.0 installation with reachable Postgres
+  (LAN, VPN, or same Docker host); see the
+  [tested compatibility matrix](docs/teslamate-compatibility.md)
 
 ### 0. No TeslaMate yet? Install it too
 
