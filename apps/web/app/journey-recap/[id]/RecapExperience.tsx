@@ -3,11 +3,11 @@
 import Link from "next/link";
 import {
   ArrowLeft,
+  ArrowRight,
   BatteryCharging,
   ChevronLeft,
   ChevronRight,
   FastForward,
-  MapPin,
   Mouse,
   Pause,
   Play,
@@ -29,6 +29,7 @@ import {
   buildChapterRouteProgress,
   type RecapRouteTrack,
 } from "../../../lib/journeyRecap";
+import { BrandWordmark } from "../../../components/BrandWordmark";
 import styles from "./RecapExperience.module.css";
 
 interface RecapJourney {
@@ -111,6 +112,7 @@ interface SceneData {
   actual: WorldPoint[];
   planned: WorldPoint[];
   markers: { point: WorldPoint; progress: number }[];
+  contours: { point: WorldPoint; radius: number; phase: number }[];
 }
 
 function buildSceneData(
@@ -119,7 +121,9 @@ function buildSceneData(
 ): SceneData {
   const actualGeo = tracks.flatMap((track) => track.points);
   const all = [...actualGeo, ...plannedRoute];
-  if (all.length === 0) return { actual: [], planned: [], markers: [] };
+  if (all.length === 0) {
+    return { actual: [], planned: [], markers: [], contours: [] };
+  }
 
   const lats = all.map((point) => point[0]);
   const lons = all.map((point) => point[1]);
@@ -153,6 +157,9 @@ function buildSceneData(
     return track.points.length > 0 ? [pointOffset - 1] : [];
   });
 
+  const contourSource = actual.length > 0 ? actual : map(plannedRoute, -0.12);
+  const contourCount = Math.min(18, Math.max(7, Math.floor(contourSource.length / 20)));
+
   return {
     actual,
     planned: map(plannedRoute, -0.12),
@@ -160,6 +167,18 @@ function buildSceneData(
       point: actual[index],
       progress: actual.length > 1 ? index / (actual.length - 1) : 1,
     })),
+    contours: Array.from({ length: contourCount }, (_, index) => {
+      const progress = contourCount > 1 ? index / (contourCount - 1) : 0;
+      const pointIndex = Math.min(
+        contourSource.length - 1,
+        Math.round(progress * Math.max(0, contourSource.length - 1)),
+      );
+      return {
+        point: contourSource[pointIndex] ?? { x: 0, y: 0, z: 0 },
+        radius: 0.55 + ((index * 29) % 9) * 0.11,
+        phase: ((index * 37) % 100) / 100,
+      };
+    }),
   };
 }
 
@@ -180,6 +199,7 @@ function SceneCanvas({
   targetProgress,
   scrollProgress,
   chapterCount,
+  chapterKind,
   ambientMotion,
   reducedMotion,
 }: {
@@ -189,6 +209,7 @@ function SceneCanvas({
   targetProgress: number;
   scrollProgress: number;
   chapterCount: number;
+  chapterKind: Chapter["kind"] | "charge" | "drive";
   ambientMotion: boolean;
   reducedMotion: boolean;
 }) {
@@ -226,7 +247,7 @@ function SceneCanvas({
 
     const [red, green, blue] = hexToRgb(color);
     const pointer = { x: 0, y: 0 };
-    const stars = Array.from({ length: 80 }, (_, index) => ({
+    const stars = Array.from({ length: 42 }, (_, index) => ({
       x: ((index * 67) % 101) / 101,
       y: ((index * 43 + 17) % 97) / 97,
       size: 0.5 + ((index * 29) % 17) / 14,
@@ -275,7 +296,7 @@ function SceneCanvas({
       // top of the screen. Motion now comes from pitch, zoom and camera travel.
       const yaw = 0;
       const pitch =
-        0.78 + Math.sin(journeyProgress * Math.PI) * 0.18 + pointer.y * 0.025;
+        0.86 + Math.sin(journeyProgress * Math.PI) * 0.08 + pointer.y * 0.018;
       const cosYaw = Math.cos(yaw);
       const sinYaw = Math.sin(yaw);
       const cosPitch = Math.cos(pitch);
@@ -292,27 +313,51 @@ function SceneCanvas({
       const chapterFraction = chapterPosition - chapterStart;
       const easedFraction = chapterFraction * chapterFraction * (3 - 2 * chapterFraction);
       const zoomForChapter = (index: number) =>
-        [0.94, 1.1, 0.99, 1.16][Math.max(0, index) % 4];
+        [1.02, 1.08, 1.04, 1.1][Math.max(0, index) % 4];
       const chapterZoom =
         zoomForChapter(chapterStart) +
         (zoomForChapter(chapterStart + 1) - zoomForChapter(chapterStart)) *
           easedFraction;
-      const transitionZoom = 1 + Math.sin(chapterFraction * Math.PI) * 0.1;
-      const ambientDrift = motionRef.current ? Math.sin(time * 0.00035) * 4 : 0;
+      const transitionZoom = 1 + Math.sin(chapterFraction * Math.PI) * 0.035;
+      const ambientDrift = motionRef.current ? Math.sin(time * 0.00028) * 2.5 : 0;
       const scale =
-        ((Math.min(width, height) * 1.32) / Math.max(4.5, depth)) *
+        ((Math.min(width, height) * 1.55) / Math.max(4.5, depth)) *
         chapterZoom *
         transitionZoom;
       const compact = width < 760;
       return {
         x:
-          width * (compact ? 0.62 : 0.72) +
+          width * (compact ? 0.56 : 0.7) +
           rotatedX * scale +
           pointer.x * 5 +
           ambientDrift,
         y: height * (compact ? 0.31 : 0.46) + rotatedY * scale,
         scale,
       };
+    };
+
+    const drawContours = (time: number) => {
+      const compact = width < 760;
+      for (const contour of scene.contours) {
+        const center = project(contour.point, time);
+        const baseRadius = contour.radius * center.scale * (compact ? 0.6 : 0.9);
+        for (let ring = 0; ring < 3; ring += 1) {
+          const radius = baseRadius + ring * 14;
+          context.beginPath();
+          context.ellipse(
+            center.x,
+            center.y + ring * 2,
+            radius * 1.35,
+            radius * 0.34,
+            contour.phase * 0.18,
+            0,
+            Math.PI * 2,
+          );
+          context.lineWidth = 1;
+          context.strokeStyle = `rgba(123,223,242,${0.035 + ring * 0.008})`;
+          context.stroke();
+        }
+      }
     };
 
     const drawRoute = (
@@ -379,6 +424,8 @@ function SceneCanvas({
         context.fill();
       }
 
+      drawContours(time);
+
       drawRoute(
         scene.planned,
         1,
@@ -398,15 +445,15 @@ function SceneCanvas({
       drawRoute(
         scene.actual,
         currentProgress,
-        `rgba(${red},${green},${blue},0.14)`,
-        16,
+        `rgba(${red},${green},${blue},0.12)`,
+        22,
         time,
       );
       drawRoute(
         scene.actual,
         currentProgress,
-        `rgba(${red},${green},${blue},0.45)`,
-        7,
+        "rgba(123,223,242,0.36)",
+        8,
         time,
       );
       drawRoute(
@@ -435,7 +482,9 @@ function SceneCanvas({
 
       if (scene.actual.length > 0 && currentProgress > 0) {
         const point = project(pointAtProgress(scene.actual, currentProgress), time);
-        const pulse = motionRef.current ? 1 + Math.sin(time * 0.006) * 0.2 : 1;
+        const isMemoryPoint = chapterKind === "charge" || chapterKind === "finale";
+        const pulse = motionRef.current ? 1 + Math.sin(time * 0.004) * 0.08 : 1;
+        const pointColor = isMemoryPoint ? "255,107,74" : "123,223,242";
         const glow = context.createRadialGradient(
           point.x,
           point.y,
@@ -445,8 +494,8 @@ function SceneCanvas({
           30 * pulse,
         );
         glow.addColorStop(0, "rgba(255,255,255,0.96)");
-        glow.addColorStop(0.18, `rgba(${red},${green},${blue},0.9)`);
-        glow.addColorStop(1, `rgba(${red},${green},${blue},0)`);
+        glow.addColorStop(0.18, `rgba(${pointColor},0.9)`);
+        glow.addColorStop(1, `rgba(${pointColor},0)`);
         context.beginPath();
         context.arc(point.x, point.y, 30 * pulse, 0, Math.PI * 2);
         context.fillStyle = glow;
@@ -465,7 +514,7 @@ function SceneCanvas({
       window.removeEventListener("resize", resize);
       window.removeEventListener("pointermove", onPointerMove);
     };
-  }, [chapterCount, color, scene]);
+  }, [chapterCount, chapterKind, color, scene]);
 
   return <canvas ref={canvasRef} className={styles.canvas} aria-hidden />;
 }
@@ -507,6 +556,17 @@ function Metric({
   );
 }
 
+function chapterLinger(progress: number, amount: number): number {
+  if (amount <= 0) return progress;
+  const holdWidth = Math.min(0.34, amount * 0.34);
+  const holdStart = 0.5 - holdWidth / 2;
+  const holdEnd = 0.5 + holdWidth / 2;
+  const smooth = (value: number) => value * value * (3 - 2 * value);
+  if (progress < holdStart) return smooth(progress / holdStart) * 0.5;
+  if (progress <= holdEnd) return 0.5;
+  return 0.5 + smooth((progress - holdEnd) / (1 - holdEnd)) * 0.5;
+}
+
 export function RecapExperience({ data }: { data: JourneyRecapData }) {
   const t = useTranslations("journeys.recap");
   const locale = useLocale();
@@ -543,6 +603,13 @@ export function RecapExperience({ data }: { data: JourneyRecapData }) {
       return ordinal;
     });
   }, [data.items]);
+  const chargeOrdinalByItemIndex = useMemo(() => {
+    let ordinal = 0;
+    return data.items.map((item) => {
+      if (item.kind === "charge") ordinal += 1;
+      return ordinal;
+    });
+  }, [data.items]);
   const routeTargets = useMemo(
     () => [
       data.tracks.length > 0 ? 0.025 : 0,
@@ -554,13 +621,25 @@ export function RecapExperience({ data }: { data: JourneyRecapData }) {
   const routePosition = scrollProgress * Math.max(0, routeTargets.length - 1);
   const routeStartIndex = Math.floor(routePosition);
   const routeEndIndex = Math.min(routeTargets.length - 1, routeStartIndex + 1);
-  const routeFraction = routePosition - routeStartIndex;
+  const rawRouteFraction = routePosition - routeStartIndex;
+  const routeStartChapter = chapters[routeStartIndex];
+  const routeEndChapter = chapters[routeEndIndex];
+  const routeLinger =
+    routeStartChapter?.kind === "intro" || routeEndChapter?.kind === "finale"
+      ? 0.48
+      : routeStartChapter?.kind === "item" && routeStartChapter.item.kind === "charge"
+        ? 0.58
+        : 0.18;
+  const routeFraction = chapterLinger(rawRouteFraction, routeLinger);
   const targetProgress =
     (routeTargets[routeStartIndex] ?? 0) +
     ((routeTargets[routeEndIndex] ?? 0) - (routeTargets[routeStartIndex] ?? 0)) *
       routeFraction;
   const hasActualRoute = data.tracks.some((track) => track.points.length >= 2);
   const hasPlan = data.plannedRoute.length >= 2;
+  const activeChapter = chapters[chapterIndex] ?? chapters[0];
+  const activeChapterKind =
+    activeChapter.kind === "item" ? activeChapter.item.kind : activeChapter.kind;
 
   useEffect(() => {
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -795,12 +874,20 @@ export function RecapExperience({ data }: { data: JourneyRecapData }) {
           <p className={styles.eyebrow}>
             <Route aria-hidden size={15} />
             {t("driveChapter", { number: driveOrdinalByItemIndex[chapter.itemIndex] })}
+            <span>·</span>
+            {new Intl.DateTimeFormat(locale, {
+              day: "numeric",
+              month: "short",
+              hour: "2-digit",
+              minute: "2-digit",
+              timeZone: data.timeZone,
+            }).format(new Date(item.startTime))}
           </p>
-          <h1 className={styles.chapterTitle}>
+          <p className={styles.routeOrigin}>
             <span>{from}</span>
-            <em>→</em>
-            <span>{to}</span>
-          </h1>
+            <ArrowRight aria-hidden size={16} />
+          </p>
+          <h1 className={styles.chapterTitle}>{to}</h1>
           <div className={styles.metrics}>
             <Metric
               icon={<Route aria-hidden size={18} />}
@@ -835,6 +922,8 @@ export function RecapExperience({ data }: { data: JourneyRecapData }) {
         <p className={styles.eyebrow}>
           <BatteryCharging aria-hidden size={15} />
           {t("chargeChapter")}
+          <span>·</span>
+          {chargeOrdinalByItemIndex[chapter.itemIndex]} / {data.totals.chargeStops}
         </p>
         <h1 className={styles.chapterTitle}>
           {item.place ?? t("chargingStop")}
@@ -882,11 +971,12 @@ export function RecapExperience({ data }: { data: JourneyRecapData }) {
           targetProgress={targetProgress}
           scrollProgress={scrollProgress}
           chapterCount={chapters.length}
+          chapterKind={activeChapterKind}
           ambientMotion={playing && !reducedMotion}
           reducedMotion={reducedMotion}
         />
         <div className={styles.aurora} aria-hidden />
-        <div className={styles.orbit} aria-hidden><i /><i /><i /></div>
+        <div className={styles.horizon} aria-hidden />
         <div className={styles.compass} aria-hidden>
           <span>N</span>
           <i />
@@ -903,10 +993,7 @@ export function RecapExperience({ data }: { data: JourneyRecapData }) {
           <ArrowLeft aria-hidden size={17} />
           <span>{data.presentation?.backLabel ?? t("back")}</span>
         </Link>
-        <div className={styles.wordmark}>
-          <MapPin aria-hidden size={16} />
-          Odovi
-        </div>
+        <BrandWordmark size="sm" className={styles.wordmark} />
         <div className={styles.controls}>
           {reducedMotion && <span className={styles.motionBadge}>{t("reducedMotion")}</span>}
           <label className={styles.speedControl}>
@@ -948,6 +1035,7 @@ export function RecapExperience({ data }: { data: JourneyRecapData }) {
               goTo(chapters.length - 1);
             }}
             className={styles.skipButton}
+            aria-label={t("skip")}
           >
             <FastForward aria-hidden size={15} />
             <span>{t("skip")}</span>
@@ -964,6 +1052,9 @@ export function RecapExperience({ data }: { data: JourneyRecapData }) {
             }}
             id={`recap-chapter-${index}`}
             className={styles.chapterSection}
+            data-kind={
+              chapter.kind === "item" ? chapter.item.kind : chapter.kind
+            }
             data-active={index === chapterIndex ? "true" : undefined}
             aria-label={t("chapter", { current: index + 1, total: chapters.length })}
           >
@@ -976,7 +1067,6 @@ export function RecapExperience({ data }: { data: JourneyRecapData }) {
 
       <nav
         className={styles.chapterNav}
-        data-dense={chapters.length > 14 ? "true" : undefined}
         aria-label={data.presentation?.chaptersLabel ?? t("chaptersLabel")}
       >
         <button
@@ -988,30 +1078,54 @@ export function RecapExperience({ data }: { data: JourneyRecapData }) {
         >
           <ChevronLeft aria-hidden size={18} />
         </button>
-        <ol className={styles.chapterList}>
-          {chapters.map((chapter, index) => (
-            <li key={chapter.key}>
-              <button
-                type="button"
-                onClick={() => goTo(index)}
-                className={index === chapterIndex ? styles.activeChapter : styles.chapterButton}
-                aria-current={index === chapterIndex ? "step" : undefined}
-                aria-label={t("chapter", { current: index + 1, total: chapters.length })}
-              >
-                <i />
-                <span>
-                  {chapter.kind === "intro"
-                    ? t("start")
-                    : chapter.kind === "finale"
-                      ? t("finish")
-                      : chapter.item.kind === "charge"
-                        ? t("chargeShort")
-                        : t("legShort", { number: driveOrdinalByItemIndex[chapter.itemIndex] })}
-                </span>
-              </button>
-            </li>
-          ))}
-        </ol>
+        <div className={styles.routeRail}>
+          <div className={styles.railMeta} aria-hidden>
+            <span>{String(chapterIndex + 1).padStart(2, "0")}</span>
+            <strong>
+              {activeChapter.kind === "intro"
+                ? t("start")
+                : activeChapter.kind === "finale"
+                  ? t("finish")
+                  : activeChapter.item.kind === "charge"
+                    ? t("chargeShort")
+                    : t("legShort", {
+                        number: driveOrdinalByItemIndex[activeChapter.itemIndex],
+                      })}
+            </strong>
+            <span>{String(chapters.length).padStart(2, "0")}</span>
+          </div>
+          <div className={styles.railControl}>
+            <input
+              type="range"
+              min="0"
+              max={chapters.length - 1}
+              step="1"
+              value={chapterIndex}
+              onChange={(event) => {
+                setPlaying(false);
+                goTo(Number(event.target.value), "auto");
+              }}
+              style={{ "--rail-progress": `${scrollProgress * 100}%` } as CSSProperties}
+              aria-label={data.presentation?.chaptersLabel ?? t("chaptersLabel")}
+              aria-valuetext={t("chapter", {
+                current: chapterIndex + 1,
+                total: chapters.length,
+              })}
+            />
+            <span className={styles.railStart} aria-hidden />
+            {chapters.map((chapter, index) =>
+              chapter.kind === "item" && chapter.item.kind === "charge" ? (
+                <i
+                  key={chapter.key}
+                  className={styles.chargeMarker}
+                  style={{ left: `${(index / Math.max(1, chapters.length - 1)) * 100}%` }}
+                  aria-hidden
+                />
+              ) : null,
+            )}
+            <span className={styles.railFinish} aria-hidden />
+          </div>
+        </div>
         <button
           type="button"
           className={styles.navArrow}
