@@ -4,6 +4,8 @@
 # Multi-stage, pnpm workspace-aware build. linux/arm64-compatible (Raspberry Pi).
 
 ARG NODE_IMAGE=node:22-bookworm-slim
+ARG ODOVI_VERSION=0.2.0
+ARG ODOVI_COMMIT_SHA=dev
 
 # ---- base: corepack/pnpm ----------------------------------------------
 FROM ${NODE_IMAGE} AS base
@@ -46,7 +48,13 @@ RUN pnpm install --frozen-lockfile --prod --filter @odovi/worker... --filter @od
 
 # ---- runtime -------------------------------------------------------------
 FROM ${NODE_IMAGE} AS runtime
+ARG ODOVI_VERSION
+ARG ODOVI_COMMIT_SHA
 ENV NODE_ENV=production
+ENV ODOVI_VERSION=${ODOVI_VERSION}
+ENV ODOVI_COMMIT_SHA=${ODOVI_COMMIT_SHA}
+LABEL org.opencontainers.image.version=${ODOVI_VERSION}
+LABEL org.opencontainers.image.revision=${ODOVI_COMMIT_SHA}
 WORKDIR /app
 
 RUN groupadd --system --gid 1001 odovi \

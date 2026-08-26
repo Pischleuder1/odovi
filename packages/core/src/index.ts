@@ -1,4 +1,5 @@
 export * from "./format.js";
+export * from "./buildInfo.js";
 export * from "./derive/energy.js";
 export * from "./derive/parks.js";
 export * from "./derive/vampire.js";

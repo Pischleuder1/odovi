@@ -80,6 +80,19 @@
   "security": {
     "title": "Security"
   },
+  "about": {
+    "title": "About Odovi",
+    "version": "Version",
+    "build": "Build",
+    "copy": "Copy for support",
+    "copied": "Copied",
+    "supportTitle": "Support",
+    "supportDescription": "Best-effort community support without a response-time SLA.",
+    "supportLink": "Open GitHub Issues",
+    "securityTitle": "Security report",
+    "securityDescription": "Report suspected vulnerabilities privately, not in a public issue.",
+    "securityLink": "Open a private security advisory"
+  },
   "tesla": {
     "title": "Tesla Fleet API",
     "description": "Sends the checkpoints of a planned roadtrip directly to the vehicle navigation.",

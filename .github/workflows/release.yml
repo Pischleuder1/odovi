@@ -61,6 +61,9 @@ jobs:
           file: apps/web/Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
+          build-args: |
+            ODOVI_VERSION=${{ steps.version.outputs.version }}
+            ODOVI_COMMIT_SHA=${{ github.sha }}
           tags: |
             ghcr.io/jsc2304/odovi-web:${{ steps.version.outputs.version }}
             ghcr.io/jsc2304/odovi-web:latest
@@ -74,6 +77,9 @@ jobs:
           file: apps/worker/Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
+          build-args: |
+            ODOVI_VERSION=${{ steps.version.outputs.version }}
+            ODOVI_COMMIT_SHA=${{ github.sha }}
           tags: |
             ghcr.io/jsc2304/odovi-worker:${{ steps.version.outputs.version }}
             ghcr.io/jsc2304/odovi-worker:latest

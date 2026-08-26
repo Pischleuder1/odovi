@@ -1,4 +1,5 @@
 import { getLocale, getTranslations } from "next-intl/server";
+import { resolveBuildInfo } from "@odovi/core";
 import { APP_TIMEZONE } from "../../../lib/config";
 import { formatRelativeTime } from "../../../lib/day";
 import { getSyncState, getVehiclesDetailed } from "../../../lib/queries";
@@ -13,6 +14,7 @@ import { DiagnosticsCard } from "./DiagnosticsCard";
 import { TeslaIntegrationCard } from "./TeslaIntegrationCard";
 import { getTeslaIntegrationStatus } from "../../../lib/tesla/integration";
 import { MoreHub } from "./MoreHub";
+import { BuildInfoCard } from "./BuildInfoCard";
 
 export const dynamic = "force-dynamic";
 
@@ -50,6 +52,10 @@ export default async function SettingsPage() {
   const softwareUpdates =
     defaultVehicleId != null ? await getSoftwareUpdates(defaultVehicleId) : [];
   const entityLabels = buildEntityLabels(t);
+  const buildInfo = resolveBuildInfo({
+    ODOVI_VERSION: process.env.ODOVI_VERSION,
+    ODOVI_COMMIT_SHA: process.env.ODOVI_COMMIT_SHA,
+  });
 
   return (
     <div className="mx-auto max-w-2xl">
@@ -61,6 +67,23 @@ export default async function SettingsPage() {
       <MoreHub />
 
       <DiagnosticsCard />
+
+      <BuildInfoCard
+        buildInfo={buildInfo}
+        labels={{
+          title: t("about.title"),
+          version: t("about.version"),
+          build: t("about.build"),
+          copy: t("about.copy"),
+          copied: t("about.copied"),
+          supportTitle: t("about.supportTitle"),
+          supportDescription: t("about.supportDescription"),
+          supportLink: t("about.supportLink"),
+          securityTitle: t("about.securityTitle"),
+          securityDescription: t("about.securityDescription"),
+          securityLink: t("about.securityLink"),
+        }}
+      />
 
       <TeslaIntegrationCard
         status={teslaStatus}

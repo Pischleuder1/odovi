@@ -1,3 +1,4 @@
+import { resolveBuildInfo } from "@odovi/core";
 import { createDbConnection } from "@odovi/db";
 import { parseWorkerRuntimeConfig } from "@odovi/runtime-config";
 import { createWorkerLoop } from "./lifecycle.js";
@@ -7,6 +8,10 @@ import { createTeslamateClient, probeTeslamateSchema } from "./teslamate/client.
 async function main(): Promise<void> {
   // Validate before opening clients or entering a long-running retry loop.
   const config = parseWorkerRuntimeConfig(process.env);
+  const buildInfo = resolveBuildInfo({
+    ODOVI_VERSION: process.env.ODOVI_VERSION,
+    ODOVI_COMMIT_SHA: process.env.ODOVI_COMMIT_SHA,
+  });
   const connection = createDbConnection(config.databaseUrl);
   const tm = createTeslamateClient(config.teslamateDatabaseUrl);
 
@@ -39,7 +44,9 @@ async function main(): Promise<void> {
   process.once("SIGINT", () => void loop.stop("SIGINT"));
   process.once("SIGTERM", () => void loop.stop("SIGTERM"));
 
-  console.log(`[odovi-worker] starting, interval=${config.syncIntervalSeconds}s`);
+  console.log(
+    `[odovi-worker] starting, version=${buildInfo.version}, build=${buildInfo.commit}, interval=${config.syncIntervalSeconds}s`,
+  );
   loop.start();
 }
 
