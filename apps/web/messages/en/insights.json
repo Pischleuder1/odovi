@@ -1,5 +1,13 @@
 {
   "title": "Insights",
+  "hero": {
+    "eyebrow": "Your driving profile",
+    "title": "How your everyday driving moves.",
+    "drives": "Usable drives",
+    "distance": "Distance driven",
+    "consumption": "Avg consumption",
+    "months": "Months observed"
+  },
   "subtitleWithData": "Based on {count, plural, one {# drive} other {# drives}} since {date}.",
   "subtitleNoData": "Patterns and correlations from your drives.",
   "notEnoughTitle": "Not enough data yet",

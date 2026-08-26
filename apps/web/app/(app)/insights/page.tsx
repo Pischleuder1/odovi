@@ -1,4 +1,11 @@
-import { Lightbulb } from "lucide-react";
+import {
+  CalendarRange,
+  Gauge,
+  Lightbulb,
+  Route,
+  Sparkles,
+  type LucideIcon,
+} from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
 import {
   MIN_DRIVES_TOTAL,
@@ -23,6 +30,7 @@ import {
 } from "./InsightCharts";
 import { InsightsVehicleSwitcher } from "./InsightsVehicleSwitcher";
 import { VehicleRequiredState } from "../../../components/VehicleRequiredState";
+import styles from "./Insights.module.css";
 
 export const dynamic = "force-dynamic";
 
@@ -35,26 +43,47 @@ const MONDAY_UTC_DAY = 5;
 
 /** Card-Rahmen im gleichen Stil wie die übrigen Seiten. */
 function Card({
+  index,
   title,
   subtitle,
   children,
+  className = "",
 }: {
+  index: string;
   title: string;
   subtitle?: string;
   children: React.ReactNode;
+  className?: string;
 }) {
   return (
-    <section className="rounded-2xl border border-neutral-200 bg-white p-4 sm:p-5 dark:border-neutral-800 dark:bg-neutral-900">
-      <h2 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
-        {title}
-      </h2>
-      {subtitle && (
-        <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
-          {subtitle}
-        </p>
-      )}
-      <div className="mt-4">{children}</div>
+    <section className={`${styles.card} ${className}`}>
+      <header className={styles.cardHeader}>
+        <span aria-hidden>{index}</span>
+        <div>
+          <h2>{title}</h2>
+          {subtitle && <p>{subtitle}</p>}
+        </div>
+      </header>
+      <div className={styles.cardBody}>{children}</div>
     </section>
+  );
+}
+
+function HeroMetric({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: LucideIcon;
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className={styles.heroMetric}>
+      <Icon aria-hidden size={17} />
+      <dt>{label}</dt>
+      <dd>{value}</dd>
+    </div>
   );
 }
 
@@ -207,25 +236,70 @@ export default async function InsightsPage({
   );
   const showShortTrip =
     enoughForPage && shortTrip.shortShare > SHORT_TRIP_MIN_SHARE;
+  const totalDistanceKm = drives.reduce((sum, drive) => sum + drive.distanceKm, 0);
+  const overallConsumption = shortTrip.overallMeanConsumption;
+  const numberFormat = new Intl.NumberFormat(toIntlLocale(locale), {
+    maximumFractionDigits: 0,
+  });
+  const basisLabel =
+    total > 0 && firstDriveDate
+      ? t("subtitleWithData", {
+          count: total,
+          date: formatFirstDate(firstDriveDate, locale),
+        })
+      : t("subtitleNoData");
 
   return (
-    <div className="mx-auto max-w-4xl">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
-          <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
-            {total > 0 && firstDriveDate
-              ? t("subtitleWithData", { count: total, date: formatFirstDate(firstDriveDate, locale) })
-              : t("subtitleNoData")}
-          </p>
+    <div className={styles.page}>
+      <section className={styles.hero}>
+        <div className={styles.heroRoute} aria-hidden>
+          <i />
+          <i />
+          <i />
         </div>
-        {vehicles.length > 1 && (
-          <InsightsVehicleSwitcher vehicles={vehicles} current={current.id} />
-        )}
-      </div>
+        <div className={styles.heroTopline}>
+          <p>
+            <Sparkles aria-hidden size={14} />
+            {t("hero.eyebrow")}
+          </p>
+          {vehicles.length > 1 && (
+            <InsightsVehicleSwitcher vehicles={vehicles} current={current.id} />
+          )}
+        </div>
+        <div className={styles.heroCopy}>
+          <h1>{t("hero.title")}</h1>
+          <p>{basisLabel}</p>
+        </div>
+        <dl className={styles.heroMetrics}>
+          <HeroMetric
+            icon={Route}
+            label={t("hero.drives")}
+            value={numberFormat.format(total)}
+          />
+          <HeroMetric
+            icon={Gauge}
+            label={t("hero.distance")}
+            value={`${numberFormat.format(totalDistanceKm)} km`}
+          />
+          <HeroMetric
+            icon={Sparkles}
+            label={t("hero.consumption")}
+            value={
+              overallConsumption == null
+                ? "–"
+                : `${numberFormat.format(overallConsumption)} Wh/km`
+            }
+          />
+          <HeroMetric
+            icon={CalendarRange}
+            label={t("hero.months")}
+            value={numberFormat.format(months.length)}
+          />
+        </dl>
+      </section>
 
       {!enoughForPage && (
-        <div className="mt-6">
+        <div className={styles.notice}>
           <EmptyState
             icon={Lightbulb}
             title={t("notEnoughTitle")}
@@ -234,11 +308,13 @@ export default async function InsightsPage({
         </div>
       )}
 
-      <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <div className={styles.insightGrid}>
         {/* 1. Verbrauch vs. Außentemperatur */}
         <Card
+          index="01"
           title={t("cards.temp.title")}
           subtitle={enoughForPage ? tempSubtitle(tempBins, t) : undefined}
+          className={styles.tempCard}
         >
           {enoughForPage && tempBins.length > 0 ? (
             <ScatterBinnedChart
@@ -256,8 +332,10 @@ export default async function InsightsPage({
 
         {/* 2. Verbrauch vs. Durchschnittstempo */}
         <Card
+          index="02"
           title={t("cards.speed.title")}
           subtitle={t("cards.speed.subtitle")}
+          className={styles.speedCard}
         >
           {enoughForPage && speedBins.length > 0 ? (
             <ScatterBinnedChart
@@ -275,8 +353,10 @@ export default async function InsightsPage({
 
         {/* 3. Monatsverlauf */}
         <Card
+          index="03"
           title={t("cards.month.title")}
           subtitle={t("cards.month.subtitle")}
+          className={styles.monthCard}
         >
           {enoughForPage && months.length > 0 ? (
             <MonthChart months={months} />
@@ -287,8 +367,10 @@ export default async function InsightsPage({
 
         {/* 4. Wochentagsmuster */}
         <Card
+          index="04"
           title={t("cards.weekday.title")}
           subtitle={t("cards.weekday.subtitle")}
+          className={showShortTrip ? styles.weekdayCard : styles.fullCard}
         >
           {enoughForPage ? (
             <WeekdayChart days={weekdays} />
@@ -300,8 +382,10 @@ export default async function InsightsPage({
         {/* 5. Kurzstrecken-Anteil (nur bei relevantem Anteil) */}
         {showShortTrip && (
           <Card
+            index="05"
             title={t("cards.shortTrip.title")}
             subtitle={t("cards.shortTrip.subtitle")}
+            className={styles.shortTripCard}
           >
             <ShortTripDonut
               shortShare={shortTrip.shortShare}

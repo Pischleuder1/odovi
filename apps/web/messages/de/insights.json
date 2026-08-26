@@ -1,5 +1,13 @@
 {
   "title": "Insights",
+  "hero": {
+    "eyebrow": "Dein Fahrprofil",
+    "title": "So fährt dein Alltag.",
+    "drives": "Auswertbare Fahrten",
+    "distance": "Gefahrene Strecke",
+    "consumption": "Ø Verbrauch",
+    "months": "Monate im Blick"
+  },
   "subtitleWithData": "Basiert auf {count, plural, one {# Fahrt} other {# Fahrten}} seit {date}.",
   "subtitleNoData": "Muster und Zusammenhänge aus deinen Fahrten.",
   "notEnoughTitle": "Noch nicht genug Daten",
