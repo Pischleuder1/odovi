@@ -219,7 +219,12 @@ function currentVersion(capability: LocationCapability): string {
   return PUBLIC_LOCATION_PROVIDERS[capability].disclosureVersion;
 }
 
-function validHttpUrl(value: string, label: string, issues: string[]): string | null {
+function validHttpUrl(
+  value: string,
+  label: string,
+  issues: string[],
+  options: { baseUrl?: boolean } = {},
+): string | null {
   try {
     const url = new URL(value);
     if (!['http:', 'https:'].includes(url.protocol)) {
@@ -228,6 +233,10 @@ function validHttpUrl(value: string, label: string, issues: string[]): string | 
     }
     if (url.username || url.password) {
       issues.push(`${label} must not contain credentials`);
+      return null;
+    }
+    if (options.baseUrl && (url.search || url.hash)) {
+      issues.push(`${label} must not contain a query string or fragment`);
       return null;
     }
     return value;
@@ -332,7 +341,12 @@ export class LocationProviderPolicy {
 
     const provider = decision.provider.trim();
     if (!provider || provider === "none") issues.push("custom provider name is required");
-    const endpoint = validHttpUrl(decision.endpoint?.trim() ?? "", "custom endpoint", issues);
+    const endpoint = validHttpUrl(
+      decision.endpoint?.trim() ?? "",
+      "custom endpoint",
+      issues,
+      { baseUrl: true },
+    );
     const contactUrl = validHttpUrl(
       decision.customContactUrl?.trim() ?? "",
       "custom contact path",

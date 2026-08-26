@@ -37,8 +37,19 @@
     "submitPending": "Berechne…",
     "historyHint": "Nur {count, plural, one {# Fahrt} other {# Fahrten}} in der Historie — Basiswert noch wenig belastbar.",
     "routingPrefix": "Routing:",
-    "routingDefaultHint": "öffentlicher OSRM-Demo-Server — eigenen Server über OSRM_URL hinterlegen.",
-    "routingCustomHint": "eigener OSRM-Server (OSRM_URL)."
+    "routingMode": {
+      "disabled": "deaktiviert — es werden keine Koordinaten gesendet",
+      "public": "öffentliche OSRM-Demo, nur zur Evaluation — limitiert, ohne SLA",
+      "custom": "eigener oder selbst gehosteter OSRM-kompatibler Endpunkt"
+    },
+    "elevationPrefix": "Streckenhöhe:",
+    "elevationMode": {
+      "disabled": "deaktiviert — Prognosen rechnen ohne Höhenterm",
+      "public": "öffentlicher Open-Meteo-Evaluationsmodus",
+      "custom": "eigener Endpunkt"
+    },
+    "reviewProviders": "Provider prüfen",
+    "manualItineraryHint": "Du kannst Checkpoints weiterhin vorbereiten und sortieren oder einen bestehenden Plan öffnen. Aktiviere Routing erst, wenn Odovi Straßen und Prognosen berechnen soll."
   },
   "checkpoints": {
     "title": "Checkpoints",
@@ -73,8 +84,10 @@
     "saveFailed": "Der Reiseplan konnte nicht gespeichert werden.",
     "notAuthenticated": "Nicht angemeldet.",
     "invalidInput": "Ungültige Eingabe.",
+    "routingNeedsReview": "Routing wurde noch nicht geprüft oder ist unvollständig konfiguriert. Prüfe den Routing-Provider in den Einstellungen, bevor du eine Route berechnest.",
+    "routingDisabled": "Routing ist deaktiviert. Du kannst die Reiseroute weiter vorbereiten oder in den Einstellungen einen Routing-Provider aktivieren.",
     "routingUnreachable": "Routing-Dienst nicht erreichbar (Zeitüberschreitung oder Netzwerkfehler). Bitte später erneut versuchen.",
-    "routingRateLimited": "Der öffentliche OSRM-Demo-Server hat die Anfrage abgelehnt (Rate-Limit). Bitte etwas später erneut versuchen oder einen eigenen Server über OSRM_URL hinterlegen.",
+    "routingRateLimited": "Der Routing-Provider hat die Anfrage wegen eines Limits abgelehnt. Die öffentliche OSRM-Demo dient nur zur Evaluation; für verlässliches Routing ist ein kontrollierter Endpunkt nötig.",
     "routingHttpError": "Routing-Dienst antwortete mit HTTP {status}.",
     "routingBadResponse": "Unerwartete Antwort vom Routing-Dienst.",
     "routingNoRoute": "Für Start und Ziel konnte keine Route berechnet werden. Bitte andere Punkte wählen."
@@ -123,7 +136,7 @@
     },
     "routing": "Routing",
     "routingPublic": "öffentlicher OSRM-Demo-Server",
-    "routingCustom": "eigener OSRM-Server (OSRM_URL)",
+    "routingCustom": "eigener oder selbst gehosteter OSRM-kompatibler Endpunkt",
     "energyBreakdown": "Energie-Aufschlüsselung",
     "base": "Basis",
     "ascent": "Anstieg",

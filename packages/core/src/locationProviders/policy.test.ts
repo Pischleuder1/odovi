@@ -97,6 +97,19 @@ describe("LocationProviderPolicy", () => {
     );
   });
 
+  it("rejects custom provider endpoints with baked-in query or fragment state", () => {
+    const policy = new LocationProviderPolicy([
+      customDecision({ endpoint: "https://router.example/route?profile=driving" }),
+    ]);
+
+    const resolution = policy.resolve("routing");
+    expect(resolution).toMatchObject({
+      status: "disabled",
+      reason: "invalid-configuration",
+      issues: ["custom endpoint must not contain a query string or fragment"],
+    });
+  });
+
   it("requires renewed review when a stored disclosure version changes", () => {
     const stale = {
       ...createPublicProviderDecision("weather", 1),

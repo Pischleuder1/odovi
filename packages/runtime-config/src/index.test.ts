@@ -28,7 +28,6 @@ describe("release configuration", () => {
       WEB_PORT: "8443",
       SYNC_INTERVAL_SECONDS: "120",
       ODOVI_SETUP_TOKEN: `v1.1800000000.${"a".repeat(64)}`,
-      OSRM_URL: "http://router.internal:5000/",
       FORCE_SECURE_COOKIES: "true",
       ELEVATION_ENABLED: "true",
       ELEVATION_MAX_POINTS_PER_CYCLE: "250",
@@ -41,7 +40,6 @@ describe("release configuration", () => {
         "LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KdGVzdAotLS0tLUVORCBQVUJMSUMgS0VZLS0tLS0K",
       TESLA_COMMAND_API_URL: "https://commands.example/",
     });
-    expect(config.web.osrmUrl).toBe("http://router.internal:5000");
     expect(config.web.forceSecureCookies).toBe(true);
     expect(config.web.setupToken).toMatch(/^v1\./);
     expect(config.web.tesla?.commandApiUrl).toBe("https://commands.example");
@@ -113,6 +111,15 @@ describe("release configuration", () => {
         ODOVI_COMMIT_SHA: "75f5917e8750",
       }),
     ).toEqual(["DATABASE_URL"]);
+  });
+
+  it("rejects the legacy routing bypass in release configuration", () => {
+    expect(
+      unknownReleaseSettings({
+        ...REQUIRED,
+        OSRM_URL: "http://router.internal:5000",
+      }),
+    ).toEqual(["OSRM_URL"]);
   });
 });
 

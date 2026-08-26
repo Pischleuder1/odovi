@@ -14,7 +14,6 @@ export const RELEASE_SETTING_NAMES = [
   "APP_TIMEZONE",
   "SYNC_INTERVAL_SECONDS",
   "ODOVI_SETUP_TOKEN",
-  "OSRM_URL",
   "FORCE_SECURE_COOKIES",
   "ELEVATION_ENABLED",
   "ELEVATION_MAX_POINTS_PER_CYCLE",
@@ -65,7 +64,6 @@ export interface WebRuntimeConfig {
   appTimezone: string;
   setupToken?: string;
   teslamateDatabaseUrl?: string;
-  osrmUrl?: string;
   forceSecureCookies: boolean;
   tesla: TeslaProviderConfig | null;
 }
@@ -338,13 +336,6 @@ export function parseTeslaProviderConfig(
   return config;
 }
 
-export function parseRoutingUrl(value: string | undefined): string | undefined {
-  const issues: string[] = [];
-  const url = parseUrl("OSRM_URL", value, ["http:", "https:"], issues);
-  if (issues.length > 0) throw new RuntimeConfigurationError("OSRM_URL", issues);
-  return url;
-}
-
 export function parseWebRuntimeConfig(env: Environment): WebRuntimeConfig {
   const issues: string[] = [];
   const databaseUrl = parseDatabaseUrl("DATABASE_URL", env.DATABASE_URL, true, issues) ?? "";
@@ -356,7 +347,6 @@ export function parseWebRuntimeConfig(env: Environment): WebRuntimeConfig {
   );
   const appTimezone = collectTimezone(env.APP_TIMEZONE, issues);
   const setupToken = parseSetupToken(env.ODOVI_SETUP_TOKEN, issues);
-  const osrmUrl = parseUrl("OSRM_URL", env.OSRM_URL, ["http:", "https:"], issues);
   const forceSecureCookies = collectBoolean(
     "FORCE_SECURE_COOKIES",
     env.FORCE_SECURE_COOKIES,
@@ -370,7 +360,6 @@ export function parseWebRuntimeConfig(env: Environment): WebRuntimeConfig {
     appTimezone,
     setupToken,
     teslamateDatabaseUrl,
-    osrmUrl,
     forceSecureCookies,
     tesla,
   };
@@ -463,7 +452,6 @@ export function parseReleaseRuntimeConfig(env: Environment): ReleaseRuntimeConfi
     86400,
     issues,
   );
-  const osrmUrl = parseUrl("OSRM_URL", env.OSRM_URL, ["http:", "https:"], issues);
   const forceSecureCookies = collectBoolean(
     "FORCE_SECURE_COOKIES",
     env.FORCE_SECURE_COOKIES,
@@ -503,7 +491,6 @@ export function parseReleaseRuntimeConfig(env: Environment): ReleaseRuntimeConfi
       appTimezone,
       setupToken,
       teslamateDatabaseUrl,
-      osrmUrl,
       forceSecureCookies,
       tesla,
     },

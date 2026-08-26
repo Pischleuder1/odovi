@@ -37,8 +37,19 @@
     "submitPending": "Calculating…",
     "historyHint": "Only {count, plural, one {# drive} other {# drives}} in history — base value not yet very reliable.",
     "routingPrefix": "Routing:",
-    "routingDefaultHint": "public OSRM demo server — set up your own server via OSRM_URL.",
-    "routingCustomHint": "your own OSRM server (OSRM_URL)."
+    "routingMode": {
+      "disabled": "disabled — no coordinates are sent",
+      "public": "public OSRM demo, evaluation only — rate-limited, without an SLA",
+      "custom": "custom or self-hosted OSRM-compatible endpoint"
+    },
+    "elevationPrefix": "Route elevation:",
+    "elevationMode": {
+      "disabled": "disabled — forecasts omit the elevation term",
+      "public": "public Open-Meteo evaluation mode",
+      "custom": "custom endpoint"
+    },
+    "reviewProviders": "Review providers",
+    "manualItineraryHint": "You can still prepare and reorder checkpoints or open an existing saved plan. Activate routing only when you want Odovi to calculate roads and forecasts."
   },
   "checkpoints": {
     "title": "Checkpoints",
@@ -73,8 +84,10 @@
     "saveFailed": "The roadtrip plan could not be saved.",
     "notAuthenticated": "Not signed in.",
     "invalidInput": "Invalid input.",
+    "routingNeedsReview": "Routing has not been reviewed or its configuration is incomplete. Review the Routing provider in Settings before calculating a route.",
+    "routingDisabled": "Routing is disabled. You can keep preparing the itinerary, or activate a Routing provider in Settings to calculate roads and forecasts.",
     "routingUnreachable": "Routing service unreachable (timeout or network error). Please try again later.",
-    "routingRateLimited": "The public OSRM demo server rejected the request (rate limit). Please try again later or set up your own server via OSRM_URL.",
+    "routingRateLimited": "The routing provider rejected the request (rate limit). The public OSRM demo is evaluation-only; use a controlled endpoint for reliable routing.",
     "routingHttpError": "Routing service responded with HTTP {status}.",
     "routingBadResponse": "Unexpected response from the routing service.",
     "routingNoRoute": "No route could be calculated for the start and destination. Please choose different points."
@@ -123,7 +136,7 @@
     },
     "routing": "Routing",
     "routingPublic": "public OSRM demo server",
-    "routingCustom": "your own OSRM server (OSRM_URL)",
+    "routingCustom": "custom or self-hosted OSRM-compatible endpoint",
     "energyBreakdown": "Energy breakdown",
     "base": "Base",
     "ascent": "Ascent",

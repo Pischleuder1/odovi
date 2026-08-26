@@ -141,7 +141,7 @@ least:
 - `POSTGRES_PASSWORD` - password for the new Odovi-owned Postgres (required, no default)
 - `TESLAMATE_DATABASE_URL` - connection string for the `odovi_ro` role against the TeslaMate database (LAN/Tailscale host or Compose service name, see comments in `docker-compose.yml`)
 - optional behavior such as `WEB_PORT`, `APP_TIMEZONE`, `SYNC_INTERVAL_SECONDS`,
-  `OSRM_URL`, secure cookies, elevation, and Tesla provider settings only as
+  secure cookies, elevation, and Tesla provider settings only as
   documented in the runtime configuration reference
 
 ### 3. Start the stack
