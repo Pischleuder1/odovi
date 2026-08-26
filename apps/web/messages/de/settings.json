@@ -104,6 +104,93 @@
     "pair": "Virtuellen Schlüssel koppeln",
     "pairHint": "Vor dem ersten Senden muss der virtuelle Odovi-Schlüssel einmal über die Tesla-App mit dem Fahrzeug gekoppelt werden."
   },
+  "providerReview": {
+    "title": "Prüfung der Standortanbieter",
+    "description": "Das lokale Archiv bleibt ohne diese Dienste verfügbar. Prüfe jede optionale Funktion einzeln, bevor ein benannter Anbieter Standortdaten erhalten darf.",
+    "notice": {
+      "title": "Prüfung der Standortanbieter erforderlich",
+      "description": "Eine oder mehrere optionale Standortfunktionen bleiben deaktiviert, bis ihre aktuelle Offenlegung geprüft wurde. Dein Archiv funktioniert weiter.",
+      "action": "Anbieter prüfen"
+    },
+    "status": {
+      "active": "Aktiv",
+      "disabled": "Deaktiviert",
+      "reviewRequired": "Prüfung erforderlich"
+    },
+    "modes": {
+      "disabled": "Deaktiviert — nichts übertragen",
+      "public": "Öffentlich — {provider}",
+      "custom": "Eigener Endpunkt"
+    },
+    "fields": {
+      "purpose": "Zweck",
+      "transmittedData": "Übertragene Daten",
+      "publicProvider": "Öffentlicher Anbieter",
+      "contactPath": "Kontakt und Richtlinie",
+      "operatingLimits": "Wesentliche Betriebsgrenzen",
+      "mode": "Anbietermodus",
+      "providerName": "Anbietername",
+      "endpoint": "Endpunkt",
+      "contactUrl": "Kontakt- oder Richtlinien-URL",
+      "credentialHeader": "Credential-Header (optional)",
+      "customLimits": "Wesentliche Betriebsgrenzen"
+    },
+    "capabilities": {
+      "weather": {
+        "name": "Wetter",
+        "purpose": "Aktuelles Wetter anzeigen und historischen Fahrten Wetterdaten hinzufügen.",
+        "data": "Exakte oder gerundete Fahrtkoordinaten und angefragte Zeit oder Datum.",
+        "experience": "Ermöglicht Wetterkarten und historischen Wetterkontext für Fahrten.",
+        "limits": "Der öffentliche Open-Meteo-Zugang ist Best Effort und gilt ohne passende Vereinbarung nur als Evaluation oder erlaubte persönliche/nicht-kommerzielle Nutzung."
+      },
+      "elevation": {
+        "name": "Höhenwerte",
+        "purpose": "Archivierten und geplanten Routenpunkten Höhenwerte hinzufügen.",
+        "data": "Exakte oder ausgedünnte Routenkoordinaten.",
+        "experience": "Ermöglicht Höhenprofile, Auf- und Abstieg sowie Energieprognosen.",
+        "limits": "Der öffentliche Open-Meteo-Zugang ist Best Effort und gilt ohne passende Vereinbarung nur als Evaluation oder erlaubte persönliche/nicht-kommerzielle Nutzung."
+      },
+      "mapTiles": {
+        "name": "Kartenkacheln",
+        "purpose": "Einen geografischen Hintergrund für interaktive Karten laden.",
+        "data": "Der sichtbare Kartenausschnitt als Kachelkoordinaten sowie normale Browser-Anfragedaten.",
+        "experience": "Ermöglicht interaktive Kartenhintergründe für lokal gespeicherte Routen und Orte.",
+        "limits": "Öffentliche OpenStreetMap-Kacheln erlauben normale interaktive Nutzung mit Attribution und Browser-Cache; kein Massendownload oder Offline-Prefetch."
+      },
+      "addressSearch": {
+        "name": "Adresssuche",
+        "purpose": "Einen eingegebenen Ort oder eine Adresse in Koordinaten umwandeln.",
+        "data": "Der abgesendete Suchtext, Sprache und normale Server-Anfragedaten.",
+        "experience": "Ermöglicht Adressvorschläge beim Anlegen von Orten oder Planen einer Route.",
+        "limits": "Öffentliches Nominatim erlaubt nur geringes, identifiziertes und nutzergesteuertes Anfragevolumen; es ist limitiert und ohne Verfügbarkeitsgarantie."
+      },
+      "routing": {
+        "name": "Routing",
+        "purpose": "Eine Straßenroute zwischen gewählten Wegpunkten berechnen.",
+        "data": "Exakte Koordinaten von Start, Ziel und Zwischenstopps.",
+        "experience": "Ermöglicht berechnete Distanz, Dauer, Geometrie und Routenprognosen.",
+        "limits": "Der öffentliche OSRM-Demoserver ist nur zur Evaluation gedacht, limitiert, ohne SLA und kein verlässliches Produktionsrouting."
+      },
+      "externalNavigation": {
+        "name": "Externe Navigation",
+        "purpose": "Ein gewähltes Ziel in einem externen Navigationsdienst öffnen.",
+        "data": "Die Zielkoordinaten, die für diese ausdrückliche Übergabe gewählt wurden.",
+        "experience": "Ermöglicht die Ein-Klick-Übergabe eines gespeicherten Roadtrips an eine Navigation.",
+        "limits": "Google Maps ist ein unabhängiger externer Dienst. Das Ziel wird erst nach einem ausdrücklichen Klick übertragen; Google-Bedingungen und -Verfügbarkeit gelten."
+      }
+    },
+    "credentialHint": "Wenn dieser Header gesetzt ist, muss sein Wert für Web und Worker über {variable} bereitgestellt werden. Das Secret wird nie in Odovi gespeichert.",
+    "invalidStoredConfiguration": "Diese gespeicherte Konfiguration ist inaktiv",
+    "saveDecision": "Entscheidung speichern",
+    "saving": "Speichert…",
+    "saved": "Entscheidung gespeichert",
+    "decisionEvidence": "Offenlegung {version} am {time} von {actor} geprüft.",
+    "errors": {
+      "notAuthenticated": "Nicht angemeldet.",
+      "invalidInput": "Ungültige Eingabe für die Anbieterprüfung.",
+      "invalidConfiguration": "Der Anbieter bleibt deaktiviert: {details}"
+    }
+  },
   "passwordChange": {
     "currentPassword": "Aktuelles Passwort",
     "newPassword": "Neues Passwort",

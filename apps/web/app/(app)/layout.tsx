@@ -7,6 +7,8 @@ import { BottomNav, SideNav } from "../../components/Nav";
 import { ThemeToggle, type ThemeChoice } from "../../components/ThemeToggle";
 import { LocaleSwitcher, type Locale } from "../../components/LocaleSwitcher";
 import { BrandWordmark } from "../../components/BrandWordmark";
+import { getProviderReviewSnapshot } from "../../lib/locationProviders/policy";
+import { ProviderReviewNotice } from "./ProviderReviewNotice";
 
 export const dynamic = "force-dynamic";
 
@@ -18,7 +20,10 @@ export default async function AppLayout({
   const user = await validateSession();
   if (!user) redirect("/login");
 
-  const vehicles = await getVehicles();
+  const [vehicles, providerReview] = await Promise.all([
+    getVehicles(),
+    getProviderReviewSnapshot(),
+  ]);
   const vehicleName = vehicles[0]?.displayName ?? "—";
 
   const cookieStore = await cookies();
@@ -69,6 +74,7 @@ export default async function AppLayout({
         </header>
 
         <main className="min-w-0 flex-1 px-4 pb-[calc(6rem+env(safe-area-inset-bottom))] pt-4 md:px-8 md:pb-8 md:pt-6">
+          {providerReview.requiresReview && <ProviderReviewNotice />}
           {children}
         </main>
       </div>

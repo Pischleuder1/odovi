@@ -497,6 +497,29 @@ export const settings = pgTable("settings", {
   updatedAt: updatedAt(),
 });
 
+// Append-only Provider Review evidence. The current policy is the highest id
+// per capability; inserting a disabled decision reverses an earlier activation
+// without deleting the evidence that it existed.
+export const locationProviderDecisions = pgTable(
+  "location_provider_decisions",
+  {
+    id: id(),
+    capability: text("capability").notNull(),
+    mode: text("mode").notNull(),
+    provider: text("provider").notNull(),
+    endpoint: text("endpoint"),
+    credentialHeader: text("credential_header"),
+    customContactUrl: text("custom_contact_url"),
+    customOperatingLimits: text("custom_operating_limits"),
+    disclosureVersion: text("disclosure_version").notNull(),
+    decidedAt: timestamp("decided_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    decidedBy: text("decided_by").notNull(),
+  },
+  (t) => [index("location_provider_decisions_capability_idx").on(t.capability, t.id)],
+);
+
 export const users = pgTable("users", {
   id: id(),
   username: text("username").notNull().unique(),

@@ -17,8 +17,16 @@ test("core archive remains usable while external providers are denied", async ({
   } else {
     noteDeferredContract(
       testInfo,
-      "#32/#33",
-      "Network denial and core fallback are covered; the explicit disabled-provider UI follows in #32/#33.",
+      "#32",
+      "Network denial and core fallback are covered; Provider Review and the explicit disabled state follow in #32.",
+    );
+  }
+
+  if (process.env.ODOVI_EXPECT_MAP_PROVIDER_POLICY !== "1") {
+    noteDeferredContract(
+      testInfo,
+      "#33",
+      "Map-specific disabled fallbacks and click-only external navigation remain bounded to #33.",
     );
   }
 });

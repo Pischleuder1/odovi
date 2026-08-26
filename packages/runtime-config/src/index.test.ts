@@ -108,6 +108,7 @@ describe("release configuration", () => {
       unknownReleaseSettings({
         ...REQUIRED,
         DATABASE_URL: "postgres://dev",
+        ODOVI_LOCATION_PROVIDER_ROUTING_CREDENTIAL: "runtime-only-secret",
         ODOVI_VERSION: "0.2.0-rc.1",
         ODOVI_COMMIT_SHA: "75f5917e8750",
       }),

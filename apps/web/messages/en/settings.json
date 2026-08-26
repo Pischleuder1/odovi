@@ -104,6 +104,93 @@
     "pair": "Pair virtual key",
     "pairHint": "Before the first send, pair Odovi' virtual key with the vehicle once through the Tesla app."
   },
+  "providerReview": {
+    "title": "Location Provider Review",
+    "description": "The local archive remains available without these services. Review each optional capability independently before any named provider may receive location data.",
+    "notice": {
+      "title": "Location Provider Review required",
+      "description": "One or more optional location capabilities remain disabled until their current disclosure has been reviewed. Your archive continues to work.",
+      "action": "Review providers"
+    },
+    "status": {
+      "active": "Active",
+      "disabled": "Disabled",
+      "reviewRequired": "Review required"
+    },
+    "modes": {
+      "disabled": "Disabled — send nothing",
+      "public": "Public — {provider}",
+      "custom": "Custom endpoint"
+    },
+    "fields": {
+      "purpose": "Purpose",
+      "transmittedData": "Data transmitted",
+      "publicProvider": "Public provider",
+      "contactPath": "Contact and policy",
+      "operatingLimits": "Material operating limits",
+      "mode": "Provider mode",
+      "providerName": "Provider name",
+      "endpoint": "Endpoint",
+      "contactUrl": "Contact or policy URL",
+      "credentialHeader": "Credential header (optional)",
+      "customLimits": "Material operating limits"
+    },
+    "capabilities": {
+      "weather": {
+        "name": "Weather",
+        "purpose": "Show current weather and add historical weather to archived drives.",
+        "data": "Exact or rounded journey coordinates and the requested time or date.",
+        "experience": "Enables weather cards and historical weather context for drives.",
+        "limits": "Open-Meteo public access is best-effort and should be treated as evaluation or permitted personal/non-commercial use unless you have suitable terms."
+      },
+      "elevation": {
+        "name": "Elevation",
+        "purpose": "Add elevation values to archived and planned route points.",
+        "data": "Exact or sampled route coordinates.",
+        "experience": "Enables elevation profiles, ascent and descent, and route energy estimates.",
+        "limits": "Open-Meteo public access is best-effort and should be treated as evaluation or permitted personal/non-commercial use unless you have suitable terms."
+      },
+      "mapTiles": {
+        "name": "Map tiles",
+        "purpose": "Load a geographic background for interactive maps.",
+        "data": "The visible map area as tile coordinates, plus normal browser request data.",
+        "experience": "Enables interactive map backgrounds behind locally stored routes and places.",
+        "limits": "OpenStreetMap public tiles allow ordinary interactive viewing with attribution and normal browser caching; no bulk download or offline prefetch."
+      },
+      "addressSearch": {
+        "name": "Address search",
+        "purpose": "Turn an entered place or address into coordinates.",
+        "data": "The submitted search text, language, and normal server request data.",
+        "experience": "Enables address suggestions when creating places or planning a trip.",
+        "limits": "Public Nominatim permits low-volume, identified, user-triggered searches; it is rate-limited and has no availability guarantee."
+      },
+      "routing": {
+        "name": "Routing",
+        "purpose": "Calculate a road route between selected waypoints.",
+        "data": "Exact start, destination, and intermediate waypoint coordinates.",
+        "experience": "Enables calculated road distance, duration, geometry, and route forecasts.",
+        "limits": "The public OSRM demo is for evaluation only, is rate-limited, has no SLA, and is not reliable production routing."
+      },
+      "externalNavigation": {
+        "name": "External navigation",
+        "purpose": "Open a selected destination in an external navigation service.",
+        "data": "The destination coordinates selected for that explicit handoff.",
+        "experience": "Enables one-click handoff from a saved roadtrip to turn-by-turn navigation.",
+        "limits": "Google Maps is an independent external service. The destination is transferred only after an explicit click, and Google's terms and availability apply."
+      }
+    },
+    "credentialHint": "If this header is set, its value must be supplied to web and worker through {variable}. The secret is never stored in Odovi.",
+    "invalidStoredConfiguration": "This stored configuration is inactive",
+    "saveDecision": "Save decision",
+    "saving": "Saving…",
+    "saved": "Decision saved",
+    "decisionEvidence": "Disclosure {version} reviewed on {time} by {actor}.",
+    "errors": {
+      "notAuthenticated": "Not signed in.",
+      "invalidInput": "Invalid Provider Review input.",
+      "invalidConfiguration": "The provider remains disabled: {details}"
+    }
+  },
   "passwordChange": {
     "currentPassword": "Current password",
     "newPassword": "New password",

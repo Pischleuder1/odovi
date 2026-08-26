@@ -6,7 +6,8 @@ const dependencyGates = [
   { issue: 28, contract: "visible version and build identity", enforced: process.env.ODOVI_EXPECT_RELEASE_IDENTITY === "1" },
   { issue: 29, contract: "browser locale detection and English fallback", enforced: process.env.ODOVI_EXPECT_BROWSER_LOCALE === "1" },
   { issue: 31, contract: "readiness distinct from liveness", enforced: process.env.ODOVI_ACCEPTANCE_READINESS_PATH !== "/api/health" },
-  { issue: 32, contract: "explicit provider-disabled UI and zero-default policy", enforced: process.env.ODOVI_EXPECT_PROVIDER_DISABLED_UI === "1" },
+  { issue: 32, contract: "Provider Review and explicit provider-disabled state", enforced: process.env.ODOVI_EXPECT_PROVIDER_DISABLED_UI === "1" },
+  { issue: 33, contract: "map-disabled fallback and click-only external navigation", enforced: process.env.ODOVI_EXPECT_MAP_PROVIDER_POLICY === "1" },
 ];
 
 const manifest = {

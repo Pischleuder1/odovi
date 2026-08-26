@@ -15,6 +15,8 @@ import { TeslaIntegrationCard } from "./TeslaIntegrationCard";
 import { getTeslaIntegrationStatus } from "../../../lib/tesla/integration";
 import { MoreHub } from "./MoreHub";
 import { BuildInfoCard } from "./BuildInfoCard";
+import { getProviderReviewSnapshot } from "../../../lib/locationProviders/policy";
+import { ProviderReview } from "./ProviderReview";
 
 export const dynamic = "force-dynamic";
 
@@ -41,12 +43,13 @@ function maskVin(vin: string | null): string {
 }
 
 export default async function SettingsPage() {
-  const [t, locale, vehicles, syncRows, teslaStatus] = await Promise.all([
+  const [t, locale, vehicles, syncRows, teslaStatus, providerReview] = await Promise.all([
     getTranslations("settings"),
     getLocale(),
     getVehiclesDetailed(),
     getSyncState(),
     getTeslaIntegrationStatus(),
+    getProviderReviewSnapshot(),
   ]);
   const defaultVehicleId = vehicles[0]?.id;
   const softwareUpdates =
@@ -84,6 +87,8 @@ export default async function SettingsPage() {
           securityLink: t("about.securityLink"),
         }}
       />
+
+      <ProviderReview items={providerReview.items} />
 
       <TeslaIntegrationCard
         status={teslaStatus}

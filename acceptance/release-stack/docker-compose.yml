@@ -31,7 +31,7 @@ services:
       POSTGRES_PASSWORD: odovi-acceptance
       POSTGRES_DB: odovi
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U odovi -d odovi"]
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U odovi -d odovi"]
       interval: 2s
       timeout: 3s
       retries: 30
@@ -47,7 +47,7 @@ services:
       POSTGRES_PASSWORD: teslamate-acceptance
       POSTGRES_DB: teslamate
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U teslamate -d teslamate"]
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U teslamate -d teslamate"]
       interval: 2s
       timeout: 3s
       retries: 30
