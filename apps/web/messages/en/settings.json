@@ -128,7 +128,7 @@
       "disabledHint": "Off — no location data is sent for this feature.",
       "chooseProvider": "Choose how it connects",
       "publicProvider": "Use {provider}",
-      "publicHint": "Recommended for a quick personal setup.",
+      "publicHint": "Uses the public provider and operating limits shown above.",
       "customProvider": "Use my own provider",
       "customHint": "For a self-hosted or separately contracted endpoint."
     },

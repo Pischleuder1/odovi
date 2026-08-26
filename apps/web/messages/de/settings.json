@@ -128,7 +128,7 @@
       "disabledHint": "Aus — für diese Funktion werden keine Standortdaten gesendet.",
       "chooseProvider": "Verbindung auswählen",
       "publicProvider": "{provider} verwenden",
-      "publicHint": "Empfohlen für eine schnelle persönliche Einrichtung.",
+      "publicHint": "Nutzt den oben genannten öffentlichen Anbieter mit seinen Betriebsgrenzen.",
       "customProvider": "Eigenen Anbieter verwenden",
       "customHint": "Für einen selbst betriebenen oder separat vereinbarten Endpunkt."
     },
