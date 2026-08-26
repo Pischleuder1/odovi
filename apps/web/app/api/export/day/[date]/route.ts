@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getLocale, getTranslations } from "next-intl/server";
-import { buildDayReport } from "@tripatlas/core";
+import { buildDayReport } from "@odovi/core";
 import { validateSession } from "../../../../../lib/auth/session";
 import { loadDayReportData } from "../../../../../lib/exports/data";
 import { renderDayCsv, buildCsvLabels } from "../../../../../lib/exports/csv";

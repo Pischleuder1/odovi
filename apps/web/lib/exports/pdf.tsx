@@ -17,7 +17,7 @@ import {
   type JourneyReport,
   type JourneyType,
   type MonthReport,
-} from "@tripatlas/core";
+} from "@odovi/core";
 import { toIntlLocale, type IntlLocale } from "../i18nLocale";
 
 type Translator = Awaited<ReturnType<typeof getTranslations>>;

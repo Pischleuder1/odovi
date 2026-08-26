@@ -122,17 +122,17 @@
       "type": "Type",
       "cost": "Cost"
     },
-    "footer": "Generated on {date} · Tripatlas",
+    "footer": "Generated on {date} · Odovi",
     "footerEstimatedSuffix": "~ = estimated value",
     "drive": {
-      "title": "Tripatlas — Drive {date}",
+      "title": "Odovi — Drive {date}",
       "kpisTitle": "Key Figures",
       "distance": "Distance",
       "duration": "Duration",
       "odometerRange": "Odometer Start / End"
     },
     "day": {
-      "title": "Tripatlas — Day Report {date}",
+      "title": "Odovi — Day Report {date}",
       "sumTitle": "Total",
       "driveCount": "Drive Count",
       "distance": "Distance",
@@ -140,13 +140,13 @@
       "consumedEnergy": "Energy Consumed"
     },
     "month": {
-      "title": "Tripatlas — Logbook {month}",
+      "title": "Odovi — Logbook {month}",
       "sumByClassification": "Total by Classification",
       "driveCountKm": "{count, plural, one {# drive} other {# drives}} · {km} km",
       "total": "Total"
     },
     "journey": {
-      "title": "Tripatlas — Journey {name}",
+      "title": "Odovi — Journey {name}",
       "kpisTitle": "Key Figures",
       "totalKm": "Total Distance",
       "driveTime": "Drive Time",

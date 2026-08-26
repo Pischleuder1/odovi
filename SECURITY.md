@@ -2,7 +2,7 @@
 
 ## Supported Versions
 
-Only the latest released version of Tripatlas receives security support.
+Only the latest released version of Odovi receives security support.
 
 ## Reporting a Vulnerability
 
@@ -12,4 +12,4 @@ Include the affected version or commit, deployment method, relevant configuratio
 
 ## Self-hosted Context
 
-Tripatlas is self-hosted software. It does not run a hosted cloud service for users, and operators are responsible for their own deployment, network exposure, backups, secrets, TLS, and update process.
+Odovi is self-hosted software. It does not run a hosted cloud service for users, and operators are responsible for their own deployment, network exposure, backups, secrets, TLS, and update process.

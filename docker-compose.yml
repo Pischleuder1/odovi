@@ -1,15 +1,15 @@
-# Tripatlas — production deployment (Docker Compose).
+# Odovi — production deployment (Docker Compose).
 #
-# Runs the tripatlas app stack (db, one-shot migration, web, sync worker)
+# Runs the odovi app stack (db, one-shot migration, web, sync worker)
 # against an EXISTING TeslaMate installation's Postgres, reached read-only.
 # See README.md "Deployment" for the full runbook.
 #
 # TeslaMate connectivity — two options for TESLAMATE_DATABASE_URL in .env:
 #   (a) Same Docker host, TeslaMate on a shared Docker network:
-#       set TESLAMATE_DATABASE_URL=postgres://tripatlas_ro:...@teslamate-db:5432/teslamate
+#       set TESLAMATE_DATABASE_URL=postgres://odovi_ro:...@teslamate-db:5432/teslamate
 #       and uncomment the `networks:` stanzas below (external teslamate_default).
 #   (b) TeslaMate reachable over LAN/VPN (e.g. Tailscale) as a plain host:
-#       set TESLAMATE_DATABASE_URL=postgres://tripatlas_ro:...@teslamate-host.example:5432/teslamate
+#       set TESLAMATE_DATABASE_URL=postgres://odovi_ro:...@teslamate-host.example:5432/teslamate
 #       — no extra network config needed, this is the default assumption below.
 
 services:
@@ -17,13 +17,13 @@ services:
     image: postgres:17-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_USER: tripatlas
+      POSTGRES_USER: ${ODOVI_DB_USER:-odovi}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
-      POSTGRES_DB: tripatlas
+      POSTGRES_DB: ${ODOVI_DB_NAME:-odovi}
     volumes:
-      - tripatlas-db-data:/var/lib/postgresql/data
+      - odovi-db-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U tripatlas"]
+      test: ["CMD-SHELL", "pg_isready -U ${ODOVI_DB_USER:-odovi} -d ${ODOVI_DB_NAME:-odovi}"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -33,11 +33,11 @@ services:
     build:
       context: .
       dockerfile: apps/worker/Dockerfile
-    image: tripatlas-worker:latest
+    image: odovi-worker:latest
     command: ["node", "dist/migrate.js"]
     restart: "no"
     environment:
-      DATABASE_URL: postgres://tripatlas:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@db:5432/tripatlas
+      DATABASE_URL: postgres://${ODOVI_DB_USER:-odovi}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@db:5432/${ODOVI_DB_NAME:-odovi}
     depends_on:
       db:
         condition: service_healthy
@@ -46,12 +46,12 @@ services:
     build:
       context: .
       dockerfile: apps/web/Dockerfile
-    image: tripatlas-web:latest
+    image: odovi-web:latest
     restart: unless-stopped
     ports:
       - "${WEB_PORT:-3000}:3000"
     environment:
-      DATABASE_URL: postgres://tripatlas:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@db:5432/tripatlas
+      DATABASE_URL: postgres://${ODOVI_DB_USER:-odovi}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@db:5432/${ODOVI_DB_NAME:-odovi}
       APP_TIMEZONE: ${APP_TIMEZONE:-Europe/Zurich}
       INITIAL_ADMIN_PASSWORD: ${INITIAL_ADMIN_PASSWORD:-}
       # Optional, nur für die Verbindungs-Diagnose in Settings (read-only
@@ -77,10 +77,10 @@ services:
     build:
       context: .
       dockerfile: apps/worker/Dockerfile
-    image: tripatlas-worker:latest
+    image: odovi-worker:latest
     restart: unless-stopped
     environment:
-      DATABASE_URL: postgres://tripatlas:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@db:5432/tripatlas
+      DATABASE_URL: postgres://${ODOVI_DB_USER:-odovi}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@db:5432/${ODOVI_DB_NAME:-odovi}
       TESLAMATE_DATABASE_URL: ${TESLAMATE_DATABASE_URL:?Set TESLAMATE_DATABASE_URL in .env}
       SYNC_INTERVAL_SECONDS: ${SYNC_INTERVAL_SECONDS:-60}
     depends_on:
@@ -91,14 +91,15 @@ services:
     # No published port — sync loop only, no inbound traffic.
 
 volumes:
-  tripatlas-db-data:
+  odovi-db-data:
+    name: ${ODOVI_DB_VOLUME_NAME:-odovi-db-data}
 
 # Uncomment if TeslaMate runs on this same Docker host and you want to reach
 # it via its Compose network instead of a LAN/Tailscale host address:
 #
 # networks:
 #   default:
-#     name: tripatlas_default
+#     name: odovi_default
 #   teslamate:
 #     name: teslamate_default
 #     external: true

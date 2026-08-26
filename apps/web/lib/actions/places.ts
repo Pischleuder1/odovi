@@ -3,8 +3,8 @@ import { revalidatePath } from "next/cache";
 import { and, eq, isNull, or } from "drizzle-orm";
 import { z } from "zod";
 import { getTranslations } from "next-intl/server";
-import { auditLog, chargeSessions, places } from "@tripatlas/db";
-import { computeAutoChargeCost } from "@tripatlas/core";
+import { auditLog, chargeSessions, places } from "@odovi/db";
+import { computeAutoChargeCost } from "@odovi/core";
 import { db } from "../db";
 import { validateSession } from "../auth/session";
 import { rematchAllPlaces } from "../rematch";
@@ -339,7 +339,7 @@ export interface AddressSearchResult {
 }
 
 const NOMINATIM_USER_AGENT =
-  "Tripatlas/0.1 (self-hosted, github.com/jsc2304/tripatlas)";
+  "Odovi/0.1 (self-hosted, github.com/jsc2304/odovi)";
 
 /**
  * Builds a short, human-friendly address label from Nominatim's structured

@@ -42,7 +42,7 @@ function renderGpxDocument(name: string, tracks: GpxTrack[]): string {
   const body = nonEmpty.map(renderTrk).join("");
   return (
     '<?xml version="1.0" encoding="UTF-8"?>\n' +
-    '<gpx version="1.1" creator="Tripatlas" xmlns="http://www.topografix.com/GPX/1/1">' +
+    '<gpx version="1.1" creator="Odovi" xmlns="http://www.topografix.com/GPX/1/1">' +
     `<metadata><name>${escapeXml(name)}</name></metadata>` +
     body +
     "</gpx>\n"

@@ -9,7 +9,7 @@ import {
   type JourneyReport,
   type JourneyType,
   type MonthReport,
-} from "@tripatlas/core";
+} from "@odovi/core";
 
 // Excel (esp. on Windows/de-DE locale) needs a UTF-8 BOM to render Umlaute
 // correctly and a ";" delimiter is the de-DE default list separator.

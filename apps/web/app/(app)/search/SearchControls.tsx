@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import type { Classification } from "@tripatlas/core";
+import type { Classification } from "@odovi/core";
 
 const CLASSIFICATION_VALUES: Classification[] = [
   "business",

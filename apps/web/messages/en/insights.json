@@ -3,8 +3,8 @@
   "subtitleWithData": "Based on {count, plural, one {# drive} other {# drives}} since {date}.",
   "subtitleNoData": "Patterns and correlations from your drives.",
   "notEnoughTitle": "Not enough data yet",
-  "notEnoughHint": "Tripatlas keeps collecting — once more drives are recorded, an analysis will appear here.",
-  "notEnoughBannerHint": "Insights shows analyses from {min} usable drives onward. Currently {count} available — Tripatlas keeps collecting.",
+  "notEnoughHint": "Odovi keeps collecting — once more drives are recorded, an analysis will appear here.",
+  "notEnoughBannerHint": "Insights shows analyses from {min} usable drives onward. Currently {count} available — Odovi keeps collecting.",
   "driveCountLabel": "{count, plural, one {# drive} other {# drives}}",
   "vehicleSwitcherLabel": "Select vehicle",
   "cards": {

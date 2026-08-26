@@ -9,58 +9,58 @@
   --font-brand: var(--font-geist-sans), Arial, Helvetica, sans-serif;
   --font-brand-mono: var(--font-geist-mono), monospace;
 
-  --color-white: #f7f8fb;
-  --color-black: #080a18;
-  --color-neutral-50: #f7f8fb;
-  --color-neutral-100: #eef0f6;
-  --color-neutral-200: #d9dce6;
-  --color-neutral-300: #c3c8d4;
-  --color-neutral-400: #a8afbe;
-  --color-neutral-500: #858d9f;
-  --color-neutral-600: #626a7d;
-  --color-neutral-700: #3e455b;
-  --color-neutral-800: #24293d;
-  --color-neutral-900: #121528;
-  --color-neutral-950: #080a18;
+  --color-white: #ffffff;
+  --color-black: #050811;
+  --color-neutral-50: #f2f4f8;
+  --color-neutral-100: #e2e6ef;
+  --color-neutral-200: #c2c9da;
+  --color-neutral-300: #9ba7c2;
+  --color-neutral-400: #73809e;
+  --color-neutral-500: #52617f;
+  --color-neutral-600: #3c4965;
+  --color-neutral-700: #29344d;
+  --color-neutral-800: #182238;
+  --color-neutral-900: #0b1020;
+  --color-neutral-950: #050811;
 
-  --color-violet-50: #f5f1ff;
-  --color-violet-100: #ebe3ff;
-  --color-violet-200: #d9c9ff;
-  --color-violet-300: #c6adff;
-  --color-violet-400: #a78bfa;
-  --color-violet-500: #8f62f3;
-  --color-violet-600: #7c3aed;
-  --color-violet-700: #6424ce;
-  --color-violet-800: #4c1d95;
-  --color-violet-900: #321667;
-  --color-violet-950: #1b0d38;
+  --color-violet-50: #f1f2ff;
+  --color-violet-100: #e2e5ff;
+  --color-violet-200: #c8ceff;
+  --color-violet-300: #a5aeff;
+  --color-violet-400: #7b87ff;
+  --color-violet-500: #4757ff;
+  --color-violet-600: #3441e3;
+  --color-violet-700: #2934b8;
+  --color-violet-800: #242d91;
+  --color-violet-900: #22296f;
+  --color-violet-950: #12143d;
 
-  --color-sky-50: #f5f1ff;
-  --color-sky-100: #ebe3ff;
-  --color-sky-200: #d9c9ff;
-  --color-sky-300: #c6adff;
-  --color-sky-400: #a78bfa;
-  --color-sky-500: #8f62f3;
-  --color-sky-600: #7c3aed;
-  --color-sky-700: #6424ce;
-  --color-sky-800: #4c1d95;
-  --color-sky-900: #321667;
-  --color-sky-950: #1b0d38;
+  --color-sky-50: #f2fcfe;
+  --color-sky-100: #e4fafe;
+  --color-sky-200: #d0f5fb;
+  --color-sky-300: #b9eff8;
+  --color-sky-400: #99e7f5;
+  --color-sky-500: #7bdff2;
+  --color-sky-600: #4dbfd3;
+  --color-sky-700: #2d9fb5;
+  --color-sky-800: #21758a;
+  --color-sky-900: #155262;
+  --color-sky-950: #0b303a;
 
-  --color-blue-400: #a78bfa;
-  --color-blue-500: #8f62f3;
-  --color-blue-600: #7c3aed;
-  --color-blue-700: #6424ce;
+  --color-blue-400: #7b87ff;
+  --color-blue-500: #4757ff;
+  --color-blue-600: #3441e3;
+  --color-blue-700: #2934b8;
 }
 
 :root {
-  --brand-ink: #f7f8fb;
-  --brand-muted: #a8afbe;
-  --brand-violet: #7c3aed;
-  --brand-violet-bright: #a78bfa;
-  --brand-cyan: #67e8f9;
-  --brand-amber: #f4b860;
-  --brand-night: #080a18;
+  --brand-ink: #f3f0e8;
+  --brand-muted: #9ba7c2;
+  --brand-violet: #4757ff;
+  --brand-violet-bright: #7b87ff;
+  --brand-cyan: #7bdff2;
+  --brand-amber: #ff6b4a;
+  --brand-night: #0b1020;
 }
 
 html {
@@ -83,13 +83,13 @@ body {
 
 html.dark body {
   background:
-    radial-gradient(circle at 78% 18%, rgb(124 58 237 / 10%), transparent 28rem),
+    radial-gradient(circle at 78% 18%, rgb(71 87 255 / 10%), transparent 28rem),
     var(--brand-night);
 }
 
 ::selection {
   color: var(--brand-ink);
-  background: rgb(124 58 237 / 72%);
+  background: rgb(71 87 255 / 72%);
 }
 
 :focus-visible {
@@ -99,41 +99,17 @@ html.dark body {
 .brand-wordmark {
   display: inline-flex;
   align-items: center;
-  width: max-content;
-  color: var(--brand-night);
-  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
-  font-weight: 520;
-  letter-spacing: -0.05em;
+  width: 138px;
 }
 
-.dark .brand-wordmark { color: var(--brand-ink); }
-.brand-wordmark-atlas { color: #b892ff; font-weight: 700; }
-.brand-wordmark-sm { font-size: 1.18rem; }
-.brand-wordmark-md { font-size: 1.28rem; }
-.brand-wordmark-lg { font-size: 2.2rem; }
-
-.brand-wordmark-pin {
-  position: relative;
-  width: 15px;
-  height: 15px;
-  margin-right: 9px;
-  border: 2px solid #a879ff;
-  border-radius: 50% 50% 50% 0;
-  transform: rotate(-45deg);
-}
-
-.brand-wordmark-pin::after {
-  position: absolute;
-  top: 4px;
-  left: 4px;
-  width: 3px;
-  height: 3px;
-  border-radius: 50%;
-  background: var(--brand-ink);
-  content: "";
-}
-
-html:not(.dark) .brand-wordmark-pin::after { background: var(--brand-night); }
+.brand-wordmark-art { display: block; width: 100%; }
+.brand-wordmark-image { display: block; height: auto; width: 100%; }
+.brand-wordmark-image-dark { display: none; }
+.dark .brand-wordmark-image-light { display: none; }
+.dark .brand-wordmark-image-dark { display: block; }
+.brand-wordmark-sm { width: 118px; }
+.brand-wordmark-md { width: 138px; }
+.brand-wordmark-lg { width: 230px; }
 
 /* iOS zoomt beim Fokus auf Felder < 16px hinein und bleibt gezoomt.
    Auf schmalen Viewports Formularfelder daher auf mindestens 16px heben —

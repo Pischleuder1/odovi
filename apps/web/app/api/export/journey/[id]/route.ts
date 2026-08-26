@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getLocale, getTranslations } from "next-intl/server";
-import { buildJourneyReport } from "@tripatlas/core";
+import { buildJourneyReport } from "@odovi/core";
 import { validateSession } from "../../../../../lib/auth/session";
 import { loadJourneyGpxTracks, loadJourneyReportData } from "../../../../../lib/exports/journey";
 import { renderJourneyCsv, buildCsvLabels } from "../../../../../lib/exports/csv";

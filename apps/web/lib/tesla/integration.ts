@@ -1,6 +1,6 @@
 import "server-only";
 import { eq, sql } from "drizzle-orm";
-import { settings } from "@tripatlas/db";
+import { settings } from "@odovi/db";
 import { db } from "../db";
 import { decryptTeslaSecret, encryptTeslaSecret } from "./crypto";
 import { getTeslaConfig } from "./config";

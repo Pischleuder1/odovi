@@ -9,7 +9,7 @@ import {
   routePoints,
   vehicles,
   type Db,
-} from "@tripatlas/db";
+} from "@odovi/db";
 import {
   estimateUsablePackKwh,
   lookupNearest,
@@ -23,7 +23,7 @@ import {
   type DriveSample,
   type MatchablePlace,
   type PackSample,
-} from "@tripatlas/core";
+} from "@odovi/core";
 import { loadMatchablePlaces } from "../sync/places.js";
 
 const SOURCE = "tessie";

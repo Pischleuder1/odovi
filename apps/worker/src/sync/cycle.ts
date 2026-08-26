@@ -1,4 +1,4 @@
-import type { Db } from "@tripatlas/db";
+import type { Db } from "@odovi/db";
 import type { TeslamateSql } from "../teslamate/client.js";
 import { syncVehicles } from "./vehicles.js";
 import { syncVehicleStatus } from "./vehicleStatus.js";
@@ -43,7 +43,7 @@ export async function runSyncCycle(db: Db, tm: TeslamateSql): Promise<void> {
   const driveWeatherResult = await syncDriveWeather(db);
 
   console.log(
-    `[tripatlas-worker] sync ok: ${vehicleMap.size} vehicle(s), ` +
+    `[odovi-worker] sync ok: ${vehicleMap.size} vehicle(s), ` +
       `${driveResult.upserted} drive(s) upserted` +
       (driveResult.deletedZombies > 0
         ? `, ${driveResult.deletedZombies} zombie(s) entfernt`

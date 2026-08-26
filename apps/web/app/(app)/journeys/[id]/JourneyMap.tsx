@@ -19,7 +19,7 @@ export interface JourneyMapCharge {
 export interface JourneyMapProps {
   tracks: JourneyMapTrack[];
   charges: JourneyMapCharge[];
-  /** Journey accent color (journeys.color); falls back to Route Violet. */
+  /** Journey accent color (journeys.color); falls back to Route Cobalt. */
   color?: string | null;
 }
 
@@ -63,7 +63,7 @@ export function JourneyMap({ tracks, charges, color }: JourneyMapProps) {
       attribution: "&copy; OpenStreetMap contributors",
     }).addTo(map);
 
-    const lineColor = color ?? "#7c3aed"; // Tripatlas Route Violet
+    const lineColor = color ?? "#3441e3"; // Odovi Route Cobalt
     const bounds = L.latLngBounds([]);
 
     drawable.forEach((track, i) => {

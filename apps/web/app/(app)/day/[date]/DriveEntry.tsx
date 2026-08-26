@@ -8,7 +8,7 @@ import {
   formatPlaceLabel,
   formatTime,
   formatTimeRange,
-} from "@tripatlas/core";
+} from "@odovi/core";
 import type { DriveRow } from "../../../../lib/queries";
 import type { Classification } from "../../../../lib/classification";
 import { TagChip } from "../../../../components/TagChip";

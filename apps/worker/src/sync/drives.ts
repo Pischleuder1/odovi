@@ -1,6 +1,6 @@
 import { and, eq, inArray, isNull, sql } from "drizzle-orm";
-import { drives, type Db } from "@tripatlas/db";
-import { deriveDriveEnergy, matchPlace, type MatchablePlace } from "@tripatlas/core";
+import { drives, type Db } from "@odovi/db";
+import { deriveDriveEnergy, matchPlace, type MatchablePlace } from "@odovi/core";
 import type { TeslamateSql } from "../teslamate/client.js";
 import {
   fetchCompletedDrivesSince,
@@ -25,7 +25,7 @@ export interface DriveSyncResult {
 
 /** Für den Route-Points-Sync: welche Drives wurden in diesem Zyklus angefasst. */
 export interface UpsertedDriveRef {
-  tripatlasDriveId: number;
+  odoviDriveId: number;
   tmDriveId: number;
   carId: number;
   startTime: Date;
@@ -108,7 +108,7 @@ export async function syncDrives(
         const entry = bySourceId.get(row.sourceId);
         if (!entry) continue;
         upsertedRefs.push({
-          tripatlasDriveId: row.id,
+          odoviDriveId: row.id,
           tmDriveId: entry.tmDrive.id,
           carId: entry.tmDrive.car_id,
           startTime: entry.tmDrive.start_time,

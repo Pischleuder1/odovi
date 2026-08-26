@@ -3,7 +3,7 @@ import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { getTranslations } from "next-intl/server";
-import { tags } from "@tripatlas/db";
+import { tags } from "@odovi/db";
 import { db } from "../db";
 import { validateSession } from "../auth/session";
 import { TAG_COLOR_PRESETS } from "../tagColors";

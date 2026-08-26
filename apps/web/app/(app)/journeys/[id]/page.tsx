@@ -10,7 +10,7 @@ import {
   formatKwh,
   formatTime,
   type RoadtripPlanSnapshot,
-} from "@tripatlas/core";
+} from "@odovi/core";
 import { APP_TIMEZONE } from "../../../../lib/config";
 import {
   getJourneyCandidates,
@@ -139,7 +139,7 @@ export default async function JourneyDetailPage({
             <span
               aria-hidden
               className="h-3 w-3 shrink-0 rounded-full"
-              style={{ backgroundColor: journey.color ?? "#a78bfa" }}
+              style={{ backgroundColor: journey.color ?? "#7b87ff" }}
             />
             <h1 className="text-2xl font-semibold tracking-tight">
               {journey.name}

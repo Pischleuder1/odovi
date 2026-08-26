@@ -1,8 +1,8 @@
 import "server-only";
 import { and, asc, eq, gte, inArray, lt } from "drizzle-orm";
 import { getTranslations } from "next-intl/server";
-import { drives, places, routePoints, vehicles } from "@tripatlas/db";
-import { resolvePlaceLabel, type Classification, type ReportDrive, type ReportMeta } from "@tripatlas/core";
+import { drives, places, routePoints, vehicles } from "@odovi/db";
+import { resolvePlaceLabel, type Classification, type ReportDrive, type ReportMeta } from "@odovi/core";
 import { db } from "../db";
 import { dayBounds } from "../day";
 import { APP_TIMEZONE } from "../config";

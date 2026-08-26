@@ -52,7 +52,7 @@ export function PlannerMap({ geometry }: PlannerMapProps) {
     }).addTo(map);
 
     const polyline = L.polyline(latLngs, {
-      color: "#7c3aed", // Tripatlas Route Violet
+      color: "#3441e3", // Odovi Route Cobalt
       weight: 4,
       opacity: 0.85,
     }).addTo(map);

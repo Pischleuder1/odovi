@@ -19,7 +19,7 @@ import {
   type RoadtripPlanSnapshot,
   type RoadtripStop,
   type RoadtripStopKind,
-} from "@tripatlas/core";
+} from "@odovi/core";
 import type { PlannerPlace, PlannerStatus } from "../../../lib/planner";
 import { planRoadtrip } from "../../../lib/actions/planner";
 import { saveRoadtripPlan } from "../../../lib/actions/roadtripPlans";

@@ -1,5 +1,5 @@
 import { and, eq } from "drizzle-orm";
-import { syncState, type Db } from "@tripatlas/db";
+import { syncState, type Db } from "@odovi/db";
 
 export async function getWatermark(
   db: Db,

@@ -1,5 +1,5 @@
 import { notFound, redirect } from "next/navigation";
-import { buildJourneyKpis } from "@tripatlas/core";
+import { buildJourneyKpis } from "@odovi/core";
 import { getLocale, getTranslations } from "next-intl/server";
 import { validateSession } from "../../../lib/auth/session";
 import { APP_TIMEZONE } from "../../../lib/config";
@@ -110,7 +110,7 @@ export default async function DayRecapPage({
       type: "day",
       startTime: firstDrive.startTime.toISOString(),
       endTime: (lastDrive.endTime ?? lastDrive.startTime).toISOString(),
-      color: "#7c3aed",
+      color: "#3441e3",
       description: null,
     },
     items,

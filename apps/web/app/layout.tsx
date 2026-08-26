@@ -16,24 +16,24 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const THEME_LIGHT = "#f7f8fb";
-const THEME_DARK = "#080a18";
+const THEME_LIGHT = "#f3f0e8";
+const THEME_DARK = "#0b1020";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("ui");
   return {
-    title: "Tripatlas",
+    title: "Odovi",
     description: t("meta.description"),
-    applicationName: "Tripatlas",
+    applicationName: "Odovi",
     manifest: "/manifest.webmanifest",
     appleWebApp: {
       capable: true,
-      title: "Tripatlas",
+      title: "Odovi",
       statusBarStyle: "default",
     },
     icons: {
       icon: [
-        { url: "/icon.svg", type: "image/svg+xml" },
+        { url: "/favicon.ico", sizes: "any" },
         { url: "/icon-192.png", type: "image/png", sizes: "192x192" },
         { url: "/icon-512.png", type: "image/png", sizes: "512x512" },
       ],
@@ -58,7 +58,10 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const theme = (await cookies()).get("tripatlas_theme")?.value;
+  const cookieStore = await cookies();
+  const theme =
+    cookieStore.get("odovi_theme")?.value ??
+    cookieStore.get("tripatlas_theme")?.value;
   const explicitDark = theme === "dark";
   // 'system' oder kein Cookie: die Klasse setzt vor dem Paint das Inline-Script.
   const isSystem = theme !== "dark" && theme !== "light";

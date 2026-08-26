@@ -10,4 +10,6 @@
 export const APP_TIMEZONE = process.env.APP_TIMEZONE ?? "Europe/Zurich";
 
 /** Name of the httpOnly session cookie. */
-export const SESSION_COOKIE = "tripatlas_session";
+export const SESSION_COOKIE = "odovi_session";
+/** Read-only bridge for sessions created before the Odovi rename. */
+export const LEGACY_SESSION_COOKIE = "tripatlas_session";

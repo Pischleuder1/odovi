@@ -1,5 +1,5 @@
 import { eq, inArray } from "drizzle-orm";
-import { places, settings, type Db } from "@tripatlas/db";
+import { places, settings, type Db } from "@odovi/db";
 import type { TeslamateSql } from "../teslamate/client.js";
 import { fetchGeofences } from "../teslamate/queries.js";
 

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Plus, Route, ChevronRight } from "lucide-react";
 import { getTranslations } from "next-intl/server";
-import { formatKm } from "@tripatlas/core";
+import { formatKm } from "@odovi/core";
 import { APP_TIMEZONE } from "../../../lib/config";
 import { getJourneys } from "../../../lib/journeys";
 import { Button } from "../../../components/ui/Button";
@@ -64,7 +64,7 @@ export default async function JourneysPage() {
                 <span
                   aria-hidden
                   className="mt-1 h-3 w-3 shrink-0 rounded-full"
-                  style={{ backgroundColor: j.color ?? "#a78bfa" }}
+                  style={{ backgroundColor: j.color ?? "#7b87ff" }}
                 />
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">

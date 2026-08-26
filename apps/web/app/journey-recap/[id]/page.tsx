@@ -1,5 +1,5 @@
 import { notFound, redirect } from "next/navigation";
-import { buildJourneyKpis } from "@tripatlas/core";
+import { buildJourneyKpis } from "@odovi/core";
 import { validateSession } from "../../../lib/auth/session";
 import { APP_TIMEZONE } from "../../../lib/config";
 import { getJourneyDetail, getJourneyRouteTracks } from "../../../lib/journeys";
@@ -43,7 +43,7 @@ export default async function JourneyRecapPage({
       type: detail.journey.type,
       startTime: detail.journey.startTime.toISOString(),
       endTime: detail.journey.endTime.toISOString(),
-      color: detail.journey.color ?? "#7c3aed",
+      color: detail.journey.color ?? "#3441e3",
       description: detail.journey.description,
     },
     items: detail.items.map((item) =>

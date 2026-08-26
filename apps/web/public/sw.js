@@ -1,10 +1,10 @@
-const CACHE_NAME = "tripatlas-roadtrip-v1";
+const CACHE_NAME = "odovi-roadtrip-v1";
 const OFFLINE_SHELL = "/roadtrip-offline";
 const STATIC_ASSETS = [
   OFFLINE_SHELL,
   "/manifest.webmanifest",
-  "/icon.svg",
   "/icon-192.png",
+  "/icon-512.png",
 ];
 
 self.addEventListener("install", (event) => {

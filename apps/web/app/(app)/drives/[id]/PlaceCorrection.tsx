@@ -3,7 +3,7 @@ import Link from "next/link";
 import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { Lock } from "lucide-react";
-import { formatPlaceLabel } from "@tripatlas/core";
+import { formatPlaceLabel } from "@odovi/core";
 import { setDrivePlace } from "../../../../lib/actions/drives";
 import type { PlaceLite } from "../../../../lib/queries";
 

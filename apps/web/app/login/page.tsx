@@ -21,7 +21,10 @@ export default async function LoginPage() {
   const bootstrap = await usersTableIsEmpty();
   const t = await getTranslations("auth");
 
-  const cookieLocale = (await cookies()).get("tripatlas_locale")?.value;
+  const cookieStore = await cookies();
+  const cookieLocale =
+    cookieStore.get("odovi_locale")?.value ??
+    cookieStore.get("tripatlas_locale")?.value;
   const locale: Locale = cookieLocale === "en" ? "en" : "de";
 
   return (

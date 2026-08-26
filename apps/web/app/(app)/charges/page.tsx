@@ -8,7 +8,7 @@ import {
   formatSoc,
   formatTimeRange,
   summarizeCharges,
-} from "@tripatlas/core";
+} from "@odovi/core";
 import { APP_TIMEZONE } from "../../../lib/config";
 import { todayInAppTz } from "../../../lib/day";
 import { monthBounds } from "../../../lib/exports/data";

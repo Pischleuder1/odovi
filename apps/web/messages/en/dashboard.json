@@ -1,12 +1,12 @@
 {
   "onboarding": {
-    "title": "Tripatlas is waiting for the first sync",
+    "title": "Odovi is waiting for the first sync",
     "description": "As soon as the sync worker pulls in the first drive from TeslaMate, your home screen will appear here.",
     "step1": "Is the <code>worker</code> container running?",
     "step2": "Is <code>TESLAMATE_DATABASE_URL</code> set correctly (read-only role on the TeslaMate database)?",
     "step3": "The first sync takes a few minutes depending on drive history — just hang tight.",
     "diagnoseCta": "Open connection diagnostics",
-    "demoHint": "No car handy? With <compose>docker-compose.demo.yml</compose> (see <docs>docs/demo.md</docs>) you can try Tripatlas with sample data in a few minutes — no real vehicle needed."
+    "demoHint": "No car handy? With <compose>docker-compose.demo.yml</compose> (see <docs>docs/demo.md</docs>) you can try Odovi with sample data in a few minutes — no real vehicle needed."
   },
   "vehicleStatusEmpty": "No vehicle status yet",
   "vehicleCard": {

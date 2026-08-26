@@ -50,7 +50,7 @@
     "kindWaypoint": "Zwischenziel",
     "kindCharge": "Ladestopp",
     "targetSoc": "Ziel-SoC bei der Weiterfahrt",
-    "targetSocHint": "Tripatlas schätzt die Ladezeit aus deinen eigenen DC-Ladekurven; ohne Historie wird ein konservativer Standard verwendet.",
+    "targetSocHint": "Odovi schätzt die Ladezeit aus deinen eigenen DC-Ladekurven; ohne Historie wird ein konservativer Standard verwendet.",
     "moveUp": "Checkpoint nach oben verschieben",
     "moveDown": "Checkpoint nach unten verschieben",
     "remove": "Checkpoint entfernen",
@@ -130,7 +130,7 @@
     "descentRegen": "Rekuperation bergab",
     "total": "Gesamt",
     "footer": "Experimentelle Prognose auf Basis von Annahmen (Fahrstil, Wind, Beladung, Reifen, Klima bleiben unberücksichtigt). Reserve einplanen.",
-    "waypointFooter": "Tripatlas überträgt geordnete Checkpoints. Die genaue Straßenführung und Ladeplanung berechnet Tesla im Fahrzeug neu."
+    "waypointFooter": "Odovi überträgt geordnete Checkpoints. Die genaue Straßenführung und Ladeplanung berechnet Tesla im Fahrzeug neu."
   },
   "destinationSearch": {
     "placeholder": "Zieladresse suchen…",

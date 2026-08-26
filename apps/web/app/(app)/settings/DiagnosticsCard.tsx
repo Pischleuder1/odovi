@@ -28,7 +28,7 @@ const HEALTH_BADGE: HealthBadgeConfig = {
 };
 
 /**
- * Diagnose-Card oben in den Settings: Tripatlas-DB-Erreichbarkeit, Alter des
+ * Diagnose-Card oben in den Settings: Odovi-DB-Erreichbarkeit, Alter des
  * letzten erfolgreichen Syncs je sync_state-Entity (Ampel grün/gelb/rot),
  * Klartext-Hinweise bei typischen Fehlerbildern, und ein optionaler
  * TeslaMate-Direkttest (nur falls TESLAMATE_DATABASE_URL im Web-Container
@@ -60,7 +60,7 @@ export async function DiagnosticsCard() {
 
       <div className="mt-3 flex flex-col gap-4">
         <div className="flex items-center gap-2 text-sm">
-          {summary.tripatlasDbOk ? (
+          {summary.odoviDbOk ? (
             <CheckCircle2
               aria-hidden
               size={16}
@@ -73,9 +73,9 @@ export async function DiagnosticsCard() {
             {t("diagnostics.db")}
           </span>
           <span className="text-neutral-500 dark:text-neutral-400">
-            {summary.tripatlasDbOk
+            {summary.odoviDbOk
               ? t("diagnostics.dbReachable")
-              : (summary.tripatlasDbError ?? t("diagnostics.dbUnreachableFallback"))}
+              : (summary.odoviDbError ?? t("diagnostics.dbUnreachableFallback"))}
           </span>
         </div>
 

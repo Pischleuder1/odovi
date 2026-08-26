@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import { Download, Smartphone } from "lucide-react";
-import type { RoadtripPlanSnapshot } from "@tripatlas/core";
+import type { RoadtripPlanSnapshot } from "@odovi/core";
 import { buttonClasses } from "../../../../components/ui/Button";
 
-export const OFFLINE_ROADTRIP_STORAGE_KEY = "tripatlas:offline-roadtrip:v1";
+export const OFFLINE_ROADTRIP_STORAGE_KEY = "odovi:offline-roadtrip:v1";
+export const LEGACY_OFFLINE_ROADTRIP_STORAGE_KEY = "tripatlas:offline-roadtrip:v1";
 
 export interface OfflineRoadtrip {
   journeyId: number;

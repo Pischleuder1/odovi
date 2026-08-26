@@ -42,8 +42,8 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            ghcr.io/jsc2304/tripatlas-web:${{ steps.version.outputs.version }}
-            ghcr.io/jsc2304/tripatlas-web:latest
+            ghcr.io/jsc2304/odovi-web:${{ steps.version.outputs.version }}
+            ghcr.io/jsc2304/odovi-web:latest
           cache-from: type=gha,scope=web
           cache-to: type=gha,mode=max,scope=web
 
@@ -55,7 +55,7 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            ghcr.io/jsc2304/tripatlas-worker:${{ steps.version.outputs.version }}
-            ghcr.io/jsc2304/tripatlas-worker:latest
+            ghcr.io/jsc2304/odovi-worker:${{ steps.version.outputs.version }}
+            ghcr.io/jsc2304/odovi-worker:latest
           cache-from: type=gha,scope=worker
           cache-to: type=gha,mode=max,scope=worker

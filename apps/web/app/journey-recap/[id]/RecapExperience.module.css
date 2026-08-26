@@ -1,8 +1,8 @@
 .recap {
-  --journey-color: #7c3aed;
+  --journey-color: #3441e3;
   position: relative;
-  background: #080a18;
-  color: #f7f8fb;
+  background: #0b1020;
+  color: #f3f0e8;
 }
 
 .viewport {
@@ -15,8 +15,8 @@
   overflow: hidden;
   background:
     radial-gradient(circle at 66% 42%, color-mix(in srgb, var(--journey-color) 18%, transparent), transparent 30%),
-    linear-gradient(135deg, #080a18 0%, #0f1023 50%, #080a18 100%);
-  color: #f7f8fb;
+    linear-gradient(135deg, #0b1020 0%, #12143d 50%, #0b1020 100%);
+  color: #f3f0e8;
 }
 
 .canvas,
@@ -375,7 +375,7 @@
 
 .plannedLine {
   height: 1px;
-  background: repeating-linear-gradient(90deg, #67e8f9 0 4px, transparent 4px 8px);
+  background: repeating-linear-gradient(90deg, #7bdff2 0 4px, transparent 4px 8px);
   box-shadow: none;
 }
 

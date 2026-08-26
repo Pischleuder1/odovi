@@ -1,7 +1,7 @@
 import "server-only";
 import { and, desc, eq, gt, isNotNull, isNull, or, sql } from "drizzle-orm";
-import { computeVampireLoss } from "@tripatlas/core";
-import { chargeSessions, parkSessions, vehicleStatus } from "@tripatlas/db";
+import { computeVampireLoss } from "@odovi/core";
+import { chargeSessions, parkSessions, vehicleStatus } from "@odovi/db";
 import { db } from "./db";
 import {
   resolveDashboardParkDrainSession,

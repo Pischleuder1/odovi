@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Zap } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
-import { formatKwh, formatPlaceLabel, formatTimeRange } from "@tripatlas/core";
+import { formatKwh, formatPlaceLabel, formatTimeRange } from "@odovi/core";
 import { TagChip } from "../../../components/TagChip";
 import { toIntlLocale } from "../../../lib/i18nLocale";
 import type { SearchResultRow } from "../../../lib/search";

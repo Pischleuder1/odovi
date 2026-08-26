@@ -8,12 +8,12 @@ import {
   routePoints,
   vehicleStatus,
   vehicles,
-} from "@tripatlas/db";
+} from "@odovi/db";
 import {
   matchPlace,
   summarizeDriveEnergy,
   type MatchablePlace,
-} from "@tripatlas/core";
+} from "@odovi/core";
 import { db } from "./db";
 import { dayBounds, shiftDate, todayInAppTz } from "./day";
 

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getLocale, getTranslations } from "next-intl/server";
-import { buildMonthReport } from "@tripatlas/core";
+import { buildMonthReport } from "@odovi/core";
 import { validateSession } from "../../../../../lib/auth/session";
 import { loadMonthReportData } from "../../../../../lib/exports/data";
 import { renderMonthCsv, buildCsvLabels } from "../../../../../lib/exports/csv";

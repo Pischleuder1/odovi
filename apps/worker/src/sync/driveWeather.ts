@@ -1,5 +1,5 @@
 import { and, asc, eq, isNull, isNotNull } from "drizzle-orm";
-import { drives, type Db } from "@tripatlas/db";
+import { drives, type Db } from "@odovi/db";
 import { recordSyncRun } from "./state.js";
 
 const SOURCE = "open_meteo";

@@ -6,13 +6,13 @@ import {
   places,
   vehicleStatus,
   vehicles,
-} from "@tripatlas/db";
+} from "@odovi/db";
 import {
   DEFAULT_EFFECTIVE_DC_POWER_KW,
   DEFAULT_REFERENCE_SPEED_KMH,
   binByNumeric,
   type RoadtripChargeModel,
-} from "@tripatlas/core";
+} from "@odovi/core";
 import { db } from "./db";
 import { getInsightsData } from "./insights";
 
@@ -21,7 +21,7 @@ import { getInsightsData } from "./insights";
  * den persönlichen Basisverbrauch aus der Fahrten-Historie (Muster wie
  * lib/insights.ts), schätzt die nutzbare Batteriekapazität aus dem
  * vehicle_status und bündelt den Vorbelegungs-Kontext für die Formularseite.
- * Die reine Rechenlogik liegt in @tripatlas/core (planner/*), hier passiert nur
+ * Die reine Rechenlogik liegt in @odovi/core (planner/*), hier passiert nur
  * das Laden/Aufbereiten der DB-Daten.
  */
 

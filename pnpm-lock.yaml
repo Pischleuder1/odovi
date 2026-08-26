@@ -95,15 +95,15 @@ importers:
       '@node-rs/argon2':
         specifier: ^2.0.2
         version: 2.0.2
+      '@odovi/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@odovi/db':
+        specifier: workspace:*
+        version: link:../../packages/db
       '@react-pdf/renderer':
         specifier: ^4.5.1
         version: 4.5.1(react@19.2.7)
-      '@tripatlas/core':
-        specifier: workspace:*
-        version: link:../../packages/core
-      '@tripatlas/db':
-        specifier: workspace:*
-        version: link:../../packages/db
       csv-stringify:
         specifier: ^6.8.1
         version: 6.8.1
@@ -180,10 +180,10 @@ importers:
 
   apps/worker:
     dependencies:
-      '@tripatlas/core':
+      '@odovi/core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@tripatlas/db':
+      '@odovi/db':
         specifier: workspace:*
         version: link:../../packages/db
       drizzle-orm:

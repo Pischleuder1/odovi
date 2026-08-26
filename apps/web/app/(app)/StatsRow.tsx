@@ -8,7 +8,7 @@ import {
   formatKwh,
   formatPlaceLabel,
   formatSoc,
-} from "@tripatlas/core";
+} from "@odovi/core";
 import { formatRelativeTime } from "../../lib/day";
 import { toIntlLocale } from "../../lib/i18nLocale";
 import type {

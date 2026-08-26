@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm";
-import { routePoints, type Db } from "@tripatlas/db";
+import { routePoints, type Db } from "@odovi/db";
 import type { TeslamateSql } from "../teslamate/client.js";
 import { fetchPositionsForDrive, type TmPosition } from "../teslamate/queries.js";
 import type { UpsertedDriveRef } from "./drives.js";
@@ -39,11 +39,11 @@ export async function syncRoutePoints(
     );
     const sampled = downsample(positions);
 
-    await db.delete(routePoints).where(eq(routePoints.driveId, ref.tripatlasDriveId));
+    await db.delete(routePoints).where(eq(routePoints.driveId, ref.odoviDriveId));
 
     if (sampled.length > 0) {
       const values = sampled.map((p) => ({
-        driveId: ref.tripatlasDriveId,
+        driveId: ref.odoviDriveId,
         ts: p.date,
         lat: p.latitude,
         lon: p.longitude,

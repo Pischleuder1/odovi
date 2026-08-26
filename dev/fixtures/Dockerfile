@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-# Tripatlas demo — one-shot seeder image for the fake TeslaMate database used
+# Odovi demo — one-shot seeder image for the fake TeslaMate database used
 # by docker-compose.demo.yml (see docs/demo.md).
 #
 # Deliberately standalone, NOT a pnpm-workspace build: dev/fixtures/seed.ts

@@ -4,7 +4,7 @@ import { validateSession } from "../../../../lib/auth/session";
 import { getTeslaConfig } from "../../../../lib/tesla/config";
 import { saveTeslaIntegration, TOKEN_ENDPOINT } from "../../../../lib/tesla/integration";
 import { db } from "../../../../lib/db";
-import { vehicles as localVehicles } from "@tripatlas/db";
+import { vehicles as localVehicles } from "@odovi/db";
 
 interface TokenResponse {
   access_token: string;
@@ -30,7 +30,10 @@ export async function GET(request: NextRequest) {
   if (!config) return settingsRedirect(request, "not-configured");
   const code = request.nextUrl.searchParams.get("code");
   const state = request.nextUrl.searchParams.get("state");
-  const expectedState = (await cookies()).get("tripatlas_tesla_oauth_state")?.value;
+  const cookieStore = await cookies();
+  const expectedState =
+    cookieStore.get("odovi_tesla_oauth_state")?.value ??
+    cookieStore.get("tripatlas_tesla_oauth_state")?.value;
   if (!code || !state || !expectedState || state !== expectedState) {
     return settingsRedirect(request, "invalid-state");
   }
@@ -82,6 +85,7 @@ export async function GET(request: NextRequest) {
       vehicleVin,
     });
     const response = settingsRedirect(request, "connected");
+    response.cookies.delete("odovi_tesla_oauth_state");
     response.cookies.delete("tripatlas_tesla_oauth_state");
     return response;
   } catch {

@@ -3,9 +3,9 @@ import { cache } from "react";
 import { cookies, headers } from "next/headers";
 import { createHash, randomBytes } from "node:crypto";
 import { eq } from "drizzle-orm";
-import { sessions, users } from "@tripatlas/db";
+import { sessions, users } from "@odovi/db";
 import { db } from "../db";
-import { SESSION_COOKIE } from "../config";
+import { LEGACY_SESSION_COOKIE, SESSION_COOKIE } from "../config";
 
 const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
 
@@ -69,7 +69,9 @@ export async function createSession(userId: number): Promise<void> {
 export const validateSession = cache(
   async (): Promise<SessionUser | null> => {
     const cookieStore = await cookies();
-    const token = cookieStore.get(SESSION_COOKIE)?.value;
+    const token =
+      cookieStore.get(SESSION_COOKIE)?.value ??
+      cookieStore.get(LEGACY_SESSION_COOKIE)?.value;
     if (!token) return null;
 
     const id = hashToken(token);
@@ -102,9 +104,12 @@ export const validateSession = cache(
  */
 export async function destroySession(): Promise<void> {
   const cookieStore = await cookies();
-  const token = cookieStore.get(SESSION_COOKIE)?.value;
+  const token =
+    cookieStore.get(SESSION_COOKIE)?.value ??
+    cookieStore.get(LEGACY_SESSION_COOKIE)?.value;
   if (token) {
     await db.delete(sessions).where(eq(sessions.id, hashToken(token)));
   }
   cookieStore.delete(SESSION_COOKIE);
+  cookieStore.delete(LEGACY_SESSION_COOKIE);
 }

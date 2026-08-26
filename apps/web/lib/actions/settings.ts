@@ -3,7 +3,7 @@ import { revalidatePath } from "next/cache";
 import { eq, ne, and } from "drizzle-orm";
 import { z } from "zod";
 import { getTranslations } from "next-intl/server";
-import { auditLog, sessions, syncState, users, vehicles } from "@tripatlas/db";
+import { auditLog, sessions, syncState, users, vehicles } from "@odovi/db";
 import { db } from "../db";
 import { validateSession } from "../auth/session";
 import { hashPassword, verifyPassword } from "../auth/password";

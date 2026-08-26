@@ -1,6 +1,6 @@
 import "server-only";
 import { asc, eq } from "drizzle-orm";
-import { chargePoints } from "@tripatlas/db";
+import { chargePoints } from "@odovi/db";
 import { db } from "./db";
 
 /** Ein Messpunkt der Ladekurve (M19) — Zeit, Leistung, SoC, Außentemperatur. */

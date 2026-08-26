@@ -1,15 +1,15 @@
 # Third-party notices
 
-Tripatlas includes and depends on third-party software. Those components remain
+Odovi includes and depends on third-party software. Those components remain
 under their own license terms; neither the FSL nor the proprietary marketing
 site notice replaces them. The package manifests and lockfile are the
 authoritative inventory for a particular build.
 
 Notable examples include:
 
-- [TeslaMate](https://github.com/teslamate-org/teslamate), which Tripatlas can
+- [TeslaMate](https://github.com/teslamate-org/teslamate), which Odovi can
   read through a separately installed database. TeslaMate is not bundled as
-  Tripatlas code except where deployment documentation explicitly references
+  Odovi code except where deployment documentation explicitly references
   it.
 - [GSAP](https://gsap.com/community/standard-license/), used by the marketing
   prototype under GreenSock's applicable standard license.

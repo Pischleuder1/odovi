@@ -1,6 +1,6 @@
 import "server-only";
 import { asc, eq, inArray } from "drizzle-orm";
-import { driveTags, tags } from "@tripatlas/db";
+import { driveTags, tags } from "@odovi/db";
 import { db } from "../db";
 
 /**

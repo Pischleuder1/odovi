@@ -1,4 +1,4 @@
-import { computeVampireLoss } from "@tripatlas/core";
+import { computeVampireLoss } from "@odovi/core";
 
 export interface ParkDrainSourceSession {
   id: number;

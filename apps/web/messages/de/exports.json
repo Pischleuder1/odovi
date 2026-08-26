@@ -122,17 +122,17 @@
       "type": "Typ",
       "cost": "Kosten"
     },
-    "footer": "Erstellt am {date} · Tripatlas",
+    "footer": "Erstellt am {date} · Odovi",
     "footerEstimatedSuffix": "~ = geschätzter Wert",
     "drive": {
-      "title": "Tripatlas — Fahrt {date}",
+      "title": "Odovi — Fahrt {date}",
       "kpisTitle": "Kennzahlen",
       "distance": "Distanz",
       "duration": "Dauer",
       "odometerRange": "Km-Stand Start / Ende"
     },
     "day": {
-      "title": "Tripatlas — Tagesreport {date}",
+      "title": "Odovi — Tagesreport {date}",
       "sumTitle": "Summe",
       "driveCount": "Anzahl Fahrten",
       "distance": "Distanz",
@@ -140,13 +140,13 @@
       "consumedEnergy": "Verbrauchte Energie"
     },
     "month": {
-      "title": "Tripatlas — Fahrtenbuch {month}",
+      "title": "Odovi — Fahrtenbuch {month}",
       "sumByClassification": "Summe je Klassifizierung",
       "driveCountKm": "{count, plural, one {# Fahrt} other {# Fahrten}} · {km} km",
       "total": "Gesamt"
     },
     "journey": {
-      "title": "Tripatlas — Reise {name}",
+      "title": "Odovi — Reise {name}",
       "kpisTitle": "Kennzahlen",
       "totalKm": "Gesamtkilometer",
       "driveTime": "Fahrzeit",

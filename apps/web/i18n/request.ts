@@ -7,7 +7,8 @@ export type Locale = (typeof LOCALES)[number];
 export const DEFAULT_LOCALE: Locale = "de";
 
 /** Cookie, in das der LocaleSwitcher die aktive Sprache schreibt. */
-export const LOCALE_COOKIE = "tripatlas_locale";
+export const LOCALE_COOKIE = "odovi_locale";
+export const LEGACY_LOCALE_COOKIE = "tripatlas_locale";
 
 /**
  * Feste Reihenfolge der Namespaces. Jede Sprache hat pro Namespace eine
@@ -43,7 +44,10 @@ export function isLocale(value: string | undefined): value is Locale {
 }
 
 export default getRequestConfig(async () => {
-  const cookieLocale = (await cookies()).get(LOCALE_COOKIE)?.value;
+  const cookieStore = await cookies();
+  const cookieLocale =
+    cookieStore.get(LOCALE_COOKIE)?.value ??
+    cookieStore.get(LEGACY_LOCALE_COOKIE)?.value;
   const locale: Locale = isLocale(cookieLocale) ? cookieLocale : DEFAULT_LOCALE;
 
   // Alle Namespaces der aktiven Sprache dynamisch laden und unter ihrem

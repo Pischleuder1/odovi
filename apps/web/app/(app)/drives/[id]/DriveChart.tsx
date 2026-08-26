@@ -7,7 +7,7 @@ import {
   formatSpeed,
   haversineDistanceM,
   smoothElevations,
-} from "@tripatlas/core";
+} from "@odovi/core";
 import type { ChartRoutePoint } from "../../../../lib/driveRoute";
 
 export interface DriveChartProps {
@@ -45,8 +45,8 @@ function buildSeriesMeta(t: (key: string) => string): Record<SeriesKey, SeriesMe
       label: t("chart.elevation"),
       unit: "m",
       colorClass: "text-blue-600 dark:text-blue-400",
-      swatch: "#7c3aed",
-      swatchDark: "#a78bfa",
+      swatch: "#3441e3",
+      swatchDark: "#7b87ff",
     },
     soc: {
       key: "soc",

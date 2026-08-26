@@ -7,14 +7,14 @@ import {
   summarizeElevation,
   type RoadtripPlanSnapshot,
   type RoadtripStop,
-} from "@tripatlas/core";
+} from "@odovi/core";
 import { validateSession } from "../auth/session";
 import { resolveBaseConsumption, resolveChargingProfile } from "../planner";
 
 /**
  * Server Action des Routenplaner-MVP („Reichweiten-Check"). Orchestriert
  * server-seitig (nie im Browser): OSRM-Routing → Höhenprofil via Open-Meteo →
- * reines Verbrauchsmodell (@tripatlas/core) → Ankunfts-SoC. Alle externen
+ * reines Verbrauchsmodell (@odovi/core) → Ankunfts-SoC. Alle externen
  * Aufrufe mit Timeout und Failure-soft-Verhalten; das Höhenprofil ist optional
  * (fällt es aus, rechnet das Modell ohne Höhenterm und die UI weist es aus).
  */

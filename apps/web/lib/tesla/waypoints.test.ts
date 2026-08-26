@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { RoadtripPlanSnapshot } from "@tripatlas/core";
+import type { RoadtripPlanSnapshot } from "@odovi/core";
 import { buildTeslaWaypoints } from "./waypoints";
 
 describe("buildTeslaWaypoints", () => {

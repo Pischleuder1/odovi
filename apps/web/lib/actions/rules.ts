@@ -9,8 +9,8 @@ import {
   driveTags,
   drives,
   tags,
-} from "@tripatlas/db";
-import { findMatchingRule, isoWeekday } from "@tripatlas/core";
+} from "@odovi/db";
+import { findMatchingRule, isoWeekday } from "@odovi/core";
 import { db } from "../db";
 import { validateSession } from "../auth/session";
 import { APP_TIMEZONE } from "../config";
@@ -320,7 +320,7 @@ type RuleClassification = "unclassified" | "private" | "business" | "commute";
 /**
  * Wendet alle aktiven Regeln sofort auf ALLE unklassifizierten Drives an
  * (kein Batch-Limit — user-initiiert). Teilt die reine Engine mit dem Worker
- * über @tripatlas/core; die DB-Schreiblogik ist bewusst dünn dupliziert, weil
+ * über @odovi/core; die DB-Schreiblogik ist bewusst dünn dupliziert, weil
  * apps/web nicht aus apps/worker importieren darf (MVP-Konvention).
  * Provenance-Marker classifiedByRuleId + Audit changedBy=`regel:${name}`
  * sind identisch zum Worker, damit die Herkunft eindeutig bleibt.

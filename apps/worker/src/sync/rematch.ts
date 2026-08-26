@@ -1,6 +1,6 @@
 import { and, eq, ne, or, isNull, isNotNull } from "drizzle-orm";
-import { chargeSessions, drives, parkSessions, type Db } from "@tripatlas/db";
-import { matchPlace } from "@tripatlas/core";
+import { chargeSessions, drives, parkSessions, type Db } from "@odovi/db";
+import { matchPlace } from "@odovi/core";
 import { loadMatchablePlaces } from "./places.js";
 
 export interface RematchResult {

@@ -12,7 +12,7 @@ body:
     id: version
     attributes:
       label: Version or commit
-      description: Which Tripatlas release, tag, or commit are you running?
+      description: Which Odovi release, tag, or commit are you running?
       placeholder: "0.1.0 or commit SHA"
     validations:
       required: true
@@ -20,7 +20,7 @@ body:
     id: deployment
     attributes:
       label: Deployment method
-      description: How are you running Tripatlas?
+      description: How are you running Odovi?
       options:
         - Docker Compose
         - Manual
@@ -32,7 +32,7 @@ body:
     id: teslamate_version
     attributes:
       label: TeslaMate version
-      description: Which TeslaMate version is connected to Tripatlas?
+      description: Which TeslaMate version is connected to Odovi?
       placeholder: "e.g. 1.33.0"
   - type: textarea
     id: actual

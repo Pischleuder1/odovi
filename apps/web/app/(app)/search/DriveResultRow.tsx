@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { formatKm, formatPlaceLabel, formatTimeRange } from "@tripatlas/core";
+import { formatKm, formatPlaceLabel, formatTimeRange } from "@odovi/core";
 import {
   CLASSIFICATION_BADGE,
   type Classification,

@@ -1,6 +1,6 @@
 import { Gauge, TriangleAlert } from "lucide-react";
 import { getTranslations } from "next-intl/server";
-import { assessTpms, type TpmsTireAssessment } from "@tripatlas/core";
+import { assessTpms, type TpmsTireAssessment } from "@odovi/core";
 import type { VehicleStatusRow } from "../../lib/dashboard";
 
 const barFormatter = new Intl.NumberFormat("de-DE", {

@@ -1,6 +1,6 @@
 {
-  "name": "Tripatlas",
-  "short_name": "Tripatlas",
+  "name": "Odovi",
+  "short_name": "Odovi",
   "description": "Self-hosted Fahrtenarchiv für Tesla",
   "lang": "de",
   "dir": "ltr",
@@ -8,8 +8,8 @@
   "orientation": "portrait",
   "start_url": "/",
   "scope": "/",
-  "background_color": "#080a18",
-  "theme_color": "#7c3aed",
+  "background_color": "#0B1020",
+  "theme_color": "#FF6B4A",
   "icons": [
     {
       "src": "/icon-192.png",
@@ -28,11 +28,6 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
-    },
-    {
-      "src": "/icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml"
     }
   ]
 }

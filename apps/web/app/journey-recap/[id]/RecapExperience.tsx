@@ -905,7 +905,7 @@ export function RecapExperience({ data }: { data: JourneyRecapData }) {
         </Link>
         <div className={styles.wordmark}>
           <MapPin aria-hidden size={16} />
-          Tripatlas
+          Odovi
         </div>
         <div className={styles.controls}>
           {reducedMotion && <span className={styles.motionBadge}>{t("reducedMotion")}</span>}

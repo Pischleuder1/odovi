@@ -3,10 +3,14 @@
 import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, BatteryCharging, Check, ChevronLeft, ChevronRight, MapPin, Navigation, RotateCcw, Wifi, WifiOff } from "lucide-react";
 import type { OfflineRoadtrip } from "../(app)/journeys/[id]/OfflinePlanButton";
-import { OFFLINE_ROADTRIP_STORAGE_KEY } from "../(app)/journeys/[id]/OfflinePlanButton";
+import {
+  LEGACY_OFFLINE_ROADTRIP_STORAGE_KEY,
+  OFFLINE_ROADTRIP_STORAGE_KEY,
+} from "../(app)/journeys/[id]/OfflinePlanButton";
 import { buttonClasses } from "../../components/ui/Button";
 
-const PROGRESS_KEY = "tripatlas:offline-roadtrip-progress:v1";
+const PROGRESS_KEY = "odovi:offline-roadtrip-progress:v1";
+const LEGACY_PROGRESS_KEY = "tripatlas:offline-roadtrip-progress:v1";
 
 type Labels = Record<
   | "title" | "emptyTitle" | "emptyHint" | "back" | "version" | "saved"
@@ -35,11 +39,17 @@ export function OfflineRoadtripCompanion({ labels }: { labels: Labels }) {
     window.addEventListener("online", update);
     window.addEventListener("offline", update);
     try {
-      const raw = localStorage.getItem(OFFLINE_ROADTRIP_STORAGE_KEY);
+      const raw =
+        localStorage.getItem(OFFLINE_ROADTRIP_STORAGE_KEY) ??
+        localStorage.getItem(LEGACY_OFFLINE_ROADTRIP_STORAGE_KEY);
       if (raw) {
         const parsed = JSON.parse(raw) as OfflineRoadtrip;
+        localStorage.setItem(OFFLINE_ROADTRIP_STORAGE_KEY, raw);
         setTrip(parsed);
-        const progress = Number(localStorage.getItem(`${PROGRESS_KEY}:${parsed.journeyId}:${parsed.version}`));
+        const progress = Number(
+          localStorage.getItem(`${PROGRESS_KEY}:${parsed.journeyId}:${parsed.version}`) ??
+          localStorage.getItem(`${LEGACY_PROGRESS_KEY}:${parsed.journeyId}:${parsed.version}`),
+        );
         if (Number.isInteger(progress) && progress >= 1) setCurrentIndex(progress);
       }
     } catch {

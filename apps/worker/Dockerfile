@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-# Tripatlas worker — sync loop + one-shot migration runner.
+# Odovi worker — sync loop + one-shot migration runner.
 # Multi-stage, pnpm workspace-aware build. linux/arm64-compatible (Raspberry Pi).
 
 ARG NODE_IMAGE=node:22-bookworm-slim
@@ -19,7 +19,7 @@ COPY apps/worker/package.json apps/worker/package.json
 # dev/fixtures is a workspace member per pnpm-workspace.yaml; pnpm needs its
 # manifest present to resolve the lockfile even though nothing here installs it.
 COPY dev/fixtures/package.json dev/fixtures/package.json
-RUN pnpm install --frozen-lockfile --filter @tripatlas/worker... --filter @tripatlas/core --filter @tripatlas/db
+RUN pnpm install --frozen-lockfile --filter @odovi/worker... --filter @odovi/core --filter @odovi/db
 
 # ---- build: compile core, db, worker (tsc) -----------------------------
 FROM deps AS build
@@ -27,9 +27,9 @@ COPY packages/core packages/core
 COPY packages/db packages/db
 COPY apps/worker apps/worker
 COPY tsconfig.base.json tsconfig.base.json
-RUN pnpm --filter @tripatlas/core build \
- && pnpm --filter @tripatlas/db build \
- && pnpm --filter @tripatlas/worker build
+RUN pnpm --filter @odovi/core build \
+ && pnpm --filter @odovi/db build \
+ && pnpm --filter @odovi/worker build
 
 # ---- prod-deps: pruned, production-only node_modules -------------------
 FROM base AS prod-deps
@@ -38,15 +38,15 @@ COPY packages/core/package.json packages/core/package.json
 COPY packages/db/package.json packages/db/package.json
 COPY apps/worker/package.json apps/worker/package.json
 COPY dev/fixtures/package.json dev/fixtures/package.json
-RUN pnpm install --frozen-lockfile --prod --filter @tripatlas/worker... --filter @tripatlas/core --filter @tripatlas/db
+RUN pnpm install --frozen-lockfile --prod --filter @odovi/worker... --filter @odovi/core --filter @odovi/db
 
 # ---- runtime -------------------------------------------------------------
 FROM ${NODE_IMAGE} AS runtime
 ENV NODE_ENV=production
 WORKDIR /app
 
-RUN groupadd --system --gid 1001 tripatlas \
- && useradd --system --uid 1001 --gid tripatlas tripatlas
+RUN groupadd --system --gid 1001 odovi \
+ && useradd --system --uid 1001 --gid odovi odovi
 
 # Pruned node_modules for the whole workspace. pnpm creates a node_modules
 # symlink dir (-> .pnpm store) in the root AND in each workspace package that
@@ -71,6 +71,6 @@ COPY --from=build /repo/apps/worker/dist ./apps/worker/dist
 COPY packages/db/drizzle ./apps/worker/drizzle
 
 WORKDIR /app/apps/worker
-USER tripatlas
+USER odovi
 
 CMD ["node", "dist/index.js"]

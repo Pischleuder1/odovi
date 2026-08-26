@@ -8,7 +8,7 @@ import {
   formatKm,
   formatKwh,
   summarizeDriveEnergy,
-} from "@tripatlas/core";
+} from "@odovi/core";
 import { APP_TIMEZONE } from "../../../../lib/config";
 import {
   formatLongDate,

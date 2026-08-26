@@ -1,4 +1,4 @@
-import type { Classification } from "@tripatlas/core";
+import type { Classification } from "@odovi/core";
 
 const VALID_CLASSIFICATIONS: Classification[] = [
   "unclassified",

@@ -1,4 +1,4 @@
-import type { Classification } from "@tripatlas/core";
+import type { Classification } from "@odovi/core";
 
 /** Slugs used in filenames — German, ASCII-safe (ä/ö/ü/ß spelled out). */
 const CLASSIFICATION_SLUGS: Record<Classification, string> = {
@@ -15,23 +15,23 @@ const ALL_CLASSIFICATIONS: Classification[] = [
   "commute",
 ];
 
-/** `tripatlas-fahrt-2026-07-02-133.csv` (also used for `format: "gpx"`). */
+/** `odovi-fahrt-2026-07-02-133.csv` (also used for `format: "gpx"`). */
 export function driveFilename(
   date: string,
   driveId: number,
   format: "csv" | "pdf" | "gpx",
 ): string {
-  return `tripatlas-fahrt-${date}-${driveId}.${format}`;
+  return `odovi-fahrt-${date}-${driveId}.${format}`;
 }
 
-/** `tripatlas-tag-2026-07-02.csv` */
+/** `odovi-tag-2026-07-02.csv` */
 export function dayFilename(date: string, format: "csv" | "pdf"): string {
-  return `tripatlas-tag-${date}.${format}`;
+  return `odovi-tag-${date}.${format}`;
 }
 
 /**
- * `tripatlas-monat-2026-06-geschaeftlich.pdf` (single classification) or
- * `tripatlas-monat-2026-06.pdf` (all classifications / default).
+ * `odovi-monat-2026-06-geschaeftlich.pdf` (single classification) or
+ * `odovi-monat-2026-06.pdf` (all classifications / default).
  */
 export function monthFilename(
   month: string,
@@ -43,12 +43,12 @@ export function monthFilename(
     classifications.length === 0 ||
     classifications.length === ALL_CLASSIFICATIONS.length;
 
-  if (isAll) return `tripatlas-monat-${month}.${format}`;
+  if (isAll) return `odovi-monat-${month}.${format}`;
   if (classifications.length === 1) {
-    return `tripatlas-monat-${month}-${CLASSIFICATION_SLUGS[classifications[0]!]}.${format}`;
+    return `odovi-monat-${month}-${CLASSIFICATION_SLUGS[classifications[0]!]}.${format}`;
   }
   const slug = classifications.map((c) => CLASSIFICATION_SLUGS[c]).join("-");
-  return `tripatlas-monat-${month}-${slug}.${format}`;
+  return `odovi-monat-${month}-${slug}.${format}`;
 }
 
 /** ASCII-safe, lowercase, dash-separated slug of a free-text name (umlauts spelled out). */
@@ -64,7 +64,7 @@ function slugify(value: string): string {
 }
 
 /**
- * `tripatlas-reise-alpenrundfahrt-12.csv` (name slugified; id keeps it unique
+ * `odovi-reise-alpenrundfahrt-12.csv` (name slugified; id keeps it unique
  * even for duplicate/empty names).
  */
 export function journeyFilename(
@@ -74,6 +74,6 @@ export function journeyFilename(
 ): string {
   const slug = slugify(name);
   return slug
-    ? `tripatlas-reise-${slug}-${journeyId}.${format}`
-    : `tripatlas-reise-${journeyId}.${format}`;
+    ? `odovi-reise-${slug}-${journeyId}.${format}`
+    : `odovi-reise-${journeyId}.${format}`;
 }

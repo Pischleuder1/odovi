@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { eq, sql } from "drizzle-orm";
 import { getTranslations } from "next-intl/server";
-import { users } from "@tripatlas/db";
+import { users } from "@odovi/db";
 import { db } from "../db";
 import { hashPassword, verifyPassword } from "./password";
 import { createSession, destroySession } from "./session";

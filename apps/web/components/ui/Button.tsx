@@ -10,7 +10,7 @@ const base =
 
 const variantClasses: Record<ButtonVariant, string> = {
   primary:
-    "bg-gradient-to-br from-violet-600 to-violet-400 text-white shadow-[0_14px_34px_rgba(124,58,237,0.24)] hover:from-violet-500 hover:to-violet-300 active:from-violet-700 active:to-violet-500 " +
+    "bg-gradient-to-br from-violet-600 to-violet-400 text-white shadow-[0_14px_34px_rgba(71,87,255,0.24)] hover:from-violet-500 hover:to-violet-300 active:from-violet-700 active:to-violet-500 " +
     "focus-visible:ring-cyan-300 dark:focus-visible:ring-cyan-300",
   secondary:
     "border border-neutral-300 text-neutral-700 hover:bg-neutral-100 active:bg-neutral-200 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800 dark:active:bg-neutral-700 " +

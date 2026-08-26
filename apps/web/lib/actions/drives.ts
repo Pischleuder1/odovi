@@ -3,8 +3,8 @@ import { revalidatePath } from "next/cache";
 import { and, asc, eq, inArray, sql } from "drizzle-orm";
 import { z } from "zod";
 import { getTranslations } from "next-intl/server";
-import { auditLog, driveTags, drives, places, tags } from "@tripatlas/db";
-import { matchPlace } from "@tripatlas/core";
+import { auditLog, driveTags, drives, places, tags } from "@odovi/db";
+import { matchPlace } from "@odovi/core";
 import { db } from "../db";
 import { validateSession } from "../auth/session";
 // Free-text-created tags get a color from the shared preset palette, cycled

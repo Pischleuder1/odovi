@@ -7,7 +7,7 @@ import {
   formatKm,
   formatPlaceLabel,
   formatSoc,
-} from "@tripatlas/core";
+} from "@odovi/core";
 import { APP_TIMEZONE } from "../../lib/config";
 import type { DriveTrack, RecentDriveRow } from "../../lib/dashboard";
 import { EmptyState } from "../../components/ui/EmptyState";

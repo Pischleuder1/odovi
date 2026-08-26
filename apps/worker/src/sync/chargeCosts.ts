@@ -1,6 +1,6 @@
 import { and, eq, isNotNull, isNull, or } from "drizzle-orm";
-import { chargeSessions, places, type Db } from "@tripatlas/db";
-import { computeAutoChargeCost } from "@tripatlas/core";
+import { chargeSessions, places, type Db } from "@odovi/db";
+import { computeAutoChargeCost } from "@odovi/core";
 
 export interface ChargeCostsResult {
   updated: number;

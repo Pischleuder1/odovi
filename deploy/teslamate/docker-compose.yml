@@ -1,5 +1,5 @@
-# TeslaMate-Stack für Tripatlas-Nutzer, die noch kein TeslaMate betreiben.
-# Minimal-Setup ohne Grafana (Tripatlas ist die Auswertungs-UI; Grafana kann
+# TeslaMate-Stack für Odovi-Nutzer, die noch kein TeslaMate betreiben.
+# Minimal-Setup ohne Grafana (Odovi ist die Auswertungs-UI; Grafana kann
 # jederzeit ergänzt werden, siehe TeslaMate-Doku).
 #
 # Verwendung:
@@ -12,8 +12,8 @@
 #   docker compose up -d
 #
 # Danach http://<host>:4000 öffnen und das Tesla-Konto anmelden.
-# Das Compose-Netz heißt "teslamate_default" — Tripatlas' Worker hängt sich
-# per docker-compose.override.yml dort ein (siehe Tripatlas-README).
+# Das Compose-Netz heißt "teslamate_default" — Odovi' Worker hängt sich
+# per docker-compose.override.yml dort ein (siehe Odovi-README).
 
 services:
   teslamate:

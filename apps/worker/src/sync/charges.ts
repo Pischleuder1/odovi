@@ -1,12 +1,12 @@
 import { sql } from "drizzle-orm";
-import { chargeSessions, type Db } from "@tripatlas/db";
+import { chargeSessions, type Db } from "@odovi/db";
 import type { TeslamateSql } from "../teslamate/client.js";
 import {
   fetchCompletedChargingProcessesSince,
   fetchInProgressChargingProcesses,
   type TmChargingProcess,
 } from "../teslamate/queries.js";
-import { matchPlace, type MatchablePlace } from "@tripatlas/core";
+import { matchPlace, type MatchablePlace } from "@odovi/core";
 import { getWatermark, recordSyncRun } from "./state.js";
 import type { VehicleRef } from "./vehicles.js";
 
@@ -24,7 +24,7 @@ export interface ChargeSyncResult {
 
 /** Für den Ladekurven-Sync: welche Charge-Sessions wurden in diesem Zyklus angefasst. */
 export interface UpsertedChargeRef {
-  tripatlasChargeSessionId: number;
+  odoviChargeSessionId: number;
   tmChargingProcessId: number;
 }
 
@@ -92,7 +92,7 @@ export async function syncCharges(
         const entry = bySourceId.get(row.sourceId);
         if (!entry) continue;
         upsertedRefs.push({
-          tripatlasChargeSessionId: row.id,
+          odoviChargeSessionId: row.id,
           tmChargingProcessId: entry.tmCharge.id,
         });
       }

@@ -11,7 +11,7 @@ import {
   syncState,
   tags,
   vehicles,
-} from "@tripatlas/db";
+} from "@odovi/db";
 import { db } from "./db";
 import { dayBounds } from "./day";
 

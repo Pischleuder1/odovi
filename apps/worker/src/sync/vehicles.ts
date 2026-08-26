@@ -1,5 +1,5 @@
 import { and, eq, sql } from "drizzle-orm";
-import { syncState, vehicles, type Db } from "@tripatlas/db";
+import { syncState, vehicles, type Db } from "@odovi/db";
 import type { TeslamateSql } from "../teslamate/client.js";
 import { fetchCars } from "../teslamate/queries.js";
 

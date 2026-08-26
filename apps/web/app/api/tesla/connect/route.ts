@@ -22,7 +22,7 @@ export async function GET() {
     show_keypair_step: "true",
   }).toString();
   const response = NextResponse.redirect(url);
-  response.cookies.set("tripatlas_tesla_oauth_state", state, {
+  response.cookies.set("odovi_tesla_oauth_state", state, {
     httpOnly: true,
     sameSite: "lax",
     secure: config.redirectUri.startsWith("https://"),

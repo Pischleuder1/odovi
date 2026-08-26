@@ -1,4 +1,4 @@
-import { createDb } from "@tripatlas/db";
+import { createDb } from "@odovi/db";
 import { createTeslamateClient, probeTeslamateSchema } from "./teslamate/client.js";
 import { runSyncCycle } from "./sync/cycle.js";
 import { requireEnv } from "./env.js";
@@ -18,7 +18,7 @@ async function tick(): Promise<void> {
     await runSyncCycle(db, tm);
   } catch (err) {
     // Fehler ist bereits in sync_state protokolliert — nächster Tick versucht es neu.
-    console.error(`[tripatlas-worker] sync fehlgeschlagen:`, err);
+    console.error(`[odovi-worker] sync fehlgeschlagen:`, err);
   } finally {
     running = false;
     timer = setTimeout(() => void tick(), SYNC_INTERVAL_SECONDS * 1000);
@@ -26,7 +26,7 @@ async function tick(): Promise<void> {
 }
 
 function shutdown(signal: string): void {
-  console.log(`[tripatlas-worker] received ${signal}, shutting down`);
+  console.log(`[odovi-worker] received ${signal}, shutting down`);
   if (timer) clearTimeout(timer);
   process.exit(0);
 }
@@ -34,12 +34,12 @@ function shutdown(signal: string): void {
 process.on("SIGINT", () => shutdown("SIGINT"));
 process.on("SIGTERM", () => shutdown("SIGTERM"));
 
-console.log(`[tripatlas-worker] starting, interval=${SYNC_INTERVAL_SECONDS}s`);
+console.log(`[odovi-worker] starting, interval=${SYNC_INTERVAL_SECONDS}s`);
 try {
   await probeTeslamateSchema(tm);
-  console.log("[tripatlas-worker] TeslaMate-Schema ok");
+  console.log("[odovi-worker] TeslaMate-Schema ok");
 } catch (err) {
-  console.error(`[tripatlas-worker] ${err instanceof Error ? err.message : err}`);
+  console.error(`[odovi-worker] ${err instanceof Error ? err.message : err}`);
   process.exit(1);
 }
 void tick();

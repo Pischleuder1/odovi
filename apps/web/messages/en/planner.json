@@ -50,7 +50,7 @@
     "kindWaypoint": "Waypoint",
     "kindCharge": "Charging stop",
     "targetSoc": "Target SoC when leaving",
-    "targetSocHint": "Tripatlas estimates charge time from your own DC charging curves; a conservative default is used without history.",
+    "targetSocHint": "Odovi estimates charge time from your own DC charging curves; a conservative default is used without history.",
     "moveUp": "Move checkpoint up",
     "moveDown": "Move checkpoint down",
     "remove": "Remove checkpoint",
@@ -130,7 +130,7 @@
     "descentRegen": "Downhill regeneration",
     "total": "Total",
     "footer": "Experimental forecast based on assumptions (driving style, wind, load, tires, and climate control are not accounted for). Plan a reserve.",
-    "waypointFooter": "Tripatlas transfers ordered checkpoints. Tesla recalculates the exact roads and charging plan in the vehicle."
+    "waypointFooter": "Odovi transfers ordered checkpoints. Tesla recalculates the exact roads and charging plan in the vehicle."
   },
   "destinationSearch": {
     "placeholder": "Search destination address…",

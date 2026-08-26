@@ -9,7 +9,7 @@ import {
   formatSoc,
   type RoadtripPlanActualComparison,
   type RoadtripPlanSnapshot,
-} from "@tripatlas/core";
+} from "@odovi/core";
 import type { JourneyDriveItem } from "../../../../lib/journeys";
 import { refreshJourneyAssignments } from "../../../../lib/actions/journeys";
 import { buttonClasses } from "../../../../components/ui/Button";

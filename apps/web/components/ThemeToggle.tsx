@@ -5,7 +5,7 @@ import { Sun, Moon, Monitor, type LucideIcon } from "lucide-react";
 
 export type ThemeChoice = "light" | "dark" | "system";
 
-const COOKIE = "tripatlas_theme";
+const COOKIE = "odovi_theme";
 const ONE_YEAR = 60 * 60 * 24 * 365;
 
 const OPTIONS: { value: ThemeChoice; labelKey: "light" | "dark" | "system"; icon: LucideIcon }[] = [

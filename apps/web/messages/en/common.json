@@ -23,7 +23,7 @@
   },
   "vehicleRequired": {
     "title": "No vehicle available yet",
-    "hint": "Tripatlas has not synced a vehicle from TeslaMate yet. Check the connection and sync under More.",
+    "hint": "Odovi has not synced a vehicle from TeslaMate yet. Check the connection and sync under More.",
     "action": "Check setup"
   }
 }

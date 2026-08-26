@@ -6,7 +6,7 @@ import {
   formatKm,
   formatTime,
   type Classification,
-} from "@tripatlas/core";
+} from "@odovi/core";
 import { loadMonthReportData } from "../../../lib/exports/data";
 import { isValidMonthParam } from "../../../lib/exports/params";
 import { todayInAppTz } from "../../../lib/day";

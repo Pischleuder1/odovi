@@ -14,7 +14,7 @@ import {
   formatSpeed,
   formatTemp,
   formatTimeRange,
-} from "@tripatlas/core";
+} from "@odovi/core";
 import { weatherCodeIcon, weatherCodeKey } from "../../../../lib/weatherCodes";
 import { APP_TIMEZONE } from "../../../../lib/config";
 import { formatLongDate } from "../../../../lib/day";

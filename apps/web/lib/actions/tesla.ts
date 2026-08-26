@@ -3,8 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { and, eq } from "drizzle-orm";
 import { getTranslations } from "next-intl/server";
-import { auditLog, journeyPlans, vehicles } from "@tripatlas/db";
-import type { RoadtripPlanSnapshot } from "@tripatlas/core";
+import { auditLog, journeyPlans, vehicles } from "@odovi/db";
+import type { RoadtripPlanSnapshot } from "@odovi/core";
 import { db } from "../db";
 import { validateSession } from "../auth/session";
 import { getTeslaConfig } from "../tesla/config";

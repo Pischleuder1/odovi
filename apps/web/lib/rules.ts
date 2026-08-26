@@ -1,7 +1,7 @@
 import "server-only";
 import { alias } from "drizzle-orm/pg-core";
 import { and, asc, eq, isNull, isNotNull, notInArray, sql } from "drizzle-orm";
-import { classificationRules, drives, places, tags } from "@tripatlas/db";
+import { classificationRules, drives, places, tags } from "@odovi/db";
 import { db } from "./db";
 import type { Classification } from "./classification";
 

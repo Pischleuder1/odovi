@@ -2,7 +2,7 @@
 
 import { useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import type { Bin } from "@tripatlas/core";
+import type { Bin } from "@odovi/core";
 
 // Gemeinsame SVG-Geometrie, an DriveChart/ChargeChart (M18/M19) angelehnt:
 // 600×200-viewBox, dark-mode-aware currentColor-Klassen, min/max-Achsenlabels.

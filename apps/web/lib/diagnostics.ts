@@ -30,9 +30,9 @@ export interface SyncEntityDiagnosis extends SyncStateRow {
 }
 
 export interface DiagnosticsSummary {
-  /** Trivialer Round-Trip gegen die eigene Tripatlas-DB. */
-  tripatlasDbOk: boolean;
-  tripatlasDbError: string | null;
+  /** Trivialer Round-Trip gegen die eigene Odovi-DB. */
+  odoviDbOk: boolean;
+  odoviDbError: string | null;
   entities: SyncEntityDiagnosis[];
   /** Schlechtester Zustand über alle entities — bestimmt die Karten-Ampel. */
   overallHealth: SyncHealth;
@@ -70,24 +70,24 @@ export function entityLabel(
  * Diagnose-Card da.
  */
 export async function getDiagnostics(): Promise<DiagnosticsSummary> {
-  let tripatlasDbOk = true;
-  let tripatlasDbError: string | null = null;
+  let odoviDbOk = true;
+  let odoviDbError: string | null = null;
 
   try {
     await db.execute(sql`select 1`);
   } catch (err) {
-    tripatlasDbOk = false;
-    tripatlasDbError =
+    odoviDbOk = false;
+    odoviDbError =
       err instanceof Error ? err.message : "Unbekannter Datenbankfehler.";
   }
 
   let rows: SyncStateRow[] = [];
-  if (tripatlasDbOk) {
+  if (odoviDbOk) {
     try {
       rows = await getSyncState();
     } catch (err) {
-      tripatlasDbOk = false;
-      tripatlasDbError =
+      odoviDbOk = false;
+      odoviDbError =
         err instanceof Error ? err.message : "Unbekannter Datenbankfehler.";
     }
   }
@@ -106,8 +106,8 @@ export async function getDiagnostics(): Promise<DiagnosticsSummary> {
         );
 
   return {
-    tripatlasDbOk,
-    tripatlasDbError,
+    odoviDbOk,
+    odoviDbError,
     entities,
     overallHealth,
     teslamateEnvSet: Boolean(process.env.TESLAMATE_DATABASE_URL),
@@ -125,7 +125,7 @@ export function diagnosticsHints(
 ): string[] {
   const hints: string[] = [];
 
-  if (!summary.tripatlasDbOk) {
+  if (!summary.odoviDbOk) {
     hints.push(t("diagnostics.hints.dbUnreachable"));
   }
 

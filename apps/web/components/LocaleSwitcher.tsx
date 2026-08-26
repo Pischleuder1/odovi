@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 
 export type Locale = "de" | "en";
 
-const COOKIE = "tripatlas_locale";
+const COOKIE = "odovi_locale";
 const ONE_YEAR = 60 * 60 * 24 * 365;
 
 const OPTIONS: { value: Locale; label: string }[] = [
@@ -18,7 +18,7 @@ function persist(locale: Locale) {
 }
 
 /**
- * Sprachumschalter DE/EN. Schreibt die Wahl in das Cookie `tripatlas_locale`
+ * Sprachumschalter DE/EN. Schreibt die Wahl in das Cookie `odovi_locale`
  * (SSR liest sie in der next-intl Request-Config) und triggert `router.refresh()`,
  * damit der Server mit der neuen Sprache neu rendert. Kein Locale-Routing —
  * die URL bleibt unverändert.

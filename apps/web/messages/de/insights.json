@@ -3,8 +3,8 @@
   "subtitleWithData": "Basiert auf {count, plural, one {# Fahrt} other {# Fahrten}} seit {date}.",
   "subtitleNoData": "Muster und Zusammenhänge aus deinen Fahrten.",
   "notEnoughTitle": "Noch nicht genug Daten",
-  "notEnoughHint": "Tripatlas sammelt weiter — sobald mehr Fahrten vorliegen, erscheint hier eine Auswertung.",
-  "notEnoughBannerHint": "Insights zeigt Auswertungen ab {min} auswertbaren Fahrten. Aktuell liegen {count} vor — Tripatlas sammelt weiter.",
+  "notEnoughHint": "Odovi sammelt weiter — sobald mehr Fahrten vorliegen, erscheint hier eine Auswertung.",
+  "notEnoughBannerHint": "Insights zeigt Auswertungen ab {min} auswertbaren Fahrten. Aktuell liegen {count} vor — Odovi sammelt weiter.",
   "driveCountLabel": "{count, plural, one {# Fahrt} other {# Fahrten}}",
   "vehicleSwitcherLabel": "Fahrzeug wählen",
   "cards": {

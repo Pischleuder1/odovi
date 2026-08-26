@@ -1,15 +1,15 @@
-# Tripatlas
+# Odovi
 
-[![CI](https://github.com/jsc2304/tripatlas/actions/workflows/ci.yml/badge.svg)](https://github.com/jsc2304/tripatlas/actions/workflows/ci.yml)
+[![CI](https://github.com/jsc2304/odovi/actions/workflows/ci.yml/badge.svg)](https://github.com/jsc2304/odovi/actions/workflows/ci.yml)
 [![License: FSL-1.1-ALv2](https://img.shields.io/badge/License-FSL--1.1--ALv2-6f42c1.svg)](LICENSE)
 
 **Self-hosted trip archive and analytics for Tesla.** Pick a date, review every trip of the day, classify it, export it - your movement data stays on your server.
 
-Tripatlas reads the database of an existing [TeslaMate](https://github.com/teslamate-org/teslamate) installation in read-only mode and turns it into a searchable trip, parking, and charging archive with a daily timeline, places, tags, auto-classification, and business exports (CSV/PDF/GPX). Self-hosting requires no subscription or cloud service, and Tripatlas adds no product tracking.
+Odovi reads the database of an existing [TeslaMate](https://github.com/teslamate-org/teslamate) installation in read-only mode and turns it into a searchable trip, parking, and charging archive with a daily timeline, places, tags, auto-classification, and business exports (CSV/PDF/GPX). Self-hosting requires no subscription or cloud service, and Odovi adds no product tracking.
 
 ## Why?
 
-Tessie and similar services are good, but they come with subscription costs, overlap with features in the Tesla app, and put movement data with a third party. TeslaMate logs very well, but it does not provide a workflow for **finding and documenting** individual trips. Tripatlas is the product layer on top.
+Tessie and similar services are good, but they come with subscription costs, overlap with features in the Tesla app, and put movement data with a third party. TeslaMate logs very well, but it does not provide a workflow for **finding and documenting** individual trips. Odovi is the product layer on top.
 
 ## Features
 
@@ -68,11 +68,11 @@ Without a real car - a fixture TeslaMate database with 6 weeks of synthetic driv
 
 ```bash
 pnpm install
-pnpm dev:db                                # tripatlas-db :5432 + fixture teslamate-db :5433
+pnpm dev:db                                # odovi-db :5432 + fixture teslamate-db :5433
 pnpm db:seed:teslamate                     # ~140 trips, charging, geofences (Zurich area)
-DATABASE_URL=postgres://tripatlas:tripatlas@localhost:5432/tripatlas pnpm db:migrate
-pnpm --filter @tripatlas/worker dev        # Sync loop (needs DATABASE_URL + TESLAMATE_DATABASE_URL, see .env.example)
-pnpm --filter @tripatlas/web dev           # http://localhost:3000
+DATABASE_URL=postgres://odovi:odovi@localhost:5432/odovi pnpm db:migrate
+pnpm --filter @odovi/worker dev        # Sync loop (needs DATABASE_URL + TESLAMATE_DATABASE_URL, see .env.example)
+pnpm --filter @odovi/web dev           # http://localhost:3000
 ```
 
 Tests: `pnpm test` · typecheck: `pnpm lint` · more: [CONTRIBUTING.md](CONTRIBUTING.md)
@@ -80,6 +80,10 @@ Tests: `pnpm test` · typecheck: `pnpm lint` · more: [CONTRIBUTING.md](CONTRIBU
 ## Deployment
 
 Docker Compose on a home server/NAS/Raspberry Pi in your LAN or VPN (for example Tailscale), connected to the existing TeslaMate Postgres through a read-only role.
+
+Upgrading an installation created before the Odovi rename? Follow
+[`docs/rename-to-odovi.md`](docs/rename-to-odovi.md) before starting the renamed
+Compose stack so the existing PostgreSQL volume remains attached.
 
 ### Requirements
 
@@ -89,7 +93,7 @@ Docker Compose on a home server/NAS/Raspberry Pi in your LAN or VPN (for example
 
 ### 0. No TeslaMate yet? Install it too
 
-A minimal TeslaMate Compose setup (without Grafana) is available under [deploy/teslamate/](deploy/teslamate/docker-compose.yml) - instructions are in the file header. Then sign in to the Tesla account at `http://<host>:4000`. To let Tripatlas reach the TeslaMate database through the Compose service name `database`, create a `docker-compose.override.yml` in the Tripatlas directory:
+A minimal TeslaMate Compose setup (without Grafana) is available under [deploy/teslamate/](deploy/teslamate/docker-compose.yml) - instructions are in the file header. Then sign in to the Tesla account at `http://<host>:4000`. To let Odovi reach the TeslaMate database through the Compose service name `database`, create a `docker-compose.override.yml` in the Odovi directory:
 
 ```yaml
 services:
@@ -103,14 +107,14 @@ networks:
 
 ### 1. Create a read-only role on the TeslaMate database
 
-Tripatlas only reads the TeslaMate database - it never writes to it. Run this on the TeslaMate Postgres:
+Odovi only reads the TeslaMate database - it never writes to it. Run this on the TeslaMate Postgres:
 
 ```sql
-CREATE ROLE tripatlas_ro WITH LOGIN PASSWORD 'a-secure-password';
-GRANT CONNECT ON DATABASE teslamate TO tripatlas_ro;
-GRANT USAGE ON SCHEMA public TO tripatlas_ro;
-GRANT SELECT ON ALL TABLES IN SCHEMA public TO tripatlas_ro;
-ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO tripatlas_ro;
+CREATE ROLE odovi_ro WITH LOGIN PASSWORD 'a-secure-password';
+GRANT CONNECT ON DATABASE teslamate TO odovi_ro;
+GRANT USAGE ON SCHEMA public TO odovi_ro;
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO odovi_ro;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO odovi_ro;
 ```
 
 ### 2. Configure `.env`
@@ -121,8 +125,8 @@ cp .env.example .env
 
 Set at least:
 
-- `POSTGRES_PASSWORD` - password for the new Tripatlas-owned Postgres (required, no default)
-- `TESLAMATE_DATABASE_URL` - connection string for the `tripatlas_ro` role against the TeslaMate database (LAN/Tailscale host or Compose service name, see comments in `docker-compose.yml`)
+- `POSTGRES_PASSWORD` - password for the new Odovi-owned Postgres (required, no default)
+- `TESLAMATE_DATABASE_URL` - connection string for the `odovi_ro` role against the TeslaMate database (LAN/Tailscale host or Compose service name, see comments in `docker-compose.yml`)
 - optional `WEB_PORT` (default `3000`), `APP_TIMEZONE`, `SYNC_INTERVAL_SECONDS`, `OSRM_URL` (your own routing server for the planner)
 
 ### 3. Start the stack
@@ -151,8 +155,8 @@ private key.
 Set the `TESLA_*` variables documented in `.env.example`, restart the web
 container, then open **More → Tesla Fleet API** to connect the Tesla account and
 pair the virtual key when required. OAuth tokens are encrypted at rest; any
-private virtual key remains in the command proxy and is never stored in Tripatlas.
-When `TESLA_PUBLIC_KEY_PEM_BASE64` is set, Tripatlas serves the public half at
+private virtual key remains in the command proxy and is never stored in Odovi.
+When `TESLA_PUBLIC_KEY_PEM_BASE64` is set, Odovi serves the public half at
 Tesla's required `/.well-known/appspecific/com.tesla.3p.public-key.pem` path.
 
 The vehicle always recalculates the route and charging strategy from the sent
@@ -171,14 +175,14 @@ Rebuilds images, applies new migrations through the `migrate` service, and rolls
 ### Backup
 
 ```bash
-docker compose exec db pg_dump -U tripatlas tripatlas > backup-$(date +%F).sql
+docker compose exec db pg_dump -U odovi odovi > backup-$(date +%F).sql
 ```
 
-TeslaMate backs up the TeslaMate data itself - Tripatlas only backs up its own annotations, places, tags, rules, and sync state.
+TeslaMate backs up the TeslaMate data itself - Odovi only backs up its own annotations, places, tags, rules, and sync state.
 
 ### Import history (Tessie)
 
-If you previously used Tessie, you can import the raw data export (CSV time series) - Tripatlas reconstructs trips, parking sessions, and charging sessions from it:
+If you previously used Tessie, you can import the raw data export (CSV time series) - Odovi reconstructs trips, parking sessions, and charging sessions from it:
 
 ```bash
 docker compose run --rm -v /path/to/tessie-export:/import:ro worker \

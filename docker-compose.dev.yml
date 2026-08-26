@@ -1,16 +1,16 @@
 services:
-  tripatlas-db:
+  odovi-db:
     image: postgres:17-alpine
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_USER: tripatlas
-      POSTGRES_PASSWORD: tripatlas
-      POSTGRES_DB: tripatlas
+      POSTGRES_USER: odovi
+      POSTGRES_PASSWORD: odovi
+      POSTGRES_DB: odovi
     volumes:
-      - tripatlas-dev-db:/var/lib/postgresql/data
+      - odovi-dev-db:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U tripatlas"]
+      test: ["CMD-SHELL", "pg_isready -U odovi"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -33,5 +33,5 @@ services:
       retries: 5
 
 volumes:
-  tripatlas-dev-db:
+  odovi-dev-db:
   teslamate-dev-db:

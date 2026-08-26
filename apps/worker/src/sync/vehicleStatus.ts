@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { vehicleStatus, type Db } from "@tripatlas/db";
+import { vehicleStatus, type Db } from "@odovi/db";
 import type { TeslamateSql } from "../teslamate/client.js";
 import { fetchLatestPositions, fetchLatestStates } from "../teslamate/queries.js";
 import type { VehicleRef } from "./vehicles.js";

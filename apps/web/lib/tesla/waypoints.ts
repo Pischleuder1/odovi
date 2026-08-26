@@ -1,4 +1,4 @@
-import type { RoadtripPlanSnapshot } from "@tripatlas/core";
+import type { RoadtripPlanSnapshot } from "@odovi/core";
 
 /** Tesla starts at the vehicle's current position; all following plan stops are ordered waypoints. */
 export function buildTeslaWaypoints(plan: RoadtripPlanSnapshot): string {

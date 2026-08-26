@@ -1,7 +1,7 @@
 import "server-only";
 import { eq } from "drizzle-orm";
-import { chargeSessions, drives, parkSessions, places, type Db } from "@tripatlas/db";
-import { matchPlace, type MatchablePlace } from "@tripatlas/core";
+import { chargeSessions, drives, parkSessions, places, type Db } from "@odovi/db";
+import { matchPlace, type MatchablePlace } from "@odovi/core";
 
 /**
  * Web-side re-implementation of apps/worker/src/sync/rematch.ts.

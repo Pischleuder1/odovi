@@ -1,7 +1,7 @@
 import "server-only";
 import { and, desc, eq } from "drizzle-orm";
-import { journeyPlans } from "@tripatlas/db";
-import type { RoadtripPlanSnapshot } from "@tripatlas/core";
+import { journeyPlans } from "@odovi/db";
+import type { RoadtripPlanSnapshot } from "@odovi/core";
 import { db } from "./db";
 
 export interface StoredRoadtripPlan {

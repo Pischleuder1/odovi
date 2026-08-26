@@ -11,7 +11,7 @@ import {
   journeyItems,
   journeys,
   parkSessions,
-} from "@tripatlas/db";
+} from "@odovi/db";
 import { db } from "../db";
 import { validateSession } from "../auth/session";
 import { parseDateTimeLocal } from "../day";
@@ -134,7 +134,7 @@ export async function autoAssignJourney(journeyId: number): Promise<void> {
 /**
  * Ordnet neu synchronisierte Fahrten, Lade- und Parkvorgänge erneut anhand des
  * Journey-Zeitraums zu. Gedacht für vorab gespeicherte Roadtrip-Pläne, deren
- * Ist-Daten erst nach der Reise in Tripatlas eintreffen.
+ * Ist-Daten erst nach der Reise in Odovi eintreffen.
  */
 export async function refreshJourneyAssignments(journeyId: number): Promise<void> {
   const t = await getTranslations("journeys");

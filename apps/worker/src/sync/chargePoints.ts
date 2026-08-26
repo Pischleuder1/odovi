@@ -1,5 +1,5 @@
 import { and, eq, isNotNull, notExists, sql } from "drizzle-orm";
-import { chargePoints, chargeSessions, type Db } from "@tripatlas/db";
+import { chargePoints, chargeSessions, type Db } from "@odovi/db";
 import type { TeslamateSql } from "../teslamate/client.js";
 import { fetchChargesForProcess, type TmCharge } from "../teslamate/queries.js";
 import type { UpsertedChargeRef } from "./charges.js";
@@ -41,11 +41,11 @@ export async function syncChargePoints(
 
     await db
       .delete(chargePoints)
-      .where(eq(chargePoints.chargeSessionId, ref.tripatlasChargeSessionId));
+      .where(eq(chargePoints.chargeSessionId, ref.odoviChargeSessionId));
 
     if (sampled.length > 0) {
       const values = sampled.map((c) => ({
-        chargeSessionId: ref.tripatlasChargeSessionId,
+        chargeSessionId: ref.odoviChargeSessionId,
         ts: c.date,
         powerKw: c.charger_power,
         soc: c.soc,
@@ -74,7 +74,7 @@ async function findSessionsWithoutPoints(
   db: Db,
   refs: UpsertedChargeRef[],
 ): Promise<UpsertedChargeRef[]> {
-  const alreadyHandled = new Set(refs.map((r) => r.tripatlasChargeSessionId));
+  const alreadyHandled = new Set(refs.map((r) => r.odoviChargeSessionId));
   const rows = await db
     .select({ id: chargeSessions.id, sourceId: chargeSessions.sourceId })
     .from(chargeSessions)
@@ -97,7 +97,7 @@ async function findSessionsWithoutPoints(
     .filter((r) => !alreadyHandled.has(r.id))
     .slice(0, BACKFILL_SESSIONS_PER_CYCLE)
     .map((r) => ({
-      tripatlasChargeSessionId: r.id,
+      odoviChargeSessionId: r.id,
       tmChargingProcessId: Number(r.sourceId),
     }));
 }

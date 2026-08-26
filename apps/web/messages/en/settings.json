@@ -89,7 +89,7 @@
     "connect": "Connect Tesla",
     "disconnect": "Disconnect",
     "pair": "Pair virtual key",
-    "pairHint": "Before the first send, pair Tripatlas' virtual key with the vehicle once through the Tesla app."
+    "pairHint": "Before the first send, pair Odovi' virtual key with the vehicle once through the Tesla app."
   },
   "passwordChange": {
     "currentPassword": "Current password",
@@ -110,7 +110,7 @@
   "loggingOut": "Logging out…",
   "diagnostics": {
     "title": "Diagnostics",
-    "db": "Tripatlas database",
+    "db": "Odovi database",
     "dbReachable": "reachable",
     "dbUnreachableFallback": "not reachable",
     "workerSync": "Worker / sync",
@@ -141,7 +141,7 @@
       "unknownConnectionError": "Unknown error connecting."
     },
     "hints": {
-      "dbUnreachable": "The Tripatlas database is not reachable. Is the db container running? Is DATABASE_URL correctly set in the web container?",
+      "dbUnreachable": "The Odovi database is not reachable. Is the db container running? Is DATABASE_URL correctly set in the web container?",
       "neverSynced": "Never synced yet. Is the worker container running? Is TESLAMATE_DATABASE_URL set in the worker?",
       "someNeverSynced": "At least one area has never synced successfully. Check the worker logs: docker compose logs worker.",
       "stale": "The last successful sync was a while ago. Is the worker container still running? Check the docker logs: docker compose logs worker.",

@@ -1,11 +1,11 @@
 import { and, eq, notInArray, sql } from "drizzle-orm";
-import { drives, parkSessions, vehicles, type Db } from "@tripatlas/db";
+import { drives, parkSessions, vehicles, type Db } from "@odovi/db";
 import {
   deriveParkSessions,
   matchPlace,
   type MatchablePlace,
   type ParkInput,
-} from "@tripatlas/core";
+} from "@odovi/core";
 import { recordSyncRun } from "./state.js";
 
 const SOURCE = "derived";

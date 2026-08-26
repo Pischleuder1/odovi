@@ -1,6 +1,6 @@
 import { Search } from "lucide-react";
 import { getTranslations } from "next-intl/server";
-import type { Classification } from "@tripatlas/core";
+import type { Classification } from "@odovi/core";
 import { APP_TIMEZONE } from "../../../lib/config";
 import { dayBounds, isValidDateParam } from "../../../lib/day";
 import { getDefaultVehicleId, runSearch, type SearchType } from "../../../lib/search";

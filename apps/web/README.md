@@ -1,8 +1,8 @@
-# @tripatlas/web
+# @odovi/web
 
-Next.js frontend for Tripatlas. Setup, development, and deployment are described
+Next.js frontend for Odovi. Setup, development, and deployment are described
 in the [root README](../../README.md); dev start:
 
 ```bash
-pnpm --filter @tripatlas/web dev   # http://localhost:3000
+pnpm --filter @odovi/web dev   # http://localhost:3000
 ```

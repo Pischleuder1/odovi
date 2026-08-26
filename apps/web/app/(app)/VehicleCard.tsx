@@ -1,6 +1,6 @@
 import { BatteryCharging, Car as CarIcon, MapPin } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
-import { formatDuration, formatKwh, formatOdometer, formatTime } from "@tripatlas/core";
+import { formatDuration, formatKwh, formatOdometer, formatTime } from "@odovi/core";
 import { APP_TIMEZONE } from "../../lib/config";
 import { formatRelativeTime } from "../../lib/day";
 import type { OpenSessionStatus, VehicleStatusRow } from "../../lib/dashboard";

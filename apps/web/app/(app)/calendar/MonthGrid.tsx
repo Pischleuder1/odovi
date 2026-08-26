@@ -9,7 +9,7 @@ import {
   formatKm,
   formatKwh,
   formatTime,
-} from "@tripatlas/core";
+} from "@odovi/core";
 import { toIntlLocale } from "../../../lib/i18nLocale";
 import {
   applyCalendarMetric,
@@ -20,7 +20,8 @@ import {
 
 const WEEKDAY_KEYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"] as const;
 const METRICS: CalendarMetric[] = ["distance", "consumption", "energy", "trips"];
-const METRIC_STORAGE_KEY = "tripatlas_calendar_metric";
+const METRIC_STORAGE_KEY = "odovi_calendar_metric";
+const LEGACY_METRIC_STORAGE_KEY = "tripatlas_calendar_metric";
 
 function intensityClasses(intensity: number): string {
   if (intensity <= 0) return "";
@@ -80,9 +81,12 @@ export function MonthGrid({
   const [preview, setPreview] = useState<CalendarCell | null>(null);
 
   useEffect(() => {
-    const saved = window.localStorage.getItem(METRIC_STORAGE_KEY);
-    if (METRICS.includes(saved as CalendarMetric)) {
+    const saved =
+      window.localStorage.getItem(METRIC_STORAGE_KEY) ??
+      window.localStorage.getItem(LEGACY_METRIC_STORAGE_KEY);
+    if (saved && METRICS.includes(saved as CalendarMetric)) {
       setMetric(saved as CalendarMetric);
+      window.localStorage.setItem(METRIC_STORAGE_KEY, saved);
     }
   }, []);
 

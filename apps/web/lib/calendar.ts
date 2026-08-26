@@ -1,8 +1,8 @@
 import "server-only";
 import { and, eq, gte, lt, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
-import { chargeSessions, drives, places } from "@tripatlas/db";
-import { summarizeDriveEnergy } from "@tripatlas/core";
+import { chargeSessions, drives, places } from "@odovi/db";
+import { summarizeDriveEnergy } from "@odovi/core";
 import { db } from "./db";
 import { APP_TIMEZONE } from "./config";
 import { dayBounds } from "./day";

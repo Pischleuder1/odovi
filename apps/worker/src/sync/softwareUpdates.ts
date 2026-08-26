@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { softwareUpdates, type Db } from "@tripatlas/db";
+import { softwareUpdates, type Db } from "@odovi/db";
 import type { TeslamateSql } from "../teslamate/client.js";
 import { fetchUpdates, type TmUpdate } from "../teslamate/queries.js";
 import { recordSyncRun } from "./state.js";

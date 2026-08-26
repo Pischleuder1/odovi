@@ -1,6 +1,6 @@
 import { useTranslations } from "next-intl";
 import { Cpu } from "lucide-react";
-import { formatDuration } from "@tripatlas/core";
+import { formatDuration } from "@odovi/core";
 import { APP_TIMEZONE } from "../../../lib/config";
 import type { SoftwareUpdateRow } from "../../../lib/softwareUpdates";
 

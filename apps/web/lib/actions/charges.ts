@@ -3,7 +3,7 @@ import { revalidatePath } from "next/cache";
 import { and, asc, eq, sql } from "drizzle-orm";
 import { z } from "zod";
 import { getTranslations } from "next-intl/server";
-import { auditLog, chargeSessionTags, chargeSessions, tags } from "@tripatlas/db";
+import { auditLog, chargeSessionTags, chargeSessions, tags } from "@odovi/db";
 import { db } from "../db";
 import { validateSession } from "../auth/session";
 // Free-text-created tags get a color from the shared preset palette, cycled

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { Plus, MapPin } from "lucide-react";
-import { formatDuration } from "@tripatlas/core";
+import { formatDuration } from "@odovi/core";
 import { getAllPlacesWithUsage } from "../../../lib/queries";
 import { getPlaceDwellStats } from "../../../lib/parkAnalytics";
 import { Button } from "../../../components/ui/Button";

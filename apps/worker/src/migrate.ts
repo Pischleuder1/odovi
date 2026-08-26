@@ -16,15 +16,15 @@ async function main(): Promise<void> {
   const client = postgres(url, { max: 1 });
   const db = drizzle(client);
 
-  console.log("[tripatlas-migrate] running migrations...");
+  console.log("[odovi-migrate] running migrations...");
   await migrate(db, { migrationsFolder: "./drizzle" });
-  console.log("[tripatlas-migrate] done.");
+  console.log("[odovi-migrate] done.");
 
   await client.end();
   process.exit(0);
 }
 
 void main().catch((err) => {
-  console.error("[tripatlas-migrate] failed:", err);
+  console.error("[odovi-migrate] failed:", err);
   process.exit(1);
 });

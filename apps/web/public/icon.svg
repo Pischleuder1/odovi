@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="Tripatlas">
-  <rect width="512" height="512" fill="#080A18"/>
-  <path d="M256 84c-88.4 0-160 71.6-160 160 0 118 160 224 160 224s160-106 160-224c0-88.4-71.6-160-160-160Z" fill="#7C3AED"/>
-  <path d="M256 116c-70.7 0-128 57.3-128 128 0 89.8 128 181 128 181s128-91.2 128-181c0-70.7-57.3-128-128-128Z" fill="#080A18"/>
-  <circle cx="256" cy="244" r="58" fill="#F7F8FB"/>
-  <circle cx="256" cy="244" r="35" fill="#080A18"/>
-  <circle cx="256" cy="244" r="13" fill="#67E8F9"/>
-</svg>

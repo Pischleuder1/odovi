@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getLocale, getTranslations } from "next-intl/server";
-import { buildDriveReport } from "@tripatlas/core";
+import { buildDriveReport } from "@odovi/core";
 import { validateSession } from "../../../../../lib/auth/session";
 import { loadDriveGpxTrack, loadDriveReportData } from "../../../../../lib/exports/data";
 import { renderDriveCsv, buildCsvLabels } from "../../../../../lib/exports/csv";

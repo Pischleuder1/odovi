@@ -1,5 +1,5 @@
 /**
- * Seed script for a fake TeslaMate database, so Tripatlas can be developed
+ * Seed script for a fake TeslaMate database, so Odovi can be developed
  * without a real car / real TeslaMate instance.
  *
  * Connects via TESLAMATE_DATABASE_URL (defaults to the docker-compose.dev.yml
@@ -10,7 +10,7 @@
  * Switzerland, for ~6 weeks, plus one weekend road trip to Chur.
  *
  * Run with: pnpm db:seed:teslamate  (from repo root)
- *        or: pnpm --filter @tripatlas/fixtures seed
+ *        or: pnpm --filter @odovi/fixtures seed
  */
 import postgres from "postgres";
 

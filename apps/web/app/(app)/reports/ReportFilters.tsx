@@ -2,7 +2,7 @@
 import { useRouter } from "next/navigation";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useTranslations } from "next-intl";
-import type { Classification } from "@tripatlas/core";
+import type { Classification } from "@odovi/core";
 import { buttonClasses } from "../../../components/ui/Button";
 
 const CLASSIFICATION_VALUES: Classification[] = [

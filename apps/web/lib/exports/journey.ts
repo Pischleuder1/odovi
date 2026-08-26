@@ -1,6 +1,6 @@
 import "server-only";
 import { and, asc, eq, inArray } from "drizzle-orm";
-import { chargeSessions, drives, journeyItems, journeys, routePoints } from "@tripatlas/db";
+import { chargeSessions, drives, journeyItems, journeys, routePoints } from "@odovi/db";
 import {
   resolvePlaceLabel,
   type JourneyInfo,
@@ -8,7 +8,7 @@ import {
   type JourneyReportDrive,
   type JourneyType,
   type ReportMeta,
-} from "@tripatlas/core";
+} from "@odovi/core";
 import { db } from "../db";
 import { loadMeta, loadPlaceNames } from "./data";
 import { loadTagNamesForDrives } from "./tags";
