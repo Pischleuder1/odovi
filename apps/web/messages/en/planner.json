@@ -147,7 +147,15 @@
   },
   "destinationSearch": {
     "placeholder": "Search destination address…",
+    "submit": "Search",
     "searching": "Searching…",
-    "clear": "Clear destination"
+    "clear": "Clear destination",
+    "invalid": "Enter at least 3 characters.",
+    "disabled": "Address search is disabled. Saved places remain available.",
+    "activate": "Activate it in Settings",
+    "rateLimited": "Search is busy. Please wait a moment and try again.",
+    "empty": "No matching destination found.",
+    "upstreamFailure": "Address search is currently unavailable. Saved places remain available.",
+    "cached": "Showing a cached result."
   }
 }

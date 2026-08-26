@@ -147,7 +147,15 @@
   },
   "destinationSearch": {
     "placeholder": "Zieladresse suchen…",
+    "submit": "Suchen",
     "searching": "Suche…",
-    "clear": "Ziel löschen"
+    "clear": "Ziel löschen",
+    "invalid": "Mindestens 3 Zeichen eingeben.",
+    "disabled": "Die Adresssuche ist deaktiviert. Gespeicherte Orte bleiben verfügbar.",
+    "activate": "In den Einstellungen aktivieren",
+    "rateLimited": "Die Suche ist ausgelastet. Bitte kurz warten und erneut versuchen.",
+    "empty": "Kein passendes Ziel gefunden.",
+    "upstreamFailure": "Die Adresssuche ist gerade nicht erreichbar. Gespeicherte Orte bleiben verfügbar.",
+    "cached": "Ein zwischengespeichertes Ergebnis wird angezeigt."
   }
 }

@@ -1,28 +1,24 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import { useRef, useState } from "react";
+import { Search, X } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { X } from "lucide-react";
-import { searchAddress, type AddressSearchResult } from "../../../lib/actions/places";
+import {
+  searchAddress,
+  type AddressSearchResponse,
+  type AddressSearchResult,
+} from "../../../lib/actions/places";
 
-const DEBOUNCE_MS = 600;
 const MIN_QUERY_LENGTH = 3;
 
 export interface DestinationSearchProps {
   onSelect: (result: AddressSearchResult) => void;
-  /** Anzeigetext des aktuell gewählten Ziels (gesteuert vom Formular). */
   value: string;
-  /** Verhindert eine erneute Geocoding-Suche für bereits aufgelöste Orte. */
   selected?: boolean;
   onValueChange: (value: string) => void;
 }
 
-/**
- * Debounced Adresssuche für das Ziel, gestützt auf die `searchAddress`
- * Server Action (Nominatim/OSM, importiert aus lib/actions/places.ts). Muster
- * wie places/AddressSearch.tsx; Eingabe mit text-base (16px), damit iOS nicht
- * beim Fokus zoomt. Der Anzeigetext ist gesteuert, damit das Formular das Feld
- * beim Wechsel des Ziel-Modus zurücksetzen kann.
- */
+/** Editing the destination stays local; click or Enter explicitly searches. */
 export function DestinationSearch({
   onSelect,
   value,
@@ -30,138 +26,177 @@ export function DestinationSearch({
   onValueChange,
 }: DestinationSearchProps) {
   const t = useTranslations("planner");
+  const [response, setResponse] = useState<AddressSearchResponse | null>(null);
   const [results, setResults] = useState<AddressSearchResult[]>([]);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
-  // Unterdrückt einen Suchlauf direkt nach dem Auswählen eines Ergebnisses.
-  const justSelected = useRef(false);
   const requestId = useRef(0);
 
-  useEffect(() => {
-    if (selected) {
-      requestId.current += 1;
-      setResults([]);
-      setOpen(false);
-      setLoading(false);
-      return;
-    }
-    if (justSelected.current) {
-      justSelected.current = false;
-      return;
-    }
-    const q = value.trim();
-    if (q.length < MIN_QUERY_LENGTH) {
-      setResults([]);
-      setOpen(false);
-      setLoading(false);
+  function resetSearchState() {
+    requestId.current += 1;
+    setResults([]);
+    setOpen(false);
+    setLoading(false);
+    setResponse(null);
+    setActiveIndex(-1);
+  }
+
+  async function submitSearch() {
+    const query = value.trim();
+    const id = ++requestId.current;
+    setResults([]);
+    setOpen(false);
+    setActiveIndex(-1);
+    if (query.length < MIN_QUERY_LENGTH) {
+      setResponse({ status: "invalid", results: [] });
       return;
     }
 
     setLoading(true);
-    const id = ++requestId.current;
-    const timer = setTimeout(async () => {
-      const found = await searchAddress(q);
-      if (requestId.current !== id) return; // veraltete Antwort ignorieren
-      setResults(found);
+    setResponse(null);
+    const found = await searchAddress(query);
+    if (requestId.current !== id) return;
+    setLoading(false);
+    setResponse(found);
+    if (found.status === "ok") {
+      setResults(found.results);
       setOpen(true);
-      setLoading(false);
-      setActiveIndex(-1);
-    }, DEBOUNCE_MS);
-
-    return () => clearTimeout(timer);
-  }, [selected, value]);
+    }
+  }
 
   function handleSelect(result: AddressSearchResult) {
-    justSelected.current = true;
-    // Reihenfolge ist tragend: onValueChange invalidiert im Formular die
-    // bisherige Auswahl (setDestAddress(null)) — onSelect muss danach kommen,
-    // sonst wird das gerade gewählte Ziel sofort wieder verworfen.
+    requestId.current += 1;
     onValueChange(result.label);
     onSelect(result);
     setOpen(false);
     setResults([]);
+    setLoading(false);
+    setResponse(null);
   }
 
-  function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
-    if (!open || results.length === 0) return;
-    if (e.key === "ArrowDown") {
-      e.preventDefault();
-      setActiveIndex((i) => Math.min(i + 1, results.length - 1));
-    } else if (e.key === "ArrowUp") {
-      e.preventDefault();
-      setActiveIndex((i) => Math.max(i - 1, 0));
-    } else if (e.key === "Enter") {
-      if (activeIndex >= 0) {
-        e.preventDefault();
-        handleSelect(results[activeIndex]!);
+  function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      if (open && activeIndex >= 0 && results[activeIndex]) {
+        handleSelect(results[activeIndex]);
+      } else {
+        void submitSearch();
       }
-    } else if (e.key === "Escape") {
+      return;
+    }
+    if (!open || results.length === 0) return;
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      setActiveIndex((index) => Math.min(index + 1, results.length - 1));
+    } else if (event.key === "ArrowUp") {
+      event.preventDefault();
+      setActiveIndex((index) => Math.max(index - 1, 0));
+    } else if (event.key === "Escape") {
       setOpen(false);
     }
   }
 
   function handleClear() {
-    requestId.current += 1;
+    resetSearchState();
     onValueChange("");
-    setResults([]);
-    setOpen(false);
-    setLoading(false);
-    setActiveIndex(-1);
   }
+
+  const statusMessage =
+    response?.status === "invalid"
+      ? t("destinationSearch.invalid")
+      : response?.status === "disabled"
+        ? t("destinationSearch.disabled")
+        : response?.status === "rate-limited"
+          ? t("destinationSearch.rateLimited")
+          : response?.status === "empty"
+            ? t("destinationSearch.empty")
+            : response?.status === "upstream-failure"
+              ? t("destinationSearch.upstreamFailure")
+              : response?.status === "ok" && response.source === "cache"
+                ? t("destinationSearch.cached")
+                : null;
 
   return (
     <div className="relative">
-      <input
-        type="text"
-        value={value}
-        onChange={(e) => onValueChange(e.target.value)}
-        onKeyDown={handleKeyDown}
-        onFocus={() => !selected && results.length > 0 && setOpen(true)}
-        onBlur={() => setTimeout(() => setOpen(false), 150)}
-        placeholder={t("destinationSearch.placeholder")}
-        role="combobox"
-        aria-expanded={open}
-        aria-autocomplete="list"
-        aria-controls="planner-destination-results"
-        className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 pr-10 text-base text-neutral-900 outline-none transition focus:border-violet-500 focus:ring-2 focus:ring-cyan-300/50 dark:border-neutral-700 dark:bg-neutral-950 dark:text-neutral-100 dark:focus:border-violet-400"
-      />
-      {loading && (
-        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-neutral-400">
-          {t("destinationSearch.searching")}
-        </span>
-      )}
-      {value && !loading && (
+      <div className="flex gap-2">
+        <div className="relative min-w-0 flex-1">
+          <input
+            type="search"
+            value={value}
+            onChange={(event) => {
+              resetSearchState();
+              onValueChange(event.target.value);
+            }}
+            onKeyDown={handleKeyDown}
+            onFocus={() => !selected && results.length > 0 && setOpen(true)}
+            onBlur={() => setTimeout(() => setOpen(false), 150)}
+            placeholder={t("destinationSearch.placeholder")}
+            role="combobox"
+            aria-expanded={open}
+            aria-autocomplete="list"
+            aria-controls="planner-destination-results"
+            className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 pr-10 text-base text-neutral-900 outline-none transition focus:border-violet-500 focus:ring-2 focus:ring-cyan-300/50 dark:border-neutral-700 dark:bg-neutral-950 dark:text-neutral-100 dark:focus:border-violet-400"
+          />
+          {value && !loading && (
+            <button
+              type="button"
+              aria-label={t("destinationSearch.clear")}
+              title={t("destinationSearch.clear")}
+              onMouseDown={(event) => event.preventDefault()}
+              onClick={handleClear}
+              className="absolute right-1.5 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-md text-neutral-400 transition hover:bg-neutral-100 hover:text-neutral-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 dark:hover:bg-neutral-800 dark:hover:text-neutral-200 dark:focus-visible:ring-white"
+            >
+              <X aria-hidden size={16} />
+            </button>
+          )}
+        </div>
         <button
           type="button"
-          aria-label={t("destinationSearch.clear")}
-          title={t("destinationSearch.clear")}
+          disabled={loading || selected}
           onMouseDown={(event) => event.preventDefault()}
-          onClick={handleClear}
-          className="absolute right-1.5 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-md text-neutral-400 transition hover:bg-neutral-100 hover:text-neutral-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 dark:hover:bg-neutral-800 dark:hover:text-neutral-200 dark:focus-visible:ring-white"
+          onClick={() => void submitSearch()}
+          className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl bg-neutral-900 px-3 text-sm font-medium text-white disabled:opacity-50 dark:bg-neutral-100 dark:text-neutral-900"
         >
-          <X aria-hidden size={16} />
+          <Search aria-hidden size={16} />
+          <span className="hidden sm:inline">
+            {loading ? t("destinationSearch.searching") : t("destinationSearch.submit")}
+          </span>
+          <span className="sr-only sm:hidden">
+            {loading ? t("destinationSearch.searching") : t("destinationSearch.submit")}
+          </span>
         </button>
-      )}
+      </div>
+
+      <div aria-live="polite" className="mt-1 min-h-5 text-xs text-neutral-500 dark:text-neutral-400">
+        {loading ? t("destinationSearch.searching") : statusMessage}
+        {response?.status === "disabled" && (
+          <>{" "}<Link className="underline" href="/settings#provider-review">{t("destinationSearch.activate")}</Link></>
+        )}
+        {response && "attribution" in response && (
+          <>{" · "}<a className="underline" href={response.attribution.url} target="_blank" rel="noreferrer">{response.attribution.label}</a></>
+        )}
+      </div>
+
       {open && results.length > 0 && (
         <ul
           id="planner-destination-results"
           role="listbox"
           className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-lg border border-neutral-200 bg-white py-1 text-sm shadow-lg dark:border-neutral-700 dark:bg-neutral-900"
         >
-          {results.map((r, i) => (
-            <li key={`${r.lat},${r.lon}`}>
+          {results.map((result, index) => (
+            <li key={`${result.lat},${result.lon}`}>
               <button
                 type="button"
-                onMouseDown={(e) => e.preventDefault()}
-                onClick={() => handleSelect(r)}
+                onMouseDown={(event) => event.preventDefault()}
+                onClick={() => handleSelect(result)}
                 className={`block w-full px-3 py-2 text-left ${
-                  i === activeIndex
+                  index === activeIndex
                     ? "bg-neutral-100 dark:bg-neutral-800"
                     : "hover:bg-neutral-50 dark:hover:bg-neutral-800/60"
                 }`}
               >
-                {r.label}
+                {result.label}
               </button>
             </li>
           ))}
