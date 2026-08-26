@@ -211,6 +211,7 @@ Idempotent (safe to run multiple times), does not collide with TeslaMate data.
 - Contributions: [CONTRIBUTING.md](CONTRIBUTING.md) · Issues are welcome in German or English
 - Support is provided on a Best-effort basis through [GitHub Issues](https://github.com/jsc2304/odovi/issues), without a response-time SLA. Copy the exact version and build identity from **More → About Odovi** into the report.
 - Please report security vulnerabilities privately through [GitHub Security Advisories](https://github.com/jsc2304/odovi/security/advisories/new), never as a public issue. See [SECURITY.md](SECURITY.md).
+- Release acceptance: [docs/release-acceptance.md](docs/release-acceptance.md)
 - Changes: [CHANGELOG.md](CHANGELOG.md)
 
 ## License

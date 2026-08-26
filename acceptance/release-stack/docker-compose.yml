@@ -1,0 +1,128 @@
+# Disposable acceptance stack for a single, versioned Odovi release.
+#
+# Always invoke this file through scripts/release-acceptance.sh. The runner
+# supplies exact image tags, an isolated Compose project name, a free host
+# port, and an evidence directory. Compose-managed volume names intentionally
+# remain project-scoped so `down --volumes` cannot touch an operator stack.
+
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: odovi
+      POSTGRES_PASSWORD: odovi-acceptance
+      POSTGRES_DB: odovi
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U odovi -d odovi"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+    volumes:
+      - odovi-data:/var/lib/postgresql/data
+    networks: [release]
+
+  teslamate-db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: teslamate
+      POSTGRES_PASSWORD: teslamate-acceptance
+      POSTGRES_DB: teslamate
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U teslamate -d teslamate"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+    volumes:
+      - teslamate-data:/var/lib/postgresql/data
+      - ../../dev/fixtures/init:/docker-entrypoint-initdb.d:ro
+    networks: [release]
+
+  seed:
+    build:
+      context: ../../dev/fixtures
+      dockerfile: Dockerfile
+    image: ${ODOVI_FIXTURES_IMAGE:?Set an exact ODOVI_FIXTURES_IMAGE tag}
+    restart: "no"
+    environment:
+      TESLAMATE_DATABASE_URL: postgres://teslamate:teslamate-acceptance@teslamate-db:5432/teslamate
+    depends_on:
+      teslamate-db:
+        condition: service_healthy
+    networks: [release]
+
+  migrate:
+    build:
+      context: ../..
+      dockerfile: apps/worker/Dockerfile
+    image: ${ODOVI_WORKER_IMAGE:?Set an exact ODOVI_WORKER_IMAGE tag}
+    command: ["node", "dist/migrate.js"]
+    restart: "no"
+    environment:
+      DATABASE_URL: postgres://odovi:odovi-acceptance@db:5432/odovi
+    depends_on:
+      db:
+        condition: service_healthy
+    networks: [release]
+
+  web:
+    build:
+      context: ../..
+      dockerfile: apps/web/Dockerfile
+    image: ${ODOVI_WEB_IMAGE:?Set an exact ODOVI_WEB_IMAGE tag}
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${ODOVI_ACCEPTANCE_PORT:?Set ODOVI_ACCEPTANCE_PORT}:3000"
+    environment:
+      DATABASE_URL: postgres://odovi:odovi-acceptance@db:5432/odovi
+      APP_TIMEZONE: Europe/Zurich
+      NODE_OPTIONS: --require=/opt/odovi-acceptance/egress-guard.cjs
+      ODOVI_ACCEPTANCE_EGRESS_LOG: /acceptance-evidence/container-egress.ndjson
+      ODOVI_ACCEPTANCE_EGRESS_ALLOWLIST: ${ODOVI_ACCEPTANCE_EGRESS_ALLOWLIST:-}
+    volumes:
+      - ./egress-guard.cjs:/opt/odovi-acceptance/egress-guard.cjs:ro
+      - ${ODOVI_ACCEPTANCE_EVIDENCE_DIR:?Set ODOVI_ACCEPTANCE_EVIDENCE_DIR}:/acceptance-evidence
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    networks: [release, browser-access]
+
+  worker:
+    build:
+      context: ../..
+      dockerfile: apps/worker/Dockerfile
+    image: ${ODOVI_WORKER_IMAGE:?Set an exact ODOVI_WORKER_IMAGE tag}
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgres://odovi:odovi-acceptance@db:5432/odovi
+      TESLAMATE_DATABASE_URL: postgres://teslamate:teslamate-acceptance@teslamate-db:5432/teslamate
+      SYNC_INTERVAL_SECONDS: 5
+      NODE_OPTIONS: --require=/opt/odovi-acceptance/egress-guard.cjs
+      ODOVI_ACCEPTANCE_EGRESS_LOG: /acceptance-evidence/container-egress.ndjson
+      ODOVI_ACCEPTANCE_EGRESS_ALLOWLIST: ${ODOVI_ACCEPTANCE_EGRESS_ALLOWLIST:-}
+    volumes:
+      - ./egress-guard.cjs:/opt/odovi-acceptance/egress-guard.cjs:ro
+      - ${ODOVI_ACCEPTANCE_EVIDENCE_DIR:?Set ODOVI_ACCEPTANCE_EVIDENCE_DIR}:/acceptance-evidence
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+      seed:
+        condition: service_completed_successfully
+    networks: [release]
+
+networks:
+  release:
+    internal: true
+  # Only the web container joins this bridge so the loopback-published port is
+  # reachable on Docker implementations where an internal-only network cannot
+  # publish ports. Its global fetch is still denied by egress-guard.cjs.
+  browser-access:
+
+volumes:
+  odovi-data:
+  teslamate-data:
