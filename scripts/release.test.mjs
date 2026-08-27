@@ -31,6 +31,10 @@ function acceptance(enforced = true) {
     status: "passed",
     gitCommit: commit,
     version: metadata.version,
+    images: {
+      web: `${metadata.images.web}@${digestA}`,
+      worker: `${metadata.images.worker}@${digestB}`,
+    },
     startedAt: "2026-08-26T10:00:00Z",
     finishedAt: "2026-08-26T10:10:00Z",
     dependencyGates: [{ issue: 27, enforced }],
@@ -70,6 +74,35 @@ test("rejects inconsistent candidate input", () => {
     /acceptance commit/,
   );
   assert.throws(() => assertReleaseMetadata({ ...metadata, candidate: "0.3.0-rc.1" }), /prerelease/);
+});
+
+test("candidate acceptance must have exercised the exact published image digests", () => {
+  for (const images of [
+    undefined,
+    { web: "odovi-web:local", worker: `${metadata.images.worker}@${digestB}` },
+    { web: `${metadata.images.web}@${digestB}`, worker: `${metadata.images.worker}@${digestB}` },
+    { web: `${metadata.images.web}@${digestA}`, worker: `${metadata.images.worker}@${digestA}` },
+  ]) {
+    assert.throws(() => createCandidateRecord(metadata, {
+      sourceCommit: commit, webDigest: digestA, workerDigest: digestB,
+      acceptance: { ...acceptance(), images },
+    }), /acceptance.*image/);
+  }
+});
+
+test("promotion rejects missing or mismatched accepted-image provenance", () => {
+  const record = createCandidateRecord(metadata, {
+    sourceCommit: commit, webDigest: digestA, workerDigest: digestB,
+    acceptance: acceptance(),
+  });
+  for (const images of [undefined, {
+    web: `${metadata.images.web}@${digestB}`,
+    worker: `${metadata.images.worker}@${digestB}`,
+  }]) {
+    assert.throws(() => verifyCandidateRecord(metadata, {
+      ...record, acceptance: { ...record.acceptance, images },
+    }), /acceptance.*image/);
+  }
 });
 
 test("renders every release digest reference without changing source-build variables", () => {

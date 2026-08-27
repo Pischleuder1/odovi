@@ -56,6 +56,12 @@ export function createCandidateRecord(metadata, options) {
   if (acceptance.gitCommit !== sourceCommit) throw new Error("acceptance commit does not match candidate commit");
   if (acceptance.version !== metadata.version) throw new Error("acceptance version does not match release version");
 
+  for (const [image, digest] of [["web", webDigest], ["worker", workerDigest]]) {
+    if (acceptance.images?.[image] !== `${metadata.images[image]}@${digest}`) {
+      throw new Error(`acceptance ${image} image does not match the published candidate digest`);
+    }
+  }
+
   const dependencyGates = acceptance.dependencyGates ?? [];
   const allAcceptanceGatesEnforced = metadata.requiredAcceptanceIssues.every((issue) =>
     dependencyGates.some((gate) => gate.issue === issue && gate.enforced === true));
@@ -98,6 +104,7 @@ export function createCandidateRecord(metadata, options) {
     acceptance: {
       startedAt: acceptance.startedAt,
       finishedAt: acceptance.finishedAt,
+      images: { web: acceptance.images.web, worker: acceptance.images.worker },
       dependencyGates,
     },
   };
@@ -143,6 +150,9 @@ export function verifyCandidateRecord(metadata, record, expectedRepository = "js
     assertDigest(entry?.digest, `${image} image`);
     if (entry.repository !== metadata.images[image] || entry.reference !== `${entry.repository}@${entry.digest}`) {
       throw new Error(`${image} image reference does not match its recorded digest`);
+    }
+    if (record.acceptance?.images?.[image] !== entry.reference) {
+      throw new Error(`candidate acceptance ${image} image does not match the promoted digest`);
     }
     if (entry.architectures?.join(",") !== metadata.architectures.join(",")) {
       throw new Error(`${image} image architectures do not match release metadata`);
