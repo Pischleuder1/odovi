@@ -1,0 +1,66 @@
+[
+  {
+    "id": "MIT",
+    "url": "https://raw.githubusercontent.com/spdx/license-list-data/v3.28.0/text/MIT.txt"
+  },
+  {
+    "id": "Apache-2.0",
+    "url": "https://raw.githubusercontent.com/spdx/license-list-data/v3.28.0/text/Apache-2.0.txt"
+  },
+  {
+    "id": "BSD-2-Clause",
+    "url": "https://raw.githubusercontent.com/spdx/license-list-data/v3.28.0/text/BSD-2-Clause.txt"
+  },
+  {
+    "id": "BSD-3-Clause",
+    "url": "https://raw.githubusercontent.com/spdx/license-list-data/v3.28.0/text/BSD-3-Clause.txt"
+  },
+  {
+    "id": "0BSD",
+    "url": "https://raw.githubusercontent.com/spdx/license-list-data/v3.28.0/text/0BSD.txt"
+  },
+  {
+    "id": "ISC",
+    "url": "https://raw.githubusercontent.com/spdx/license-list-data/v3.28.0/text/ISC.txt"
+  },
+  {
+    "id": "Unlicense",
+    "url": "https://raw.githubusercontent.com/spdx/license-list-data/v3.28.0/text/Unlicense.txt"
+  },
+  {
+    "id": "Zlib",
+    "url": "https://raw.githubusercontent.com/spdx/license-list-data/v3.28.0/text/Zlib.txt"
+  },
+  {
+    "id": "BlueOak-1.0.0",
+    "url": "https://raw.githubusercontent.com/spdx/license-list-data/v3.28.0/text/BlueOak-1.0.0.txt"
+  },
+  {
+    "id": "CC-BY-4.0",
+    "url": "https://raw.githubusercontent.com/spdx/license-list-data/v3.28.0/text/CC-BY-4.0.txt"
+  },
+  {
+    "id": "LGPL-3.0-or-later",
+    "url": "https://raw.githubusercontent.com/spdx/license-list-data/v3.28.0/text/LGPL-3.0-or-later.txt"
+  },
+  {
+    "id": "MPL-2.0",
+    "url": "https://raw.githubusercontent.com/spdx/license-list-data/v3.28.0/text/MPL-2.0.txt"
+  },
+  {
+    "id": "FTL",
+    "url": "https://raw.githubusercontent.com/spdx/license-list-data/v3.28.0/text/FTL.txt"
+  },
+  {
+    "id": "libpng-2.0",
+    "url": "https://raw.githubusercontent.com/spdx/license-list-data/v3.28.0/text/libpng-2.0.txt"
+  },
+  {
+    "id": "libtiff",
+    "url": "https://raw.githubusercontent.com/spdx/license-list-data/v3.28.0/text/libtiff.txt"
+  },
+  {
+    "id": "IJG",
+    "url": "https://raw.githubusercontent.com/spdx/license-list-data/v3.28.0/text/IJG.txt"
+  }
+]

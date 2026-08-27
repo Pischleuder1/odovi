@@ -30,6 +30,9 @@ RUN pnpm install --frozen-lockfile --filter @odovi/web... --filter @odovi/core -
 
 # ---- build: compile core+db, then build web ----------------------------
 FROM deps AS build
+COPY scripts/collect-license-notices.mjs scripts/collect-license-notices.mjs
+COPY security/license-texts security/license-texts
+RUN node scripts/collect-license-notices.mjs apps/web /repo/third-party-licenses
 COPY packages/core packages/core
 COPY packages/db packages/db
 COPY packages/runtime-config packages/runtime-config
@@ -50,6 +53,8 @@ ENV ODOVI_VERSION=${ODOVI_VERSION}
 ENV ODOVI_COMMIT_SHA=${ODOVI_COMMIT_SHA}
 LABEL org.opencontainers.image.version=${ODOVI_VERSION}
 LABEL org.opencontainers.image.revision=${ODOVI_COMMIT_SHA}
+LABEL org.opencontainers.image.source=https://github.com/jsc2304/odovi
+LABEL org.opencontainers.image.licenses=FSL-1.1-ALv2
 WORKDIR /app
 
 RUN groupadd --system --gid 1001 odovi \
@@ -62,6 +67,8 @@ COPY --from=build --chown=odovi:odovi /repo/apps/web/.next/static ./apps/web/.ne
 COPY --from=build --chown=odovi:odovi /repo/apps/web/public ./apps/web/public
 COPY --from=build --chown=odovi:odovi /repo/packages/runtime-config/package.json ./packages/runtime-config/package.json
 COPY --from=build --chown=odovi:odovi /repo/packages/runtime-config/dist ./packages/runtime-config/dist
+COPY --from=build /repo/third-party-licenses ./third-party-licenses
+COPY LICENSE LICENSING.md THIRD_PARTY_NOTICES.md TRADEMARKS.md ./
 
 USER odovi
 EXPOSE 3000

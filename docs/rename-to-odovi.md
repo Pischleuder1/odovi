@@ -2,9 +2,9 @@
 
 This is the backup, migration, verification, restore and rollback path for an
 existing public Tripatlas **v0.1.1** installation. It does not modify TeslaMate.
-Do not use `git pull`, `latest` or a moving development branch. Odovi 0.2.0 is
-currently a release-candidate draft: **wait for accepted public release artifacts
-before applying this to real data.**
+Do not use `git pull`, `latest` or a moving development branch. **Use the accepted
+public v0.2.0 release artifacts before applying this to real data**, not an
+unaccepted candidate or a local development build.
 
 ## Pinned artifacts
 

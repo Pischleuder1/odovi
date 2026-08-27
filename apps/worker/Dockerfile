@@ -45,6 +45,9 @@ COPY packages/runtime-config/package.json packages/runtime-config/package.json
 COPY apps/worker/package.json apps/worker/package.json
 COPY dev/fixtures/package.json dev/fixtures/package.json
 RUN pnpm install --frozen-lockfile --prod --filter @odovi/worker... --filter @odovi/core --filter @odovi/db --filter @odovi/runtime-config
+COPY scripts/collect-license-notices.mjs scripts/collect-license-notices.mjs
+COPY security/license-texts security/license-texts
+RUN node scripts/collect-license-notices.mjs apps/worker /repo/third-party-licenses
 
 # ---- runtime -------------------------------------------------------------
 FROM ${NODE_IMAGE} AS runtime
@@ -55,6 +58,8 @@ ENV ODOVI_VERSION=${ODOVI_VERSION}
 ENV ODOVI_COMMIT_SHA=${ODOVI_COMMIT_SHA}
 LABEL org.opencontainers.image.version=${ODOVI_VERSION}
 LABEL org.opencontainers.image.revision=${ODOVI_COMMIT_SHA}
+LABEL org.opencontainers.image.source=https://github.com/jsc2304/odovi
+LABEL org.opencontainers.image.licenses=FSL-1.1-ALv2
 WORKDIR /app
 
 RUN groupadd --system --gid 1001 odovi \
@@ -72,6 +77,8 @@ COPY --from=prod-deps /repo/packages/db/node_modules ./packages/db/node_modules
 COPY --from=prod-deps /repo/packages/runtime-config/package.json ./packages/runtime-config/package.json
 COPY --from=prod-deps /repo/apps/worker/package.json ./apps/worker/package.json
 COPY --from=prod-deps /repo/apps/worker/node_modules ./apps/worker/node_modules
+COPY --from=prod-deps /repo/third-party-licenses ./third-party-licenses
+COPY LICENSE LICENSING.md THIRD_PARTY_NOTICES.md TRADEMARKS.md ./
 
 # Compiled output.
 COPY --from=build /repo/packages/core/dist ./packages/core/dist
