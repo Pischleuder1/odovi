@@ -4,6 +4,9 @@
 **/coverage
 **/*.tsbuildinfo
 .git
+.private
+apps/marketing
+AGENTS.md
 .gitignore
 .env
 .env.*

@@ -1,9 +1,9 @@
 {
   "tag": "v0.1.1",
-  "tagObject": "84e862b7084206933172e4f0ad9e7614e1685afd",
-  "commit": "abc0d15482c8abee342be688876f0e304b013e19",
-  "url": "https://codeload.github.com/jsc2304/odovi/tar.gz/abc0d15482c8abee342be688876f0e304b013e19",
-  "sha256": "9bf3b8add830bee16d04dca33d99947c663f3822e763737d4fe3935a0718086c",
+  "tagObject": "0e85cbc879cc2d245d22341e73f52c38f57444e1",
+  "commit": "eeaab1ed41d723e8a295e3b82b2c447345d29f7f",
+  "url": "https://codeload.github.com/jsc2304/odovi/tar.gz/eeaab1ed41d723e8a295e3b82b2c447345d29f7f",
+  "sha256": "b37e43da3d6a9c393c272a80a0c879795356ea4257b48272bee6f34831b2de49",
   "kind": "public-source-archive",
-  "note": "v0.1.1 was distributed as source, not immutable published containers. Its original Dockerfiles and lockfile are built unchanged."
+  "note": "Pinned v0.1.1 source archive after documentation cleanup. Runtime sources, Dockerfiles and lockfile are unchanged."
 }

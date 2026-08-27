@@ -181,7 +181,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: dry-run-acceptance-${{ github.sha }}-${{ github.run_attempt }}
-          path: acceptance-results/
+          path: acceptance-results/**/manifest.json
           if-no-files-found: error
           retention-days: 14
 
@@ -345,7 +345,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: candidate-acceptance-${{ github.sha }}-${{ github.run_attempt }}
-          path: acceptance-results/
+          path: |
+            acceptance-results/**/manifest.json
+            acceptance-results/**/exact-*.json
           if-no-files-found: error
           retention-days: 30
 

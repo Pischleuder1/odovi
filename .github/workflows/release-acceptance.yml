@@ -57,6 +57,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: release-acceptance-${{ github.sha }}
-          path: acceptance-results/
+          path: acceptance-results/**/manifest.json
           if-no-files-found: error
           retention-days: 14

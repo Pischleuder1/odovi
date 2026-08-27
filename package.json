@@ -5,9 +5,10 @@
   "license": "SEE LICENSE IN LICENSE",
   "packageManager": "pnpm@9.15.9",
   "scripts": {
+    "publication:check": "node scripts/check-publication.mjs --staged",
     "dev": "echo \"Run pnpm --filter @odovi/web dev (or worker/db) — no root dev process\"",
     "build": "corepack pnpm -r build",
-    "test": "node --test scripts/database-backup.test.mjs scripts/check-production-audit.test.mjs scripts/egress-verifier.test.mjs scripts/location-provider-boundary.test.mjs scripts/release.test.mjs && corepack pnpm --filter @odovi/core --filter @odovi/db --filter @odovi/runtime-config build && corepack pnpm -r test",
+    "test": "node --test scripts/check-publication.test.mjs scripts/database-backup.test.mjs scripts/check-production-audit.test.mjs scripts/egress-verifier.test.mjs scripts/location-provider-boundary.test.mjs scripts/release.test.mjs && corepack pnpm --filter @odovi/core --filter @odovi/db --filter @odovi/runtime-config build && corepack pnpm -r test",
     "test:rename-upgrade": "node scripts/rename-upgrade-acceptance.mjs",
     "audit:prod": "node scripts/check-production-audit.mjs",
     "release:check": "node scripts/check-release-consistency.mjs release/0.2.0/release.json",

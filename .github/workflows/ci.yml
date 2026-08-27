@@ -27,6 +27,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Check public repository boundary
+        run: pnpm publication:check
+
       - name: Audit production dependencies
         run: pnpm audit:prod
 

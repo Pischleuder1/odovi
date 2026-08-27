@@ -7,9 +7,8 @@ Odovi is a self-hosted Tesla trip archive based on TeslaMate data. Thank you for
 Bug reports, feature proposals, reproducible test cases and documentation
 feedback are welcome in German or English.
 
-Odovi is currently protecting the option to offer both Fair Source and
-commercial licenses. For that reason, code or other copyrightable material is
-accepted from external contributors only after a separate written contributor
+Code or other copyrightable material is accepted from external contributors
+only after a separate written contributor
 agreement has been completed with the maintainer. Opening a pull request does
 not by itself transfer rights or grant permission to relicense a contribution.
 
@@ -44,6 +43,7 @@ Run the repository checks before opening a pull request:
 ```bash
 pnpm test
 pnpm lint
+pnpm publication:check
 ```
 
 `pnpm lint` is the repository typecheck/lint entry point. It first builds the shared package types, then runs all package checks. For the web app TypeScript compiler specifically, run:
