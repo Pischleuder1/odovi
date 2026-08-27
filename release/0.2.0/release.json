@@ -48,7 +48,7 @@
     }
   ],
   "knownLimitations": [
-    "The linux/arm64 image is build-validated through QEMU; native arm64 runtime acceptance remains a release-readiness gate.",
+    "The linux/arm64 image is build-validated through QEMU; native Raspberry Pi runtime acceptance is verified separately before stable publication.",
     "TeslaMate 4.0.2 through 4.1.x are bounded by the tested 4.0.1 and 4.2.0 endpoints rather than dedicated fixtures for every intermediate release.",
     "One vehicle per installation is the current supported focus.",
     "Odovi requires an existing supported TeslaMate database and does not bundle TeslaMate."
