@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "version": "0.2.0",
-  "candidate": "0.2.0-rc.1",
+  "candidate": "0.2.0-rc.2",
   "images": {
     "web": "ghcr.io/jsc2304/odovi-web",
     "worker": "ghcr.io/jsc2304/odovi-worker"

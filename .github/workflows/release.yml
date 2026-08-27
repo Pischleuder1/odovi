@@ -12,7 +12,7 @@ on:
           - dry-run
           - publish-candidate
       authorization:
-        description: For publication only, enter PUBLISH 0.2.0-rc.1
+        description: For publication only, enter PUBLISH 0.2.0-rc.2
         required: false
         type: string
 
@@ -210,7 +210,7 @@ jobs:
           AUTHORIZATION: ${{ inputs.authorization }}
         run: |
           test "${{ github.ref }}" = "refs/heads/main"
-          test "$AUTHORIZATION" = "PUBLISH 0.2.0-rc.1"
+          test "$AUTHORIZATION" = "PUBLISH 0.2.0-rc.2"
 
       - name: Check out the gated source revision
         uses: actions/checkout@v4
@@ -334,6 +334,11 @@ jobs:
             node scripts/verify-release-image.mjs \
               "$reference" "0.2.0" "${{ github.sha }}" linux/amd64 \
               "$evidence_dir/exact-$image-amd64.json"
+            # The classic image store cannot bind one index digest to two
+            # architectures. Acceptance containers have already been removed;
+            # release only this runner-local reference before pulling arm64.
+            # https://docs.docker.com/reference/cli/docker/image/rm/
+            docker image rm --no-prune "$reference"
             docker pull --platform linux/arm64 "$reference"
             node scripts/verify-release-image.mjs \
               "$reference" "0.2.0" "${{ github.sha }}" linux/arm64 \

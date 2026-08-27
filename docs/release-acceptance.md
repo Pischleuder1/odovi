@@ -36,7 +36,7 @@ ODOVI_WORKER_IMAGE="ghcr.io/jsc2304/odovi-worker@${ODOVI_WORKER_DIGEST:?Copy the
 ./scripts/release-acceptance.sh
 ```
 
-The candidate registry tag is `0.2.0-rc.1`; its embedded product version is
+The candidate registry tag is `0.2.0-rc.2`; its embedded product version is
 `0.2.0` so stable promotion can preserve the exact tested images without a
 rebuild. Use the publication run's immutable digests for candidate acceptance,
 not a moving tag. This command does not publish or promote anything.
