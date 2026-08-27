@@ -10,10 +10,14 @@ before applying this to real data.**
 
 v0.1.1 was distributed as source, not published immutable containers:
 
-- Annotated tag: `84e862b7084206933172e4f0ad9e7614e1685afd`
-- Commit: `abc0d15482c8abee342be688876f0e304b013e19`
-- [Public source archive](https://codeload.github.com/jsc2304/odovi/tar.gz/abc0d15482c8abee342be688876f0e304b013e19)
-- SHA-256: `9bf3b8add830bee16d04dca33d99947c663f3822e763737d4fe3935a0718086c`
+- Annotated tag: `0e85cbc879cc2d245d22341e73f52c38f57444e1`
+- Commit: `eeaab1ed41d723e8a295e3b82b2c447345d29f7f`
+- [Public source archive](https://codeload.github.com/jsc2304/odovi/tar.gz/eeaab1ed41d723e8a295e3b82b2c447345d29f7f)
+- SHA-256: `b37e43da3d6a9c393c272a80a0c879795356ea4257b48272bee6f34831b2de49`
+
+These identities reflect the documentation cleanup. The v0.1.1 runtime source,
+Dockerfiles and dependency lockfile are unchanged. The machine-readable pin is
+`acceptance/rename-upgrade/legacy-artifact.json`.
 
 The acceptance runner verifies that archive and builds its unchanged Dockerfiles
 and lockfile. Its base-image references were mutable; keep your actual old image
