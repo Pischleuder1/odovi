@@ -38,7 +38,7 @@ Tessie and similar services are good, but they come with subscription costs, ove
 - **Connection diagnostics** - Sync health per data source at a glance, optional direct TeslaMate test
 
 **Interface**
-- **German and English** - Switchable in the UI (German by default)
+- **English and German** - Browser-language detection, English fallback, and a saved manual choice in the UI
 - **Dark mode** - Light/dark/system switcher without flicker
 - **Mobile-first** - Installable as a PWA, 16px form fields (no iOS zoom), safe-area-aware bottom navigation
 
