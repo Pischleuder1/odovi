@@ -27,14 +27,22 @@
   },
   "addressSearch": {
     "placeholder": "Search address…",
-    "searching": "Searching…"
+    "submit": "Search",
+    "searching": "Searching…",
+    "invalid": "Enter at least 3 characters.",
+    "disabled": "Address search is disabled.",
+    "activate": "Activate it in Settings",
+    "rateLimited": "Search is busy. Please wait a moment and try again.",
+    "empty": "No matching address found.",
+    "upstreamFailure": "Address search is currently unavailable. You can still enter coordinates manually.",
+    "cached": "Showing a cached result."
   },
   "form": {
     "name": "Name",
     "namePlaceholder": "e.g. Customer Müller",
     "type": "Type",
     "searchAddress": "Search address",
-    "searchAddressHint": "Searches via OpenStreetMap (Nominatim). Selecting a result sets the position and address below.",
+    "searchAddressHint": "Nothing is sent while you type. Select Search to use the activated provider; choosing a result sets the position below.",
     "mapHint": "Click the map or drag the pin to set the position. Map data ©",
     "latitude": "Latitude (lat)",
     "longitude": "Longitude (lon)",

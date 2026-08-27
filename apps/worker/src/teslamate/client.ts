@@ -2,6 +2,175 @@ import postgres from "postgres";
 
 export type TeslamateSql = postgres.Sql;
 
+export const TESLAMATE_SUPPORTED_RANGE = {
+  minimum: "4.0.1",
+  maximum: "4.2.0",
+} as const;
+
+type RequiredColumn = {
+  name: string;
+  postgresType: string;
+};
+
+type RequiredRelationship = {
+  column: string;
+  referencesTable: string;
+  referencesColumn: string;
+};
+
+type SchemaColumn = {
+  table_name: string;
+  column_name: string;
+  udt_name: string;
+};
+
+type SchemaRelationship = {
+  table_name: string;
+  column_name: string;
+  foreign_table_name: string;
+  foreign_column_name: string;
+};
+
+/**
+ * The complete TeslaMate surface read by apps/worker/src/teslamate/queries.ts.
+ * PostgreSQL UDT names deliberately ignore compatible numeric precision changes
+ * such as charging_processes.cost numeric(6,2) -> numeric(14,2).
+ */
+export const REQUIRED_TESLAMATE_COLUMNS: Readonly<
+  Record<string, readonly RequiredColumn[]>
+> = {
+  cars: [
+    { name: "id", postgresType: "int2" },
+    { name: "name", postgresType: "text" },
+    { name: "vin", postgresType: "text" },
+    { name: "model", postgresType: "varchar" },
+    { name: "trim_badging", postgresType: "text" },
+    { name: "efficiency", postgresType: "float8" },
+  ],
+  drives: [
+    { name: "id", postgresType: "int4" },
+    { name: "car_id", postgresType: "int2" },
+    { name: "start_date", postgresType: "timestamp" },
+    { name: "end_date", postgresType: "timestamp" },
+    { name: "start_km", postgresType: "float8" },
+    { name: "end_km", postgresType: "float8" },
+    { name: "distance", postgresType: "float8" },
+    { name: "duration_min", postgresType: "int2" },
+    { name: "ascent", postgresType: "int2" },
+    { name: "descent", postgresType: "int2" },
+    { name: "start_rated_range_km", postgresType: "numeric" },
+    { name: "end_rated_range_km", postgresType: "numeric" },
+    { name: "start_position_id", postgresType: "int4" },
+    { name: "end_position_id", postgresType: "int4" },
+    { name: "start_address_id", postgresType: "int4" },
+    { name: "end_address_id", postgresType: "int4" },
+    { name: "outside_temp_avg", postgresType: "numeric" },
+    { name: "inside_temp_avg", postgresType: "numeric" },
+    { name: "speed_max", postgresType: "int2" },
+    { name: "power_max", postgresType: "int2" },
+    { name: "power_min", postgresType: "int2" },
+  ],
+  positions: [
+    { name: "id", postgresType: "int4" },
+    { name: "car_id", postgresType: "int2" },
+    { name: "date", postgresType: "timestamp" },
+    { name: "latitude", postgresType: "numeric" },
+    { name: "longitude", postgresType: "numeric" },
+    { name: "speed", postgresType: "int2" },
+    { name: "odometer", postgresType: "float8" },
+    { name: "battery_level", postgresType: "int2" },
+    { name: "usable_battery_level", postgresType: "int2" },
+    { name: "rated_battery_range_km", postgresType: "numeric" },
+    { name: "tpms_pressure_fl", postgresType: "numeric" },
+    { name: "tpms_pressure_fr", postgresType: "numeric" },
+    { name: "tpms_pressure_rl", postgresType: "numeric" },
+    { name: "tpms_pressure_rr", postgresType: "numeric" },
+  ],
+  addresses: [
+    { name: "id", postgresType: "int4" },
+    { name: "name", postgresType: "varchar" },
+    { name: "road", postgresType: "varchar" },
+    { name: "house_number", postgresType: "varchar" },
+    { name: "city", postgresType: "varchar" },
+    { name: "display_name", postgresType: "varchar" },
+  ],
+  charging_processes: [
+    { name: "id", postgresType: "int4" },
+    { name: "car_id", postgresType: "int2" },
+    { name: "start_date", postgresType: "timestamp" },
+    { name: "end_date", postgresType: "timestamp" },
+    { name: "charge_energy_added", postgresType: "numeric" },
+    { name: "charge_energy_used", postgresType: "numeric" },
+    { name: "start_battery_level", postgresType: "int2" },
+    { name: "end_battery_level", postgresType: "int2" },
+    { name: "duration_min", postgresType: "int2" },
+    { name: "cost", postgresType: "numeric" },
+    { name: "position_id", postgresType: "int4" },
+    { name: "address_id", postgresType: "int4" },
+  ],
+  charges: [
+    { name: "charging_process_id", postgresType: "int4" },
+    { name: "charger_power", postgresType: "int2" },
+    { name: "fast_charger_present", postgresType: "bool" },
+    { name: "date", postgresType: "timestamp" },
+    { name: "battery_level", postgresType: "int2" },
+    { name: "usable_battery_level", postgresType: "int2" },
+    { name: "outside_temp", postgresType: "numeric" },
+  ],
+  geofences: [
+    { name: "id", postgresType: "int4" },
+    { name: "name", postgresType: "varchar" },
+    { name: "latitude", postgresType: "numeric" },
+    { name: "longitude", postgresType: "numeric" },
+    { name: "radius", postgresType: "int2" },
+  ],
+  states: [
+    { name: "car_id", postgresType: "int2" },
+    { name: "state", postgresType: "states_status" },
+    { name: "start_date", postgresType: "timestamp" },
+  ],
+  updates: [
+    { name: "id", postgresType: "int4" },
+    { name: "car_id", postgresType: "int2" },
+    { name: "start_date", postgresType: "timestamp" },
+    { name: "end_date", postgresType: "timestamp" },
+    { name: "version", postgresType: "varchar" },
+  ],
+};
+
+export const REQUIRED_TESLAMATE_RELATIONSHIPS: Readonly<
+  Record<string, readonly RequiredRelationship[]>
+> = {
+  drives: [
+    { column: "car_id", referencesTable: "cars", referencesColumn: "id" },
+    { column: "start_position_id", referencesTable: "positions", referencesColumn: "id" },
+    { column: "end_position_id", referencesTable: "positions", referencesColumn: "id" },
+    { column: "start_address_id", referencesTable: "addresses", referencesColumn: "id" },
+    { column: "end_address_id", referencesTable: "addresses", referencesColumn: "id" },
+  ],
+  positions: [
+    { column: "car_id", referencesTable: "cars", referencesColumn: "id" },
+  ],
+  charging_processes: [
+    { column: "car_id", referencesTable: "cars", referencesColumn: "id" },
+    { column: "position_id", referencesTable: "positions", referencesColumn: "id" },
+    { column: "address_id", referencesTable: "addresses", referencesColumn: "id" },
+  ],
+  charges: [
+    {
+      column: "charging_process_id",
+      referencesTable: "charging_processes",
+      referencesColumn: "id",
+    },
+  ],
+  states: [
+    { column: "car_id", referencesTable: "cars", referencesColumn: "id" },
+  ],
+  updates: [
+    { column: "car_id", referencesTable: "cars", referencesColumn: "id" },
+  ],
+};
+
 export function createTeslamateClient(url: string): TeslamateSql {
   return postgres(url, {
     max: 2,
@@ -11,101 +180,99 @@ export function createTeslamateClient(url: string): TeslamateSql {
   });
 }
 
+export function assertTeslamateSchemaCompatibility(
+  columns: readonly SchemaColumn[],
+  relationships: readonly SchemaRelationship[],
+): void {
+  const actualColumns = new Map(
+    columns.map((column) => [
+      `${column.table_name}.${column.column_name}`,
+      column.udt_name,
+    ]),
+  );
+  const missingColumns: string[] = [];
+  const wrongTypes: string[] = [];
+
+  for (const [table, requiredColumns] of Object.entries(REQUIRED_TESLAMATE_COLUMNS)) {
+    for (const column of requiredColumns) {
+      const key = `${table}.${column.name}`;
+      const actualType = actualColumns.get(key);
+      if (actualType == null) missingColumns.push(key);
+      else if (actualType !== column.postgresType) {
+        wrongTypes.push(`${key} (${actualType}, erwartet ${column.postgresType})`);
+      }
+    }
+  }
+
+  const actualRelationships = new Set(
+    relationships.map(
+      (relationship) =>
+        `${relationship.table_name}.${relationship.column_name}->` +
+        `${relationship.foreign_table_name}.${relationship.foreign_column_name}`,
+    ),
+  );
+  const missingRelationships: string[] = [];
+  for (const [table, requiredRelationships] of Object.entries(
+    REQUIRED_TESLAMATE_RELATIONSHIPS,
+  )) {
+    for (const relationship of requiredRelationships) {
+      const key =
+        `${table}.${relationship.column}->` +
+        `${relationship.referencesTable}.${relationship.referencesColumn}`;
+      if (!actualRelationships.has(key)) missingRelationships.push(key);
+    }
+  }
+
+  const details = [
+    missingColumns.length > 0
+      ? `fehlende Tabellen/Spalten: ${missingColumns.join(", ")}`
+      : null,
+    wrongTypes.length > 0 ? `inkompatible Typen: ${wrongTypes.join(", ")}` : null,
+    missingRelationships.length > 0
+      ? `fehlende Beziehungen: ${missingRelationships.join(", ")}`
+      : null,
+  ].filter((detail): detail is string => detail != null);
+
+  if (details.length > 0) {
+    throw new Error(
+      `TeslaMate-Kompatibilitätsprüfung fehlgeschlagen (${details.join("; ")}). ` +
+        `Odovi unterstützt TeslaMate v${TESLAMATE_SUPPORTED_RANGE.minimum} bis ` +
+        `v${TESLAMATE_SUPPORTED_RANGE.maximum} und stoppt vor der Synchronisierung. ` +
+        "Prüfe die verbundene Datenbank und TeslaMate-Version; Details: " +
+        "docs/teslamate-compatibility.md.",
+    );
+  }
+}
+
 /**
  * Prüft beim Start, ob die TeslaMate-DB die erwarteten Spalten hat.
  * TeslaMate-Migrationen benennen gelegentlich um — lieber ein klarer
  * Fehler beim Start als stiller Datenmüll.
  */
 export async function probeTeslamateSchema(sql: TeslamateSql): Promise<void> {
-  const required: Record<string, string[]> = {
-    cars: ["id", "name", "vin", "model", "trim_badging", "efficiency"],
-    drives: [
-      "id",
-      "car_id",
-      "start_date",
-      "end_date",
-      "start_km",
-      "end_km",
-      "distance",
-      "duration_min",
-      "ascent",
-      "descent",
-      "start_rated_range_km",
-      "end_rated_range_km",
-      "start_position_id",
-      "end_position_id",
-      "start_address_id",
-      "end_address_id",
-      "start_geofence_id",
-      "end_geofence_id",
-      "outside_temp_avg",
-      "inside_temp_avg",
-      "speed_max",
-      "power_max",
-      "power_min",
-    ],
-    positions: [
-      "id",
-      "car_id",
-      "latitude",
-      "longitude",
-      "battery_level",
-      "usable_battery_level",
-      "date",
-      "speed",
-      "odometer",
-      "tpms_pressure_fl",
-      "tpms_pressure_fr",
-      "tpms_pressure_rl",
-      "tpms_pressure_rr",
-    ],
-    addresses: ["id", "name", "road", "house_number", "city", "display_name"],
-    charging_processes: [
-      "id",
-      "car_id",
-      "start_date",
-      "end_date",
-      "charge_energy_added",
-      "charge_energy_used",
-      "start_battery_level",
-      "end_battery_level",
-      "position_id",
-      "address_id",
-      "geofence_id",
-      "cost",
-      "outside_temp_avg",
-    ],
-    charges: [
-      "charging_process_id",
-      "charger_power",
-      "fast_charger_present",
-      "date",
-      "battery_level",
-      "usable_battery_level",
-      "outside_temp",
-    ],
-    geofences: ["id", "name", "latitude", "longitude", "radius"],
-    updates: ["id", "car_id", "start_date", "end_date", "version"],
-  };
-
-  const rows = await sql<{ table_name: string; column_name: string }[]>`
-    SELECT table_name, column_name
+  const columns = await sql<SchemaColumn[]>`
+    SELECT table_name, column_name, udt_name
     FROM information_schema.columns
     WHERE table_schema = 'public'
   `;
-  const have = new Set(rows.map((r) => `${r.table_name}.${r.column_name}`));
+  const relationships = await sql<SchemaRelationship[]>`
+    SELECT
+      tc.table_name,
+      kcu.column_name,
+      ccu.table_name AS foreign_table_name,
+      ccu.column_name AS foreign_column_name
+    FROM information_schema.table_constraints tc
+    JOIN information_schema.key_column_usage kcu
+      ON tc.constraint_catalog = kcu.constraint_catalog
+      AND tc.constraint_schema = kcu.constraint_schema
+      AND tc.constraint_name = kcu.constraint_name
+    JOIN information_schema.constraint_column_usage ccu
+      ON tc.constraint_catalog = ccu.constraint_catalog
+      AND tc.constraint_schema = ccu.constraint_schema
+      AND tc.constraint_name = ccu.constraint_name
+    WHERE tc.table_schema = 'public'
+      AND tc.constraint_type = 'FOREIGN KEY'
+  `;
 
-  const missing: string[] = [];
-  for (const [table, cols] of Object.entries(required)) {
-    for (const col of cols) {
-      if (!have.has(`${table}.${col}`)) missing.push(`${table}.${col}`);
-    }
-  }
-
-  if (missing.length > 0) {
-    throw new Error(
-      `TeslaMate-Schema passt nicht (fehlende Spalten: ${missing.join(", ")}). ` +
-        `Vermutlich inkompatible TeslaMate-Version — getestet mit v4.x.`,
-    );
-  }
+  assertTeslamateSchemaCompatibility(columns, relationships);
 }

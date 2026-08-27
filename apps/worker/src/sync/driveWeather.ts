@@ -1,12 +1,11 @@
 import { and, asc, eq, isNull, isNotNull } from "drizzle-orm";
+import type { ActiveProviderResolution } from "@odovi/core";
 import { drives, type Db } from "@odovi/db";
 import { recordSyncRun } from "./state.js";
 
-const SOURCE = "open_meteo";
+const SOURCE = "location_provider";
 const ENTITY = "drive_weather";
 
-const ARCHIVE_URL = "https://archive-api.open-meteo.com/v1/archive";
-const FORECAST_URL = "https://api.open-meteo.com/v1/forecast";
 const HOURLY_PARAMS = "temperature_2m,precipitation,wind_speed_10m,weather_code";
 // Archive-API hat ~5 Tage Verzögerung für aktuelle Daten — jüngere Fahrten
 // fallen auf die Forecast-API zurück (die past_days mitliefert).
@@ -29,7 +28,7 @@ interface PendingDrive {
   startLon: number;
 }
 
-interface HourlyWeather {
+export interface HourlyWeather {
   temperature_2m: (number | null)[];
   precipitation: (number | null)[];
   wind_speed_10m: (number | null)[];
@@ -43,16 +42,17 @@ interface OpenMeteoResponse {
 
 // Nach einem 429 (Rate-Limit) pausiert der Wetter-Backfill, statt jede Minute
 // erneut anzuklopfen. Eskalierend (15 min → ×4 bis 12 h) — teilt sich die
-// IP-Quote mit der Elevation-Anreicherung und der Dashboard-Wetterkarte,
-// Dauerfeuer würde alle drei Features lahmlegen.
+// IP-Quote mit der Elevation-Anreicherung und der Dashboard-Wetterkarte teilen
+// kann. Dauerfeuer würde sonst alle drei Funktionen beeinträchtigen.
 const RATE_LIMIT_BACKOFF_START_MS = 15 * 60 * 1000;
 const RATE_LIMIT_BACKOFF_MAX_MS = 12 * 60 * 60 * 1000;
 let backoffMs = RATE_LIMIT_BACKOFF_START_MS;
 let backoffUntil = 0;
 
 /**
- * Backfill für historisches Wetter zur Fahrtzeit (Open-Meteo Archive API,
- * mit Forecast-API-Fallback für die letzten Tage). Kein Watermark nötig —
+ * Backfill für historisches Wetter zur Fahrtzeit. Wenn der aktivierte
+ * Provider getrennte Archive- und Forecast-Endpunkte anbietet, werden beide
+ * passend zum Alter der Fahrt verwendet. Kein Watermark nötig —
  * Fortschritt ergibt sich daraus, dass weather_synced_at nach dem Füllen
  * gesetzt ist; spätere Zyklen holen automatisch nur die verbleibenden
  * Fahrten (idempotent). weather_synced_at wird auch gesetzt, wenn die API
@@ -63,8 +63,10 @@ let backoffUntil = 0;
  */
 export async function syncDriveWeather(
   db: Db,
+  provider: ActiveProviderResolution | null,
   maxDrivesPerCycle = MAX_DRIVES_PER_CYCLE,
 ): Promise<DriveWeatherSyncResult> {
+  if (!provider) return { drivesFilled: 0 };
   if (Date.now() < backoffUntil) {
     return { drivesFilled: 0 };
   }
@@ -74,7 +76,7 @@ export async function syncDriveWeather(
     let drivesFilled = 0;
     for (let i = 0; i < pending.length; i++) {
       const drive = pending[i]!;
-      const filled = await fillDriveWeather(db, drive);
+      const filled = await fillDriveWeather(db, provider, drive);
       if (filled) drivesFilled++;
 
       if (i < pending.length - 1) {
@@ -94,12 +96,12 @@ export async function syncDriveWeather(
       backoffUntil = Date.now() + backoffMs;
       const retryMinutes = Math.round(backoffMs / 60000);
       console.warn(
-        `[sync:driveWeather] Open-Meteo Rate-Limit — pausiere ${retryMinutes} min`,
+        `[sync:driveWeather] ${provider.provider} rate limit — pausing for ${retryMinutes} min`,
       );
       backoffMs = Math.min(backoffMs * 4, RATE_LIMIT_BACKOFF_MAX_MS);
       await recordSyncRun(db, SOURCE, ENTITY, {
         status: "deferred",
-        error: `Open-Meteo API rate-limited; retrying in about ${retryMinutes} min`,
+        error: `${provider.provider} weather rate-limited; retrying in about ${retryMinutes} min`,
         rowsUpserted: 0,
       });
       return { drivesFilled: 0 };
@@ -150,7 +152,11 @@ async function loadPendingDrives(
  * für die Stunde hatte). Gibt zurück, ob tatsächlich Wetterdaten gefunden
  * wurden (nur für die Zusammenfassung im Zyklus-Log).
  */
-async function fillDriveWeather(db: Db, drive: PendingDrive): Promise<boolean> {
+async function fillDriveWeather(
+  db: Db,
+  provider: ActiveProviderResolution,
+  drive: PendingDrive,
+): Promise<boolean> {
   const midpoint = new Date(
     (drive.startTime.getTime() + (drive.endTime?.getTime() ?? drive.startTime.getTime())) / 2,
   );
@@ -159,7 +165,8 @@ async function fillDriveWeather(db: Db, drive: PendingDrive): Promise<boolean> {
   const isRecent = ageMs < ARCHIVE_DELAY_DAYS * 24 * 60 * 60 * 1000;
 
   let weather = await fetchHourlyWeather(
-    ARCHIVE_URL,
+    provider,
+    "archive",
     drive.startLat,
     drive.startLon,
     dateStr,
@@ -172,7 +179,8 @@ async function fillDriveWeather(db: Db, drive: PendingDrive): Promise<boolean> {
   // vergangene Tage über past_days mitliefert.
   if (nearest == null && isRecent) {
     weather = await fetchHourlyWeather(
-      FORECAST_URL,
+      provider,
+      "forecast",
       drive.startLat,
       drive.startLon,
       undefined,
@@ -235,15 +243,21 @@ function nearestHour(weather: HourlyWeather, target: Date): HourSample | null {
   };
 }
 
-async function fetchHourlyWeather(
-  baseUrl: string,
+type FetchLike = typeof fetch;
+
+export async function fetchHourlyWeather(
+  provider: ActiveProviderResolution,
+  endpointKind: "archive" | "forecast",
   lat: number,
   lon: number,
   startDate?: string,
   endDate?: string,
   pastDays?: number,
+  fetcher: FetchLike = fetch,
 ): Promise<HourlyWeather | null> {
-  const url = new URL(baseUrl);
+  const endpoint = provider.endpoints[endpointKind] ?? provider.endpoints.default;
+  if (!endpoint) throw new Error(`${provider.provider} has no ${endpointKind} endpoint`);
+  const url = new URL(endpoint);
   url.searchParams.set("latitude", String(lat));
   url.searchParams.set("longitude", String(lon));
   url.searchParams.set("hourly", HOURLY_PARAMS);
@@ -252,9 +266,13 @@ async function fetchHourlyWeather(
   if (endDate) url.searchParams.set("end_date", endDate);
   if (pastDays != null) url.searchParams.set("past_days", String(pastDays));
 
-  const res = await fetch(url);
+  const headers = new Headers();
+  if (provider.credentialHeader && provider.credential) {
+    headers.set(provider.credentialHeader, provider.credential);
+  }
+  const res = await fetcher(url, { headers });
   if (!res.ok) {
-    throw new Error(`Open-Meteo API (${baseUrl}): HTTP ${res.status}`);
+    throw new Error(`${provider.provider} ${endpointKind} weather: HTTP ${res.status}`);
   }
   const body = (await res.json()) as OpenMeteoResponse;
   if (!body.hourly || !Array.isArray(body.hourly.time)) {

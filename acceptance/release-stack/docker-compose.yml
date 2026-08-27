@@ -1,0 +1,210 @@
+# Disposable acceptance stack for a single, versioned Odovi release.
+#
+# Always invoke this file through scripts/release-acceptance.sh. The runner
+# supplies exact image tags, an isolated Compose project name, a free host
+# port, and an evidence directory. Compose-managed volume names intentionally
+# remain project-scoped so `down --volumes` cannot touch an operator stack.
+
+services:
+  config-check:
+    build:
+      context: ../..
+      dockerfile: apps/worker/Dockerfile
+      args:
+        ODOVI_VERSION: ${ODOVI_ACCEPTANCE_VERSION:?Set ODOVI_ACCEPTANCE_VERSION}
+        ODOVI_COMMIT_SHA: ${ODOVI_ACCEPTANCE_GIT_COMMIT:?Set ODOVI_ACCEPTANCE_GIT_COMMIT}
+    image: ${ODOVI_WORKER_IMAGE:?Set an exact ODOVI_WORKER_IMAGE tag}
+    command: ["node", "../../packages/runtime-config/dist/check.js"]
+    restart: "no"
+    environment:
+      POSTGRES_PASSWORD: odovi-acceptance
+      TESLAMATE_DATABASE_URL: postgres://teslamate:teslamate-acceptance@teslamate-db:5432/teslamate
+      APP_TIMEZONE: Europe/Zurich
+      SYNC_INTERVAL_SECONDS: 5
+
+  provider:
+    image: ${ODOVI_WORKER_IMAGE:?Set an exact ODOVI_WORKER_IMAGE tag}
+    command: ["node", "/opt/odovi-acceptance/controlled-provider.mjs"]
+    restart: unless-stopped
+    environment:
+      ODOVI_ACCEPTANCE_PROVIDER_LOG: /acceptance-evidence/provider-requests.ndjson
+      ODOVI_ACCEPTANCE_PROVIDER_CREDENTIAL: ${ODOVI_ACCEPTANCE_PROVIDER_CREDENTIAL:?Set the controlled credential}
+    volumes:
+      - ./controlled-provider.mjs:/opt/odovi-acceptance/controlled-provider.mjs:ro
+      - ${ODOVI_ACCEPTANCE_EVIDENCE_DIR:?Set ODOVI_ACCEPTANCE_EVIDENCE_DIR}:/acceptance-evidence
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:8080/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+    networks: [release]
+
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: odovi
+      POSTGRES_PASSWORD: odovi-acceptance
+      POSTGRES_DB: odovi
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U odovi -d odovi"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+    volumes:
+      - odovi-data:/var/lib/postgresql/data
+    networks: [release]
+
+  teslamate-db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: teslamate
+      POSTGRES_PASSWORD: teslamate-acceptance
+      POSTGRES_DB: teslamate
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U teslamate -d teslamate"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+    volumes:
+      - teslamate-data:/var/lib/postgresql/data
+      - ../../dev/fixtures/teslamate/${TESLAMATE_FIXTURE_VERSION:-v4.0.1}/schema.sql:/docker-entrypoint-initdb.d/01_teslamate_schema.sql:ro
+    networks: [release]
+
+  seed:
+    build:
+      context: ../../dev/fixtures
+      dockerfile: Dockerfile
+    image: ${ODOVI_FIXTURES_IMAGE:?Set an exact ODOVI_FIXTURES_IMAGE tag}
+    restart: "no"
+    environment:
+      TESLAMATE_DATABASE_URL: postgres://teslamate:teslamate-acceptance@teslamate-db:5432/teslamate
+    depends_on:
+      teslamate-db:
+        condition: service_healthy
+    networks: [release]
+
+  migrate:
+    build:
+      context: ../..
+      dockerfile: apps/worker/Dockerfile
+      args:
+        ODOVI_VERSION: ${ODOVI_ACCEPTANCE_VERSION:?Set ODOVI_ACCEPTANCE_VERSION}
+        ODOVI_COMMIT_SHA: ${ODOVI_ACCEPTANCE_GIT_COMMIT:?Set ODOVI_ACCEPTANCE_GIT_COMMIT}
+    image: ${ODOVI_WORKER_IMAGE:?Set an exact ODOVI_WORKER_IMAGE tag}
+    command: ["node", "dist/migrate.js"]
+    restart: "no"
+    environment:
+      DATABASE_URL: postgres://odovi:odovi-acceptance@db:5432/odovi
+    depends_on:
+      config-check:
+        condition: service_completed_successfully
+      db:
+        condition: service_healthy
+    networks: [release]
+
+  legacy-migrate:
+    profiles: [tools]
+    image: ${ODOVI_WORKER_IMAGE:?Set an exact ODOVI_WORKER_IMAGE tag}
+    command: ["sh", "/opt/odovi-acceptance/legacy-migrate.sh"]
+    restart: "no"
+    environment:
+      DATABASE_URL: postgres://odovi:odovi-acceptance@db:5432/odovi_upgrade
+      NODE_OPTIONS: --require=/opt/odovi-acceptance/egress-guard.cjs
+      ODOVI_ACCEPTANCE_EGRESS_LOG: /acceptance-evidence/container-egress.ndjson
+      ODOVI_ACCEPTANCE_CONTROLLED_HOSTS: ${ODOVI_ACCEPTANCE_CONTROLLED_HOSTS:?Set controlled hosts}
+    volumes:
+      - ./egress-guard.cjs:/opt/odovi-acceptance/egress-guard.cjs:ro
+      - ./legacy-migrate.sh:/opt/odovi-acceptance/legacy-migrate.sh:ro
+      - ./v0.1.1-journal.json:/opt/odovi-acceptance/v0.1.1-journal.json:ro
+      - ${ODOVI_ACCEPTANCE_EVIDENCE_DIR:?Set ODOVI_ACCEPTANCE_EVIDENCE_DIR}:/acceptance-evidence
+    networks: [release]
+
+  web:
+    build:
+      context: ../..
+      dockerfile: apps/web/Dockerfile
+      args:
+        ODOVI_VERSION: ${ODOVI_ACCEPTANCE_VERSION:?Set ODOVI_ACCEPTANCE_VERSION}
+        ODOVI_COMMIT_SHA: ${ODOVI_ACCEPTANCE_GIT_COMMIT:?Set ODOVI_ACCEPTANCE_GIT_COMMIT}
+    image: ${ODOVI_WEB_IMAGE:?Set an exact ODOVI_WEB_IMAGE tag}
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${ODOVI_ACCEPTANCE_PORT:?Set ODOVI_ACCEPTANCE_PORT}:3000"
+    environment:
+      DATABASE_URL: postgres://odovi:odovi-acceptance@db:5432/odovi
+      APP_TIMEZONE: Europe/Zurich
+      ODOVI_SETUP_TOKEN: ${ODOVI_ACCEPTANCE_SETUP_TOKEN:?Set ODOVI_ACCEPTANCE_SETUP_TOKEN}
+      NODE_OPTIONS: --require=/opt/odovi-acceptance/egress-guard.cjs
+      ODOVI_ACCEPTANCE_EGRESS_LOG: /acceptance-evidence/container-egress.ndjson
+      ODOVI_ACCEPTANCE_CONTROLLED_HOSTS: ${ODOVI_ACCEPTANCE_CONTROLLED_HOSTS:?Set controlled hosts}
+      ODOVI_LOCATION_PROVIDER_WEATHER_CREDENTIAL: ${ODOVI_ACCEPTANCE_PROVIDER_CREDENTIAL:?Set the controlled credential}
+      ODOVI_LOCATION_PROVIDER_ELEVATION_CREDENTIAL: ${ODOVI_ACCEPTANCE_PROVIDER_CREDENTIAL:?Set the controlled credential}
+      ODOVI_LOCATION_PROVIDER_MAP_TILES_CREDENTIAL: ${ODOVI_ACCEPTANCE_PROVIDER_CREDENTIAL:?Set the controlled credential}
+      ODOVI_LOCATION_PROVIDER_ADDRESS_SEARCH_CREDENTIAL: ${ODOVI_ACCEPTANCE_PROVIDER_CREDENTIAL:?Set the controlled credential}
+      ODOVI_LOCATION_PROVIDER_ROUTING_CREDENTIAL: ${ODOVI_ACCEPTANCE_PROVIDER_CREDENTIAL:?Set the controlled credential}
+      ODOVI_LOCATION_PROVIDER_EXTERNAL_NAVIGATION_CREDENTIAL: ${ODOVI_ACCEPTANCE_PROVIDER_CREDENTIAL:?Set the controlled credential}
+    volumes:
+      - ./egress-guard.cjs:/opt/odovi-acceptance/egress-guard.cjs:ro
+      - ${ODOVI_ACCEPTANCE_EVIDENCE_DIR:?Set ODOVI_ACCEPTANCE_EVIDENCE_DIR}:/acceptance-evidence
+    depends_on:
+      config-check:
+        condition: service_completed_successfully
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+      provider:
+        condition: service_healthy
+    networks: [release, browser-access]
+
+  worker:
+    build:
+      context: ../..
+      dockerfile: apps/worker/Dockerfile
+      args:
+        ODOVI_VERSION: ${ODOVI_ACCEPTANCE_VERSION:?Set ODOVI_ACCEPTANCE_VERSION}
+        ODOVI_COMMIT_SHA: ${ODOVI_ACCEPTANCE_GIT_COMMIT:?Set ODOVI_ACCEPTANCE_GIT_COMMIT}
+    image: ${ODOVI_WORKER_IMAGE:?Set an exact ODOVI_WORKER_IMAGE tag}
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgres://odovi:odovi-acceptance@db:5432/odovi
+      TESLAMATE_DATABASE_URL: postgres://teslamate:teslamate-acceptance@teslamate-db:5432/teslamate
+      SYNC_INTERVAL_SECONDS: 5
+      NODE_OPTIONS: --require=/opt/odovi-acceptance/egress-guard.cjs
+      ODOVI_ACCEPTANCE_EGRESS_LOG: /acceptance-evidence/container-egress.ndjson
+      ODOVI_ACCEPTANCE_CONTROLLED_HOSTS: ${ODOVI_ACCEPTANCE_CONTROLLED_HOSTS:?Set controlled hosts}
+      ODOVI_LOCATION_PROVIDER_WEATHER_CREDENTIAL: ${ODOVI_ACCEPTANCE_PROVIDER_CREDENTIAL:?Set the controlled credential}
+      ODOVI_LOCATION_PROVIDER_ELEVATION_CREDENTIAL: ${ODOVI_ACCEPTANCE_PROVIDER_CREDENTIAL:?Set the controlled credential}
+      ODOVI_LOCATION_PROVIDER_MAP_TILES_CREDENTIAL: ${ODOVI_ACCEPTANCE_PROVIDER_CREDENTIAL:?Set the controlled credential}
+      ODOVI_LOCATION_PROVIDER_ADDRESS_SEARCH_CREDENTIAL: ${ODOVI_ACCEPTANCE_PROVIDER_CREDENTIAL:?Set the controlled credential}
+      ODOVI_LOCATION_PROVIDER_ROUTING_CREDENTIAL: ${ODOVI_ACCEPTANCE_PROVIDER_CREDENTIAL:?Set the controlled credential}
+      ODOVI_LOCATION_PROVIDER_EXTERNAL_NAVIGATION_CREDENTIAL: ${ODOVI_ACCEPTANCE_PROVIDER_CREDENTIAL:?Set the controlled credential}
+    volumes:
+      - ./egress-guard.cjs:/opt/odovi-acceptance/egress-guard.cjs:ro
+      - ${ODOVI_ACCEPTANCE_EVIDENCE_DIR:?Set ODOVI_ACCEPTANCE_EVIDENCE_DIR}:/acceptance-evidence
+    depends_on:
+      config-check:
+        condition: service_completed_successfully
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+      seed:
+        condition: service_completed_successfully
+      provider:
+        condition: service_healthy
+    networks: [release]
+
+networks:
+  release:
+    internal: true
+  # Only the web container joins this bridge so the loopback-published port is
+  # reachable on Docker implementations where an internal-only network cannot
+  # publish ports. Its global fetch is still denied by egress-guard.cjs.
+  browser-access:
+
+volumes:
+  odovi-data:
+  teslamate-data:

@@ -1,45 +1,88 @@
-import { createDb } from "@odovi/db";
-import { createTeslamateClient, probeTeslamateSchema } from "./teslamate/client.js";
+import { resolveBuildInfo } from "@odovi/core";
+import { createDbConnection } from "@odovi/db";
+import { parseWorkerRuntimeConfig } from "@odovi/runtime-config";
+import { createWorkerLoop } from "./lifecycle.js";
+import { workerErrorCode } from "./operationalStatus.js";
 import { runSyncCycle } from "./sync/cycle.js";
-import { requireEnv } from "./env.js";
+import { recordSyncRun } from "./sync/state.js";
+import { createTeslamateClient, probeTeslamateSchema } from "./teslamate/client.js";
 
-const SYNC_INTERVAL_SECONDS = Number(process.env.SYNC_INTERVAL_SECONDS ?? "60");
+async function main(): Promise<void> {
+  // Validate before opening clients or entering a long-running retry loop.
+  const config = parseWorkerRuntimeConfig(process.env);
+  const buildInfo = resolveBuildInfo({
+    ODOVI_VERSION: process.env.ODOVI_VERSION,
+    ODOVI_COMMIT_SHA: process.env.ODOVI_COMMIT_SHA,
+  });
+  const connection = createDbConnection(config.databaseUrl);
+  const tm = createTeslamateClient(config.teslamateDatabaseUrl);
 
-const db = createDb(requireEnv("DATABASE_URL"));
-const tm = createTeslamateClient(requireEnv("TESLAMATE_DATABASE_URL"));
-
-let timer: ReturnType<typeof setTimeout> | undefined;
-let running = false;
-
-async function tick(): Promise<void> {
-  if (running) return;
-  running = true;
   try {
-    await runSyncCycle(db, tm);
-  } catch (err) {
-    // Fehler ist bereits in sync_state protokolliert — nächster Tick versucht es neu.
-    console.error(`[odovi-worker] sync fehlgeschlagen:`, err);
-  } finally {
-    running = false;
-    timer = setTimeout(() => void tick(), SYNC_INTERVAL_SECONDS * 1000);
+    await probeTeslamateSchema(tm);
+    await recordSyncRun(connection.db, "teslamate", "schema", {
+      status: "ok",
+      rowsUpserted: 0,
+    });
+    console.log("[odovi-worker] TeslaMate schema ok");
+  } catch (error) {
+    try {
+      await recordSyncRun(connection.db, "teslamate", "schema", {
+        status: "error",
+        error: workerErrorCode(error),
+        rowsUpserted: 0,
+      });
+    } catch (statusError) {
+      console.error("[odovi-worker] could not persist TeslaMate schema status", statusError);
+    }
+    await Promise.all([connection.close(), tm.end({ timeout: 1 })]);
+    throw error;
   }
+
+  const loop = createWorkerLoop({
+    intervalMs: config.syncIntervalSeconds * 1000,
+    runSlice: async () => {
+      try {
+        await runSyncCycle(connection.db, tm, {
+          appTimezone: config.appTimezone,
+          elevationMaxPointsPerCycle: config.elevationMaxPointsPerCycle,
+        });
+        await recordSyncRun(connection.db, "odovi", "worker", {
+          status: "ok",
+          rowsUpserted: 0,
+        });
+      } catch (error) {
+        try {
+          await recordSyncRun(connection.db, "odovi", "worker", {
+            status: "error",
+            error: workerErrorCode(error),
+            rowsUpserted: 0,
+          });
+        } catch (statusError) {
+          console.error("[odovi-worker] could not persist worker status", statusError);
+        }
+        throw error;
+      }
+    },
+    close: async () => {
+      await Promise.all([connection.close(), tm.end({ timeout: 5 })]);
+      console.log("[odovi-worker] shutdown complete");
+    },
+    log: (message, error) => {
+      if (error == null) console.log(message);
+      else console.error(message, error);
+    },
+  });
+
+  process.once("SIGINT", () => void loop.stop("SIGINT"));
+  process.once("SIGTERM", () => void loop.stop("SIGTERM"));
+
+  console.log(
+    `[odovi-worker] starting, version=${buildInfo.version}, build=${buildInfo.commit}, interval=${config.syncIntervalSeconds}s`,
+  );
+  loop.start();
 }
 
-function shutdown(signal: string): void {
-  console.log(`[odovi-worker] received ${signal}, shutting down`);
-  if (timer) clearTimeout(timer);
-  process.exit(0);
-}
-
-process.on("SIGINT", () => shutdown("SIGINT"));
-process.on("SIGTERM", () => shutdown("SIGTERM"));
-
-console.log(`[odovi-worker] starting, interval=${SYNC_INTERVAL_SECONDS}s`);
-try {
-  await probeTeslamateSchema(tm);
-  console.log("[odovi-worker] TeslaMate-Schema ok");
-} catch (err) {
-  console.error(`[odovi-worker] ${err instanceof Error ? err.message : err}`);
-  process.exit(1);
-}
-void tick();
+void main().catch((error) => {
+  console.error(`[odovi-worker] ${error instanceof Error ? error.message : error}`);
+  process.exitCode = 1;
+});

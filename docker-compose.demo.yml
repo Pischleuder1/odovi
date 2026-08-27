@@ -87,7 +87,7 @@ services:
     environment:
       DATABASE_URL: postgres://odovi:odovi-demo@odovi-db:5432/odovi
       APP_TIMEZONE: Europe/Zurich
-      INITIAL_ADMIN_PASSWORD: demo1234
+      ODOVI_SETUP_TOKEN: ${ODOVI_SETUP_TOKEN:?Generate ODOVI_SETUP_TOKEN before starting the demo}
       # Set here too (unlike docker-compose.yml, where it's optional) so the
       # Settings → Diagnose "TeslaMate direkt testen" button also works out
       # of the box in the demo.
@@ -107,6 +107,7 @@ services:
     environment:
       DATABASE_URL: postgres://odovi:odovi-demo@odovi-db:5432/odovi
       TESLAMATE_DATABASE_URL: postgres://teslamate:teslamate-demo@teslamate-db:5432/teslamate
+      APP_TIMEZONE: Europe/Zurich
       # Short interval so the demo fills up fast instead of the production
       # default of 60s.
       SYNC_INTERVAL_SECONDS: 15

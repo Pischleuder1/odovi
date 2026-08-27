@@ -1,12 +1,20 @@
 import { getTranslations } from "next-intl/server";
 import { OfflineRoadtripCompanion } from "./OfflineRoadtripCompanion";
+import { getLocationProviderPolicy } from "../../lib/locationProviders/policy";
+import { externalNavigationClientConfig } from "../../lib/locationProviders/clientConfig";
 
 export const dynamic = "force-dynamic";
 
 export default async function OfflineRoadtripPage() {
-  const t = await getTranslations("journeys");
+  const [t, policy] = await Promise.all([
+    getTranslations("journeys"),
+    getLocationProviderPolicy(),
+  ]);
   return (
     <OfflineRoadtripCompanion
+      externalNavigation={externalNavigationClientConfig(
+        policy.resolve("externalNavigation"),
+      )}
       labels={{
         title: t("offline.title"),
         emptyTitle: t("offline.emptyTitle"),
@@ -22,6 +30,8 @@ export default async function OfflineRoadtripPage() {
         chargeTarget: t("offline.chargeTarget"),
         chargeEstimate: t("offline.chargeEstimate"),
         navigate: t("offline.navigate"),
+        navigationDisabled: t("offline.navigationDisabled"),
+        activateNavigation: t("offline.activateNavigation"),
         previous: t("offline.previous"),
         next: t("offline.next"),
         complete: t("offline.complete"),

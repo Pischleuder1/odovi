@@ -35,8 +35,8 @@ the permissions already granted for that code.
 
 ## Excluded material
 
-The marketing site in [`apps/marketing`](apps/marketing) has its own
-proprietary license. Logos, brand assets and the Odovi name are not licensed
+The separately maintained marketing site has its own proprietary license.
+Logos, brand assets and the Odovi name are not licensed
 under FSL; see [TRADEMARKS.md](TRADEMARKS.md).
 
 Third-party libraries and assets remain under their respective licenses. See

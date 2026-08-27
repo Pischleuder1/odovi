@@ -1,6 +1,7 @@
 "use client";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useTranslations } from "next-intl";
 import {
   ArrowDown,
@@ -44,7 +45,8 @@ export interface PlannerProps {
   defaultCapacityKwh: number;
   capacityIsDerived: boolean;
   historyDriveCount: number;
-  osrmIsDefault: boolean;
+  routingMode: "disabled" | "public" | "custom";
+  elevationMode: "disabled" | "public" | "custom";
   initialPlan?: PlannerInitialPlan | null;
 }
 
@@ -142,7 +144,8 @@ export function Planner({
   defaultCapacityKwh,
   capacityIsDerived,
   historyDriveCount,
-  osrmIsDefault,
+  routingMode,
+  elevationMode,
   initialPlan,
 }: PlannerProps) {
   const t = useTranslations("planner");
@@ -669,7 +672,11 @@ export function Planner({
         )}
 
         <div className="mt-4 flex flex-wrap items-center gap-3">
-          <button type="submit" disabled={pending} className={buttonClasses("primary", "md")}>
+          <button
+            type="submit"
+            disabled={pending || routingMode === "disabled"}
+            className={buttonClasses("primary", "md")}
+          >
             <Navigation aria-hidden size={16} />
             {pending ? t("form.submitPending") : t("form.submitRoadtrip")}
           </button>
@@ -684,9 +691,23 @@ export function Planner({
             </span>
           )}
         </div>
-        <p className="mt-3 text-xs text-neutral-400 dark:text-neutral-500">
-          {t("form.routingPrefix")} {osrmIsDefault ? t("form.routingDefaultHint") : t("form.routingCustomHint")}
-        </p>
+        <div className="mt-3 space-y-1 text-xs text-neutral-500 dark:text-neutral-400">
+          <p>
+            {t("form.routingPrefix")} {t(`form.routingMode.${routingMode}`)}
+            {routingMode === "disabled" && (
+              <>
+                {" "}
+                <Link href="/settings" className="font-medium underline underline-offset-2">
+                  {t("form.reviewProviders")}
+                </Link>
+              </>
+            )}
+          </p>
+          <p>
+            {t("form.elevationPrefix")} {t(`form.elevationMode.${elevationMode}`)}
+          </p>
+          {routingMode === "disabled" && <p>{t("form.manualItineraryHint")}</p>}
+        </div>
       </form>
 
       {plan && (

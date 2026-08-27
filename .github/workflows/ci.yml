@@ -5,6 +5,7 @@ on:
     branches:
       - main
   pull_request:
+  workflow_call:
 
 jobs:
   checks:
@@ -26,11 +27,43 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Check public repository boundary
+        run: pnpm publication:check
+
+      - name: Audit production dependencies
+        run: pnpm audit:prod
+
       - name: Lint and typecheck
         run: pnpm lint
 
       - name: Test
-        run: pnpm -r test
+        run: pnpm test
 
       - name: Build
         run: pnpm -r build
+
+  teslamate-compatibility:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        teslamate-version: ["4.0.1", "4.2.0"]
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Exercise TeslaMate synchronization queries
+        run: ./scripts/test-teslamate-compatibility.sh "${{ matrix.teslamate-version }}"

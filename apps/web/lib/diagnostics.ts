@@ -1,7 +1,7 @@
 import "server-only";
-import { sql } from "drizzle-orm";
-import { db } from "./db";
 import { getSyncState, type SyncStateRow } from "./queries";
+import { getReadinessReport } from "./readiness";
+import type { ReadinessReport } from "./readiness-model";
 
 export type SyncHealth = "fresh" | "aging" | "stale" | "never";
 
@@ -17,9 +17,21 @@ const HEALTH_RANK: Record<SyncHealth, number> = {
   never: 3,
 };
 
-function classifyHealth(lastSuccessAt: Date | null): SyncHealth {
-  if (!lastSuccessAt) return "never";
-  const ageMs = Date.now() - lastSuccessAt.getTime();
+function classifyHealth(row: SyncStateRow): SyncHealth {
+  // Schema compatibility remains valid for the worker process lifetime;
+  // worker freshness independently reveals whether that process stopped.
+  if (row.source === "teslamate" && row.entity === "schema") {
+    return row.lastStatus === "ok" ? "fresh" : "stale";
+  }
+  // Optional providers are failure-soft and may be disabled after a run. Their
+  // last outcome matters; the age of an intentionally idle adapter does not.
+  if (row.source === "location_provider") {
+    if (row.lastStatus === "error") return "stale";
+    if (row.lastStatus === "deferred") return "aging";
+    return row.lastStatus === "ok" ? "fresh" : "never";
+  }
+  if (!row.lastSuccessAt) return "never";
+  const ageMs = Date.now() - row.lastSuccessAt.getTime();
   if (ageMs < FRESH_MS) return "fresh";
   if (ageMs < AGING_MS) return "aging";
   return "stale";
@@ -38,6 +50,7 @@ export interface DiagnosticsSummary {
   overallHealth: SyncHealth;
   /** Ob TESLAMATE_DATABASE_URL im Web-Container gesetzt ist (Direkttest möglich). */
   teslamateEnvSet: boolean;
+  readiness: ReadinessReport;
 }
 
 /**
@@ -50,6 +63,10 @@ export function buildEntityLabels(t: (key: string) => string): Record<string, st
     charges: t("diagnostics.entities.charges"),
     parks: t("diagnostics.entities.parks"),
     vehicles: t("diagnostics.entities.vehicles"),
+    worker: t("diagnostics.entities.worker"),
+    schema: t("diagnostics.entities.schema"),
+    elevation: t("diagnostics.entities.elevation"),
+    drive_weather: t("diagnostics.entities.driveWeather"),
   };
 }
 
@@ -70,31 +87,25 @@ export function entityLabel(
  * Diagnose-Card da.
  */
 export async function getDiagnostics(): Promise<DiagnosticsSummary> {
-  let odoviDbOk = true;
-  let odoviDbError: string | null = null;
-
-  try {
-    await db.execute(sql`select 1`);
-  } catch (err) {
-    odoviDbOk = false;
-    odoviDbError =
-      err instanceof Error ? err.message : "Unbekannter Datenbankfehler.";
-  }
+  const readiness = await getReadinessReport();
+  let odoviDbOk = readiness.checks.database.state === "healthy";
+  let odoviDbError: string | null = odoviDbOk
+    ? null
+    : readiness.checks.database.code;
 
   let rows: SyncStateRow[] = [];
   if (odoviDbOk) {
     try {
       rows = await getSyncState();
-    } catch (err) {
+    } catch {
       odoviDbOk = false;
-      odoviDbError =
-        err instanceof Error ? err.message : "Unbekannter Datenbankfehler.";
+      odoviDbError = "unavailable";
     }
   }
 
   const entities: SyncEntityDiagnosis[] = rows.map((row) => ({
     ...row,
-    health: classifyHealth(row.lastSuccessAt),
+    health: classifyHealth(row),
   }));
 
   const overallHealth: SyncHealth =
@@ -111,6 +122,7 @@ export async function getDiagnostics(): Promise<DiagnosticsSummary> {
     entities,
     overallHealth,
     teslamateEnvSet: Boolean(process.env.TESLAMATE_DATABASE_URL),
+    readiness,
   };
 }
 
@@ -127,18 +139,33 @@ export function diagnosticsHints(
 
   if (!summary.odoviDbOk) {
     hints.push(t("diagnostics.hints.dbUnreachable"));
+    return hints;
   }
 
-  if (summary.entities.length === 0) {
+  if (summary.readiness.checks.migrations.state === "failed") {
+    hints.push(t("diagnostics.hints.migrationsIncomplete"));
+  }
+
+  if (summary.readiness.checks.protectedApplication.state === "failed") {
+    hints.push(t("diagnostics.hints.protectedUnavailable"));
+  }
+
+  if (summary.readiness.checks.teslamate.state !== "healthy") {
+    hints.push(
+      summary.readiness.checks.teslamate.code === "incompatible_schema"
+        ? t("diagnostics.hints.teslamateIncompatible")
+        : t("diagnostics.hints.teslamateUnavailable"),
+    );
+  }
+
+  if (summary.readiness.checks.worker.state === "unknown") {
     hints.push(t("diagnostics.hints.neverSynced"));
-  } else if (summary.overallHealth === "never") {
-    hints.push(t("diagnostics.hints.someNeverSynced"));
-  } else if (summary.overallHealth === "stale") {
+  } else if (summary.readiness.checks.worker.state === "degraded") {
     hints.push(t("diagnostics.hints.stale"));
   }
 
-  if (summary.entities.some((e) => e.lastStatus === "error" && e.lastError)) {
-    hints.push(t("diagnostics.hints.runFailed"));
+  if (summary.readiness.checks.optionalProviders.state === "degraded") {
+    hints.push(t("diagnostics.hints.optionalProviderUnavailable"));
   }
 
   return hints;

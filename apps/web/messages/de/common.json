@@ -25,5 +25,12 @@
     "title": "Noch kein Fahrzeug verfügbar",
     "hint": "Odovi konnte noch kein Fahrzeug aus TeslaMate synchronisieren. Prüfe die Verbindung und den Sync unter Mehr.",
     "action": "Einrichtung prüfen"
+  },
+  "locationProviders": {
+    "mapTiles": {
+      "title": "Kartenhintergrund ist aus",
+      "description": "Routen, Orte und Reisedetails bleiben verfügbar, ohne den sichtbaren Bereich an einen Kartenanbieter zu senden.",
+      "activate": "Kartenhintergrund aktivieren"
+    }
   }
 }

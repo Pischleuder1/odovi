@@ -2,6 +2,7 @@
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import type { DriveTrack } from "../../lib/dashboard";
+import { MapTileGate } from "../../components/LocationProviderClientConfig";
 
 // Leaflet touches window/document at import time, so the map must never be
 // part of the server-rendered bundle (same pattern as drives/[id]/DriveMapLoader.tsx).
@@ -28,10 +29,15 @@ export interface DashboardMapLoaderProps {
 export function DashboardMapLoader({ tracks, car }: DashboardMapLoaderProps) {
   const router = useRouter();
   return (
-    <DashboardMap
-      tracks={tracks}
-      car={car}
-      onSelectDrive={(driveId) => router.push(`/drives/${driveId}`)}
-    />
+    <MapTileGate className="h-[300px] w-full sm:h-[340px]">
+      {(mapTiles) => (
+        <DashboardMap
+          tracks={tracks}
+          car={car}
+          mapTiles={mapTiles}
+          onSelectDrive={(driveId) => router.push(`/drives/${driveId}`)}
+        />
+      )}
+    </MapTileGate>
   );
 }

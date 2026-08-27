@@ -9,7 +9,7 @@ import {
   getLastCharge,
   getUnclassifiedCount,
 } from "../../lib/dashboard";
-import { getCurrentWeather, type WeatherResult } from "../../lib/weather";
+import { getCurrentWeather, type WeatherLoadResult } from "../../lib/weather";
 import { getDashboardParkDrain } from "../../lib/parkAnalytics";
 import { getDefaultVehicleId } from "../../lib/search";
 import { VehicleCard } from "./VehicleCard";
@@ -126,7 +126,7 @@ export default async function DashboardPage() {
         }
       : null;
 
-  let weather: WeatherResult | null = null;
+  let weather: WeatherLoadResult = { status: "unavailable" };
   if (status?.lat != null && status.lon != null) {
     weather = await getCurrentWeather(status.lat, status.lon);
   }
@@ -142,7 +142,7 @@ export default async function DashboardPage() {
       </div>
 
       <div className="flex flex-col gap-4 md:col-span-1">
-        <WeatherCard weather={weather} />
+        <WeatherCard result={weather} />
         {status && <TpmsCard status={status} />}
       </div>
 

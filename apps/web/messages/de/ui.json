@@ -1,4 +1,14 @@
 {
+  "recovery": {
+    "eyebrow": "Odovi ist nicht bereit",
+    "title": "Die lokale Anwendung kann gerade nicht bereitgestellt werden",
+    "description": "Dein Archiv wurde nicht gelöscht. Ein erforderlicher lokaler Dienst oder eine Datenbankmigration ist nicht verfügbar.",
+    "database": "Prüfe, ob der Datenbank-Container läuft: docker compose ps",
+    "migrations": "Starte den Migrationsdienst und warte auf Erfolg: docker compose up migrate",
+    "logs": "Wenn das Problem bleibt, prüfe: docker compose logs db migrate web",
+    "retry": "Erneut versuchen",
+    "status": "Readiness-Status öffnen"
+  },
   "theme": {
     "light": "Hell",
     "dark": "Dunkel",

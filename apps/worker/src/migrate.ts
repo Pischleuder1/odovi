@@ -1,7 +1,7 @@
 import { drizzle } from "drizzle-orm/postgres-js";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
 import postgres from "postgres";
-import { requireEnv } from "./env.js";
+import { parseMigrationRuntimeConfig } from "@odovi/runtime-config";
 
 /**
  * One-shot migration runner for production. Runs drizzle-orm's migrator
@@ -12,7 +12,7 @@ import { requireEnv } from "./env.js";
  *   node dist/migrate.js
  */
 async function main(): Promise<void> {
-  const url = requireEnv("DATABASE_URL");
+  const { databaseUrl: url } = parseMigrationRuntimeConfig(process.env);
   const client = postgres(url, { max: 1 });
   const db = drizzle(client);
 

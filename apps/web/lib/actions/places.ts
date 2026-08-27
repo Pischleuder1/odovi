@@ -2,13 +2,21 @@
 import { revalidatePath } from "next/cache";
 import { and, eq, isNull, or } from "drizzle-orm";
 import { z } from "zod";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { auditLog, chargeSessions, places } from "@odovi/db";
 import { computeAutoChargeCost } from "@odovi/core";
 import { db } from "../db";
 import { validateSession } from "../auth/session";
 import { rematchAllPlaces } from "../rematch";
 import { MAX_RADIUS_M, MIN_RADIUS_M } from "../places";
+import {
+  getAddressSearchService,
+  searchAddressWithPolicy,
+  type AddressSearchResponse,
+} from "../locationProviders/addressSearch";
+import { getLocationProviderPolicy } from "../locationProviders/policy";
+
+export type { AddressSearchResponse, AddressSearchResult } from "../locationProviders/addressSearch";
 
 type Translator = Awaited<ReturnType<typeof getTranslations>>;
 
@@ -332,91 +340,21 @@ export async function updatePlace(
   return { ok: true, placeId: id };
 }
 
-export interface AddressSearchResult {
-  label: string;
-  lat: number;
-  lon: number;
-}
-
-const NOMINATIM_USER_AGENT =
-  "Odovi/0.1 (self-hosted, github.com/jsc2304/odovi)";
-
 /**
- * Builds a short, human-friendly address label from Nominatim's structured
- * `address` details (road + house number, city), falling back to the raw
- * `display_name` when the structured fields are missing.
+ * Explicitly submitted server-side address search. The shared provider policy
+ * decides whether any adapter may run; the installation-wide service then
+ * applies public-provider identification, throttling, and bounded caching.
  */
-function shortLabel(item: {
-  display_name: string;
-  address?: Record<string, string | undefined>;
-}): string {
-  const a = item.address;
-  if (!a) return item.display_name;
-
-  const street = [a.road, a.house_number].filter(Boolean).join(" ");
-  const city = a.city ?? a.town ?? a.village ?? a.municipality ?? "";
-  const label = [street, city].filter((part) => part && part.length > 0).join(", ");
-  return label !== "" ? label : item.display_name;
-}
-
-/**
- * Server-side address search against the public Nominatim (OSM) API. Kept
- * server-side to (a) send the User-Agent Nominatim's usage policy requires,
- * (b) avoid CORS, and (c) keep client IPs from being sent to a third party
- * directly (see docs/vision.md §19.3 — no unnecessary third parties; OSM/
- * Nominatim is the accepted compromise for address search/reverse geocoding).
- * Fails soft: any network/parse error yields an empty result list.
- */
-export async function searchAddress(query: string): Promise<AddressSearchResult[]> {
+export async function searchAddress(query: string): Promise<AddressSearchResponse> {
   const user = await validateSession();
-  if (!user) return [];
+  if (!user) return { status: "invalid", results: [] };
 
-  const q = query.trim();
-  if (q.length < 3) return [];
-
-  try {
-    const url = new URL("https://nominatim.openstreetmap.org/search");
-    url.searchParams.set("format", "jsonv2");
-    url.searchParams.set("limit", "5");
-    url.searchParams.set("accept-language", "de");
-    url.searchParams.set("addressdetails", "1");
-    url.searchParams.set("q", q);
-
-    const res = await fetch(url, {
-      headers: { "User-Agent": NOMINATIM_USER_AGENT },
-      signal: AbortSignal.timeout(5000),
-    });
-    if (!res.ok) return [];
-
-    const data: unknown = await res.json();
-    if (!Array.isArray(data)) return [];
-
-    return data
-      .map((item): AddressSearchResult | null => {
-        if (
-          typeof item !== "object" ||
-          item === null ||
-          typeof (item as { display_name?: unknown }).display_name !== "string" ||
-          typeof (item as { lat?: unknown }).lat !== "string" ||
-          typeof (item as { lon?: unknown }).lon !== "string"
-        ) {
-          return null;
-        }
-        const rec = item as {
-          display_name: string;
-          lat: string;
-          lon: string;
-          address?: Record<string, string | undefined>;
-        };
-        const lat = Number(rec.lat);
-        const lon = Number(rec.lon);
-        if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
-        return { label: shortLabel(rec), lat, lon };
-      })
-      .filter((r): r is AddressSearchResult => r !== null);
-  } catch {
-    return [];
-  }
+  const [policy, language] = await Promise.all([getLocationProviderPolicy(), getLocale()]);
+  return searchAddressWithPolicy(
+    policy,
+    { query, language },
+    getAddressSearchService(),
+  );
 }
 
 const deletePlaceSchema = z.object({ id: z.number().int().positive() });

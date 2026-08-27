@@ -48,6 +48,12 @@ export async function DiagnosticsCard() {
     stale: t("diagnostics.badges.stale"),
     never: t("diagnostics.badges.never"),
   };
+  const statusClasses =
+    summary.readiness.status === "healthy"
+      ? "bg-emerald-50 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200"
+      : summary.readiness.status === "degraded"
+        ? "bg-amber-50 text-amber-900 dark:bg-amber-950 dark:text-amber-200"
+        : "bg-red-50 text-red-800 dark:bg-red-950 dark:text-red-200";
 
   return (
     <section
@@ -57,6 +63,10 @@ export async function DiagnosticsCard() {
       <h2 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
         {t("diagnostics.title")}
       </h2>
+
+      <div className={`mt-3 rounded-lg px-3 py-2 text-sm font-medium ${statusClasses}`}>
+        {t(`diagnostics.operationalStatus.${summary.readiness.status}`)}
+      </div>
 
       <div className="mt-3 flex flex-col gap-4">
         <div className="flex items-center gap-2 text-sm">
@@ -75,8 +85,27 @@ export async function DiagnosticsCard() {
           <span className="text-neutral-500 dark:text-neutral-400">
             {summary.odoviDbOk
               ? t("diagnostics.dbReachable")
-              : (summary.odoviDbError ?? t("diagnostics.dbUnreachableFallback"))}
+              : t("diagnostics.dbUnreachableFallback")}
           </span>
+        </div>
+
+        <div className="grid gap-2 text-sm sm:grid-cols-2">
+          <div className="flex items-center gap-2">
+            {summary.readiness.checks.migrations.state === "healthy" ? (
+              <CheckCircle2 aria-hidden size={16} className="shrink-0 text-emerald-600" />
+            ) : (
+              <XCircle aria-hidden size={16} className="shrink-0 text-red-600" />
+            )}
+            <span>{t("diagnostics.migrations")}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            {summary.readiness.checks.protectedApplication.state === "healthy" ? (
+              <CheckCircle2 aria-hidden size={16} className="shrink-0 text-emerald-600" />
+            ) : (
+              <XCircle aria-hidden size={16} className="shrink-0 text-red-600" />
+            )}
+            <span>{t("diagnostics.protectedApplication")}</span>
+          </div>
         </div>
 
         <div className="flex flex-col gap-2">
@@ -113,7 +142,7 @@ export async function DiagnosticsCard() {
                     {e.lastStatus === "error" && e.lastError && (
                       <p className="mt-1 flex items-start gap-1.5 rounded-lg bg-red-50 px-2 py-1.5 text-xs text-red-700 dark:bg-red-950 dark:text-red-300">
                         <AlertTriangle aria-hidden size={14} className="mt-0.5 shrink-0" />
-                        <span className="break-words">{e.lastError}</span>
+                        <span>{t("diagnostics.rowFailure")}</span>
                       </p>
                     )}
                   </li>

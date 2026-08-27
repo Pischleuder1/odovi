@@ -80,6 +80,19 @@
   "security": {
     "title": "Security"
   },
+  "about": {
+    "title": "About Odovi",
+    "version": "Version",
+    "build": "Build",
+    "copy": "Copy for support",
+    "copied": "Copied",
+    "supportTitle": "Support",
+    "supportDescription": "Best-effort community support without a response-time SLA.",
+    "supportLink": "Open GitHub Issues",
+    "securityTitle": "Security report",
+    "securityDescription": "Report suspected vulnerabilities privately, not in a public issue.",
+    "securityLink": "Open a private security advisory"
+  },
   "tesla": {
     "title": "Tesla Fleet API",
     "description": "Sends the checkpoints of a planned roadtrip directly to the vehicle navigation.",
@@ -90,6 +103,103 @@
     "disconnect": "Disconnect",
     "pair": "Pair virtual key",
     "pairHint": "Before the first send, pair Odovi' virtual key with the vehicle once through the Tesla app."
+  },
+  "providerReview": {
+    "title": "Location Provider Review",
+    "description": "The local archive remains available without these services. Review each optional capability independently before any named provider may receive location data.",
+    "notice": {
+      "title": "Location Provider Review required",
+      "description": "One or more optional location capabilities remain disabled until their current disclosure has been reviewed. Your archive continues to work.",
+      "action": "Review providers"
+    },
+    "status": {
+      "active": "Active",
+      "disabled": "Disabled",
+      "reviewRequired": "Review required"
+    },
+    "modes": {
+      "disabled": "Disabled — send nothing",
+      "public": "Public — {provider}",
+      "custom": "Custom endpoint"
+    },
+    "activation": {
+      "enable": "Enable this feature",
+      "enabledHint": "Location data is sent only when this feature needs it.",
+      "disabledHint": "Off — no location data is sent for this feature.",
+      "chooseProvider": "Choose how it connects",
+      "publicProvider": "Use {provider}",
+      "publicHint": "Uses the public provider and operating limits shown above.",
+      "customProvider": "Use my own provider",
+      "customHint": "For a self-hosted or separately contracted endpoint."
+    },
+    "fields": {
+      "purpose": "Purpose",
+      "transmittedData": "Data transmitted",
+      "publicProvider": "Public provider",
+      "contactPath": "Contact and policy",
+      "operatingLimits": "Material operating limits",
+      "mode": "Provider mode",
+      "providerName": "Provider name",
+      "endpoint": "Endpoint",
+      "contactUrl": "Contact or policy URL",
+      "credentialHeader": "Credential header (optional)",
+      "customLimits": "Material operating limits"
+    },
+    "capabilities": {
+      "weather": {
+        "name": "Weather",
+        "purpose": "Show current weather and add historical weather to archived drives.",
+        "data": "Exact or rounded journey coordinates and the requested time or date.",
+        "experience": "Enables weather cards and historical weather context for drives.",
+        "limits": "Open-Meteo public access is best-effort and should be treated as evaluation or permitted personal/non-commercial use unless you have suitable terms."
+      },
+      "elevation": {
+        "name": "Elevation",
+        "purpose": "Add elevation values to archived and planned route points.",
+        "data": "Exact or sampled route coordinates.",
+        "experience": "Enables elevation profiles, ascent and descent, and route energy estimates.",
+        "limits": "Open-Meteo public access is best-effort and should be treated as evaluation or permitted personal/non-commercial use unless you have suitable terms."
+      },
+      "mapTiles": {
+        "name": "Map tiles",
+        "purpose": "Load a geographic background for interactive maps.",
+        "data": "The visible map area as tile coordinates, plus normal browser request data.",
+        "experience": "Enables interactive map backgrounds behind locally stored routes and places.",
+        "limits": "OpenStreetMap public tiles allow ordinary interactive viewing with attribution and normal browser caching; no bulk download or offline prefetch."
+      },
+      "addressSearch": {
+        "name": "Address search",
+        "purpose": "Turn an entered place or address into coordinates.",
+        "data": "The submitted search text, language, and normal server request data.",
+        "experience": "Enables address suggestions when creating places or planning a trip.",
+        "limits": "Public Nominatim permits low-volume, identified, user-triggered searches; it is rate-limited and has no availability guarantee."
+      },
+      "routing": {
+        "name": "Routing",
+        "purpose": "Calculate a road route between selected waypoints.",
+        "data": "Exact start, destination, and intermediate waypoint coordinates.",
+        "experience": "Enables calculated road distance, duration, geometry, and route forecasts.",
+        "limits": "The public OSRM demo is for evaluation only, is rate-limited, has no SLA, and is not reliable production routing."
+      },
+      "externalNavigation": {
+        "name": "External navigation",
+        "purpose": "Open a selected destination in an external navigation service.",
+        "data": "The destination coordinates selected for that explicit handoff.",
+        "experience": "Enables one-click handoff from a saved roadtrip to turn-by-turn navigation.",
+        "limits": "Google Maps is an independent external service. The destination is transferred only after an explicit click, and Google's terms and availability apply."
+      }
+    },
+    "credentialHint": "If this header is set, its value must be supplied to web and worker through {variable}. The secret is never stored in Odovi.",
+    "invalidStoredConfiguration": "This stored configuration is inactive",
+    "saveDecision": "Save decision",
+    "saving": "Saving…",
+    "saved": "Decision saved",
+    "decisionEvidence": "Disclosure {version} reviewed on {time} by {actor}.",
+    "errors": {
+      "notAuthenticated": "Not signed in.",
+      "invalidInput": "Invalid Provider Review input.",
+      "invalidConfiguration": "The provider remains disabled: {details}"
+    }
   },
   "passwordChange": {
     "currentPassword": "Current password",
@@ -110,11 +220,19 @@
   "loggingOut": "Logging out…",
   "diagnostics": {
     "title": "Diagnostics",
+    "operationalStatus": {
+      "healthy": "Odovi is ready",
+      "degraded": "Odovi is ready with limited optional or synchronization functions",
+      "not_ready": "Odovi is not ready"
+    },
     "db": "Odovi database",
     "dbReachable": "reachable",
     "dbUnreachableFallback": "not reachable",
+    "migrations": "Database migrations current",
+    "protectedApplication": "Protected application available",
     "workerSync": "Worker / sync",
     "empty": "No sync data available.",
+    "rowFailure": "The last run failed. Recovery steps are shown below; technical details remain in the container logs.",
     "lastSuccess": "last success {time}",
     "neverSuccessful": "never successful",
     "badges": {
@@ -127,7 +245,11 @@
       "drives": "Drives",
       "charges": "Charging sessions",
       "parks": "Parking sessions",
-      "vehicles": "Vehicles"
+      "vehicles": "Vehicles",
+      "worker": "Worker heartbeat",
+      "schema": "TeslaMate schema",
+      "elevation": "Elevation provider",
+      "driveWeather": "Weather provider"
     },
     "teslamateTest": {
       "title": "TeslaMate direct test",
@@ -138,14 +260,22 @@
       "unknownError": "Unknown error while testing.",
       "envNotSetMessage": "TESLAMATE_DATABASE_URL is not set in the web container. That's fine in normal operation — only the worker needs it.",
       "successMessage": "Connection successful — {count} drives found in the TeslaMate database.",
-      "unknownConnectionError": "Unknown error connecting."
+      "unknownConnectionError": "Unknown error connecting.",
+      "connectionFailed": "TeslaMate is not reachable from the web container. Check the database container or host, network and TESLAMATE_DATABASE_URL.",
+      "authenticationFailed": "TeslaMate rejected the database login. Check the documented read-only user and password in TESLAMATE_DATABASE_URL.",
+      "timeout": "The TeslaMate connection timed out. Check the host, Docker network, firewall and database availability."
     },
     "hints": {
       "dbUnreachable": "The Odovi database is not reachable. Is the db container running? Is DATABASE_URL correctly set in the web container?",
       "neverSynced": "Never synced yet. Is the worker container running? Is TESLAMATE_DATABASE_URL set in the worker?",
       "someNeverSynced": "At least one area has never synced successfully. Check the worker logs: docker compose logs worker.",
       "stale": "The last successful sync was a while ago. Is the worker container still running? Check the docker logs: docker compose logs worker.",
-      "runFailed": "At least one sync run failed — see the error message below the relevant row."
+      "runFailed": "At least one sync run failed — see the error message below the relevant row.",
+      "migrationsIncomplete": "Database migrations are incomplete. Run docker compose up migrate, wait for it to finish successfully, then restart web and worker.",
+      "protectedUnavailable": "The protected application schema is unavailable. Check docker compose logs migrate and restore the database from a verified backup if migration failed part-way.",
+      "teslamateUnavailable": "TeslaMate could not be checked. Confirm that its database is running and TESLAMATE_DATABASE_URL in the worker uses the documented read-only role, then restart the worker.",
+      "teslamateIncompatible": "The connected TeslaMate schema is outside the supported range. Check the installed TeslaMate version against the release notes before restarting the worker.",
+      "optionalProviderUnavailable": "An activated map, search, routing, weather or elevation provider is unavailable. The Core Archive remains usable. Check internet/DNS and the provider endpoint or disable that capability under Provider Review."
     }
   },
   "errors": {

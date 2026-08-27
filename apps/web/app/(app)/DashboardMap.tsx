@@ -3,6 +3,11 @@ import { useEffect, useRef } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import type { DriveTrack } from "../../lib/dashboard";
+import type { ActiveMapTileConfig } from "../../lib/locationProviders/clientConfig";
+import {
+  addConfiguredMapTiles,
+  createConfiguredMap,
+} from "../../lib/locationProviders/mapTiles.client";
 
 export interface DashboardMapProps {
   tracks: DriveTrack[];
@@ -13,6 +18,7 @@ export interface DashboardMapProps {
     placeName: string | null;
   } | null;
   onSelectDrive: (driveId: number) => void;
+  mapTiles: ActiveMapTileConfig;
 }
 
 function carIcon(): L.DivIcon {
@@ -44,7 +50,7 @@ const END_ICON = endDotIcon();
  * scrollWheelZoom stays off until the user clicks into the map, so page
  * scroll isn't hijacked while scrolling past the dashboard card.
  */
-export function DashboardMap({ tracks, car, onSelectDrive }: DashboardMapProps) {
+export function DashboardMap({ tracks, car, onSelectDrive, mapTiles }: DashboardMapProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<L.Map | null>(null);
 
@@ -52,15 +58,12 @@ export function DashboardMap({ tracks, car, onSelectDrive }: DashboardMapProps) 
     if (!containerRef.current || mapRef.current) return;
     if (tracks.length === 0) return;
 
-    const map = L.map(containerRef.current, {
+    const map = createConfiguredMap(containerRef.current, {
       scrollWheelZoom: false,
       zoomControl: true,
     });
 
-    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      maxZoom: 19,
-      attribution: "&copy; OpenStreetMap contributors",
-    }).addTo(map);
+    addConfiguredMapTiles(map, mapTiles);
 
     // Most recent drive is first (caller sorts newest-first): draw the older
     // ones first (muted) so the prominent newest polyline ends up on top.

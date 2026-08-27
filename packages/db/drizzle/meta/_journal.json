@@ -57,6 +57,13 @@
       "when": 1786036415361,
       "tag": "0007_parched_vapor",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1787776816727,
+      "tag": "0008_boring_the_enforcers",
+      "breakpoints": true
     }
   ]
 }

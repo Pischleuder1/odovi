@@ -17,6 +17,7 @@ import {
 } from "../../../lib/places";
 import { buttonClasses } from "../../../components/ui/Button";
 import { AddressSearch } from "./AddressSearch";
+import { MapTileGate } from "../../../components/LocationProviderClientConfig";
 
 // Leaflet touches window/document at import time, so the map must never be
 // part of the server-rendered bundle.
@@ -132,26 +133,25 @@ export function PlaceForm({
         </span>
       </label>
 
-      <PlaceMap
-        lat={lat}
-        lon={lon}
-        radiusM={radius}
-        onChange={(newLat, newLon) => {
-          setLat(roundCoord(newLat));
-          setLon(roundCoord(newLon));
-        }}
-      />
-      <p className="-mt-2 text-xs text-neutral-400 dark:text-neutral-500">
-        {t("form.mapHint")}{" "}
-        <a
-          href="https://www.openstreetmap.org/copyright"
-          target="_blank"
-          rel="noreferrer"
-          className="underline hover:text-neutral-600 dark:hover:text-neutral-300"
-        >
-          OpenStreetMap contributors
-        </a>
-      </p>
+      <MapTileGate className="h-80 w-full">
+        {(mapTiles) => (
+          <>
+            <PlaceMap
+              lat={lat}
+              lon={lon}
+              radiusM={radius}
+              mapTiles={mapTiles}
+              onChange={(newLat, newLon) => {
+                setLat(roundCoord(newLat));
+                setLon(roundCoord(newLon));
+              }}
+            />
+            <p className="mt-1 text-xs text-neutral-400 dark:text-neutral-500">
+              {t("form.mapHint")}
+            </p>
+          </>
+        )}
+      </MapTileGate>
 
       <div className="grid grid-cols-2 gap-4">
         <label className="flex flex-col gap-1.5">

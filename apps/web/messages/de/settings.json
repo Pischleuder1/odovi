@@ -80,6 +80,19 @@
   "security": {
     "title": "Sicherheit"
   },
+  "about": {
+    "title": "Über Odovi",
+    "version": "Version",
+    "build": "Build",
+    "copy": "Für Support kopieren",
+    "copied": "Kopiert",
+    "supportTitle": "Support",
+    "supportDescription": "Best-Effort-Community-Support ohne garantierte Reaktionszeit.",
+    "supportLink": "GitHub Issues öffnen",
+    "securityTitle": "Sicherheitsmeldung",
+    "securityDescription": "Vermutete Schwachstellen bitte vertraulich und nicht in einem öffentlichen Issue melden.",
+    "securityLink": "Private Security Advisory öffnen"
+  },
   "tesla": {
     "title": "Tesla Fleet API",
     "description": "Überträgt die Checkpoints eines geplanten Roadtrips direkt an die Navigation im Fahrzeug.",
@@ -90,6 +103,103 @@
     "disconnect": "Verbindung trennen",
     "pair": "Virtuellen Schlüssel koppeln",
     "pairHint": "Vor dem ersten Senden muss der virtuelle Odovi-Schlüssel einmal über die Tesla-App mit dem Fahrzeug gekoppelt werden."
+  },
+  "providerReview": {
+    "title": "Prüfung der Standortanbieter",
+    "description": "Das lokale Archiv bleibt ohne diese Dienste verfügbar. Prüfe jede optionale Funktion einzeln, bevor ein benannter Anbieter Standortdaten erhalten darf.",
+    "notice": {
+      "title": "Prüfung der Standortanbieter erforderlich",
+      "description": "Eine oder mehrere optionale Standortfunktionen bleiben deaktiviert, bis ihre aktuelle Offenlegung geprüft wurde. Dein Archiv funktioniert weiter.",
+      "action": "Anbieter prüfen"
+    },
+    "status": {
+      "active": "Aktiv",
+      "disabled": "Deaktiviert",
+      "reviewRequired": "Prüfung erforderlich"
+    },
+    "modes": {
+      "disabled": "Deaktiviert — nichts übertragen",
+      "public": "Öffentlich — {provider}",
+      "custom": "Eigener Endpunkt"
+    },
+    "activation": {
+      "enable": "Diese Funktion aktivieren",
+      "enabledHint": "Standortdaten werden nur gesendet, wenn die Funktion sie benötigt.",
+      "disabledHint": "Aus — für diese Funktion werden keine Standortdaten gesendet.",
+      "chooseProvider": "Verbindung auswählen",
+      "publicProvider": "{provider} verwenden",
+      "publicHint": "Nutzt den oben genannten öffentlichen Anbieter mit seinen Betriebsgrenzen.",
+      "customProvider": "Eigenen Anbieter verwenden",
+      "customHint": "Für einen selbst betriebenen oder separat vereinbarten Endpunkt."
+    },
+    "fields": {
+      "purpose": "Zweck",
+      "transmittedData": "Übertragene Daten",
+      "publicProvider": "Öffentlicher Anbieter",
+      "contactPath": "Kontakt und Richtlinie",
+      "operatingLimits": "Wesentliche Betriebsgrenzen",
+      "mode": "Anbietermodus",
+      "providerName": "Anbietername",
+      "endpoint": "Endpunkt",
+      "contactUrl": "Kontakt- oder Richtlinien-URL",
+      "credentialHeader": "Credential-Header (optional)",
+      "customLimits": "Wesentliche Betriebsgrenzen"
+    },
+    "capabilities": {
+      "weather": {
+        "name": "Wetter",
+        "purpose": "Aktuelles Wetter anzeigen und historischen Fahrten Wetterdaten hinzufügen.",
+        "data": "Exakte oder gerundete Fahrtkoordinaten und angefragte Zeit oder Datum.",
+        "experience": "Ermöglicht Wetterkarten und historischen Wetterkontext für Fahrten.",
+        "limits": "Der öffentliche Open-Meteo-Zugang ist Best Effort und gilt ohne passende Vereinbarung nur als Evaluation oder erlaubte persönliche/nicht-kommerzielle Nutzung."
+      },
+      "elevation": {
+        "name": "Höhenwerte",
+        "purpose": "Archivierten und geplanten Routenpunkten Höhenwerte hinzufügen.",
+        "data": "Exakte oder ausgedünnte Routenkoordinaten.",
+        "experience": "Ermöglicht Höhenprofile, Auf- und Abstieg sowie Energieprognosen.",
+        "limits": "Der öffentliche Open-Meteo-Zugang ist Best Effort und gilt ohne passende Vereinbarung nur als Evaluation oder erlaubte persönliche/nicht-kommerzielle Nutzung."
+      },
+      "mapTiles": {
+        "name": "Kartenkacheln",
+        "purpose": "Einen geografischen Hintergrund für interaktive Karten laden.",
+        "data": "Der sichtbare Kartenausschnitt als Kachelkoordinaten sowie normale Browser-Anfragedaten.",
+        "experience": "Ermöglicht interaktive Kartenhintergründe für lokal gespeicherte Routen und Orte.",
+        "limits": "Öffentliche OpenStreetMap-Kacheln erlauben normale interaktive Nutzung mit Attribution und Browser-Cache; kein Massendownload oder Offline-Prefetch."
+      },
+      "addressSearch": {
+        "name": "Adresssuche",
+        "purpose": "Einen eingegebenen Ort oder eine Adresse in Koordinaten umwandeln.",
+        "data": "Der abgesendete Suchtext, Sprache und normale Server-Anfragedaten.",
+        "experience": "Ermöglicht Adressvorschläge beim Anlegen von Orten oder Planen einer Route.",
+        "limits": "Öffentliches Nominatim erlaubt nur geringes, identifiziertes und nutzergesteuertes Anfragevolumen; es ist limitiert und ohne Verfügbarkeitsgarantie."
+      },
+      "routing": {
+        "name": "Routing",
+        "purpose": "Eine Straßenroute zwischen gewählten Wegpunkten berechnen.",
+        "data": "Exakte Koordinaten von Start, Ziel und Zwischenstopps.",
+        "experience": "Ermöglicht berechnete Distanz, Dauer, Geometrie und Routenprognosen.",
+        "limits": "Der öffentliche OSRM-Demoserver ist nur zur Evaluation gedacht, limitiert, ohne SLA und kein verlässliches Produktionsrouting."
+      },
+      "externalNavigation": {
+        "name": "Externe Navigation",
+        "purpose": "Ein gewähltes Ziel in einem externen Navigationsdienst öffnen.",
+        "data": "Die Zielkoordinaten, die für diese ausdrückliche Übergabe gewählt wurden.",
+        "experience": "Ermöglicht die Ein-Klick-Übergabe eines gespeicherten Roadtrips an eine Navigation.",
+        "limits": "Google Maps ist ein unabhängiger externer Dienst. Das Ziel wird erst nach einem ausdrücklichen Klick übertragen; Google-Bedingungen und -Verfügbarkeit gelten."
+      }
+    },
+    "credentialHint": "Wenn dieser Header gesetzt ist, muss sein Wert für Web und Worker über {variable} bereitgestellt werden. Das Secret wird nie in Odovi gespeichert.",
+    "invalidStoredConfiguration": "Diese gespeicherte Konfiguration ist inaktiv",
+    "saveDecision": "Entscheidung speichern",
+    "saving": "Speichert…",
+    "saved": "Entscheidung gespeichert",
+    "decisionEvidence": "Offenlegung {version} am {time} von {actor} geprüft.",
+    "errors": {
+      "notAuthenticated": "Nicht angemeldet.",
+      "invalidInput": "Ungültige Eingabe für die Anbieterprüfung.",
+      "invalidConfiguration": "Der Anbieter bleibt deaktiviert: {details}"
+    }
   },
   "passwordChange": {
     "currentPassword": "Aktuelles Passwort",
@@ -110,11 +220,19 @@
   "loggingOut": "Abmelden…",
   "diagnostics": {
     "title": "Diagnose",
+    "operationalStatus": {
+      "healthy": "Odovi ist bereit",
+      "degraded": "Odovi ist bereit, einzelne optionale Funktionen oder der Sync sind eingeschränkt",
+      "not_ready": "Odovi ist nicht bereit"
+    },
     "db": "Odovi-Datenbank",
     "dbReachable": "erreichbar",
     "dbUnreachableFallback": "nicht erreichbar",
+    "migrations": "Datenbankmigrationen aktuell",
+    "protectedApplication": "Geschützte Anwendung verfügbar",
     "workerSync": "Worker / Sync",
     "empty": "Noch keine Sync-Daten vorhanden.",
+    "rowFailure": "Der letzte Lauf ist fehlgeschlagen. Schritte zur Behebung stehen unten; technische Details bleiben in den Container-Logs.",
     "lastSuccess": "letzter Erfolg {time}",
     "neverSuccessful": "noch nie erfolgreich",
     "badges": {
@@ -127,7 +245,11 @@
       "drives": "Fahrten",
       "charges": "Ladevorgänge",
       "parks": "Parkvorgänge",
-      "vehicles": "Fahrzeuge"
+      "vehicles": "Fahrzeuge",
+      "worker": "Worker-Status",
+      "schema": "TeslaMate-Schema",
+      "elevation": "Höhenanbieter",
+      "driveWeather": "Wetteranbieter"
     },
     "teslamateTest": {
       "title": "TeslaMate-Direkttest",
@@ -138,14 +260,22 @@
       "unknownError": "Unbekannter Fehler beim Testen.",
       "envNotSetMessage": "TESLAMATE_DATABASE_URL ist im Web-Container nicht gesetzt. Das ist im Normalbetrieb in Ordnung — nur der Worker braucht sie.",
       "successMessage": "Verbindung erfolgreich — {count} Fahrten in der TeslaMate-DB gefunden.",
-      "unknownConnectionError": "Unbekannter Fehler bei der Verbindung."
+      "unknownConnectionError": "Unbekannter Fehler bei der Verbindung.",
+      "connectionFailed": "TeslaMate ist aus dem Web-Container nicht erreichbar. Prüfe Datenbank-Container oder Host, Netzwerk und TESLAMATE_DATABASE_URL.",
+      "authenticationFailed": "TeslaMate hat die Datenbank-Anmeldung abgelehnt. Prüfe den dokumentierten Read-only-Benutzer und das Passwort in TESLAMATE_DATABASE_URL.",
+      "timeout": "Die TeslaMate-Verbindung hat das Zeitlimit überschritten. Prüfe Host, Docker-Netzwerk, Firewall und Datenbank-Verfügbarkeit."
     },
     "hints": {
       "dbUnreachable": "Die Odovi-Datenbank ist nicht erreichbar. Läuft der db-Container? Ist DATABASE_URL im web-Container korrekt gesetzt?",
       "neverSynced": "Noch nie synchronisiert. Läuft der Worker-Container? Ist TESLAMATE_DATABASE_URL im Worker gesetzt?",
       "someNeverSynced": "Mindestens ein Bereich wurde noch nie erfolgreich synchronisiert. Worker-Logs prüfen: docker compose logs worker.",
       "stale": "Letzter erfolgreicher Sync liegt länger zurück. Läuft der Worker-Container noch? Docker-Logs prüfen: docker compose logs worker.",
-      "runFailed": "Mindestens ein Sync-Lauf ist fehlgeschlagen — Fehlermeldung unten bei der jeweiligen Zeile."
+      "runFailed": "Mindestens ein Sync-Lauf ist fehlgeschlagen — Fehlermeldung unten bei der jeweiligen Zeile.",
+      "migrationsIncomplete": "Die Datenbankmigrationen sind unvollständig. Führe docker compose up migrate aus, warte auf einen erfolgreichen Abschluss und starte danach web und worker neu.",
+      "protectedUnavailable": "Das Schema der geschützten Anwendung ist nicht verfügbar. Prüfe docker compose logs migrate und stelle die Datenbank aus einem geprüften Backup wieder her, falls die Migration nur teilweise lief.",
+      "teslamateUnavailable": "TeslaMate konnte nicht geprüft werden. Prüfe, ob dessen Datenbank läuft und TESLAMATE_DATABASE_URL im Worker die dokumentierte Read-only-Rolle nutzt. Starte danach den Worker neu.",
+      "teslamateIncompatible": "Das verbundene TeslaMate-Schema liegt außerhalb des unterstützten Bereichs. Vergleiche die installierte TeslaMate-Version mit den Release Notes, bevor du den Worker neu startest.",
+      "optionalProviderUnavailable": "Ein aktivierter Karten-, Such-, Routing-, Wetter- oder Höhenanbieter ist nicht erreichbar. Das Core Archive bleibt nutzbar. Prüfe Internet/DNS und den Provider-Endpunkt oder deaktiviere die Funktion unter Anbieterprüfung."
     }
   },
   "errors": {

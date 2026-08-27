@@ -1,6 +1,7 @@
 "use client";
 import dynamic from "next/dynamic";
 import type { JourneyMapCharge, JourneyMapTrack } from "./JourneyMap";
+import { MapTileGate } from "../../../../components/LocationProviderClientConfig";
 
 // Leaflet touches window/document at import time, so the map must never be
 // part of the server-rendered bundle (same pattern as drives/[id]/DriveMapLoader.tsx).
@@ -23,5 +24,16 @@ export function JourneyMapLoader({
   charges: JourneyMapCharge[];
   color?: string | null;
 }) {
-  return <JourneyMap tracks={tracks} charges={charges} color={color ?? null} />;
+  return (
+    <MapTileGate className="h-64 w-full sm:h-[360px]">
+      {(mapTiles) => (
+        <JourneyMap
+          tracks={tracks}
+          charges={charges}
+          color={color ?? null}
+          mapTiles={mapTiles}
+        />
+      )}
+    </MapTileGate>
+  );
 }

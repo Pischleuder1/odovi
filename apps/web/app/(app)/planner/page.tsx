@@ -5,6 +5,7 @@ import { getPlannerContext, getPlannerPlaces } from "../../../lib/planner";
 import { getJourneyById } from "../../../lib/journeys";
 import { getLatestJourneyPlan } from "../../../lib/roadtripPlans";
 import { getCurrentWeather } from "../../../lib/weather";
+import { getLocationProviderPolicy } from "../../../lib/locationProviders/policy";
 import { Planner } from "./Planner";
 import { VehicleRequiredState } from "../../../components/VehicleRequiredState";
 
@@ -45,10 +46,13 @@ export default async function PlannerPage({
   if (editJourneyId && (!journey || !storedPlan)) notFound();
   const vehicleId = storedPlan?.vehicleId ?? vehicles[0]!.id;
 
-  const [context, places] = await Promise.all([
+  const [context, places, providerPolicy] = await Promise.all([
     getPlannerContext(vehicleId),
     getPlannerPlaces(),
+    getLocationProviderPolicy(),
   ]);
+  const routingProvider = providerPolicy.resolve("routing");
+  const elevationProvider = providerPolicy.resolve("elevation");
 
   // Außentemperatur aus dem aktuellen Wetter an der Fahrzeugposition vorbelegen.
   let defaultTempC = FALLBACK_TEMP_C;
@@ -57,7 +61,9 @@ export default async function PlannerPage({
       context.status.lat,
       context.status.lon,
     );
-    if (weather) defaultTempC = Math.round(weather.temperature);
+    if (weather.status === "ok") {
+      defaultTempC = Math.round(weather.weather.temperature);
+    }
   }
 
   const defaultSoc =
@@ -91,7 +97,16 @@ export default async function PlannerPage({
           defaultCapacityKwh={Math.round(context.suggestedCapacityKwh)}
           capacityIsDerived={context.capacityIsDerived}
           historyDriveCount={context.historyDriveCount}
-          osrmIsDefault={process.env.OSRM_URL == null}
+          routingMode={
+            routingProvider.status === "active"
+              ? routingProvider.mode
+              : "disabled"
+          }
+          elevationMode={
+            elevationProvider.status === "active"
+              ? elevationProvider.mode
+              : "disabled"
+          }
           initialPlan={
             journey && storedPlan
               ? {

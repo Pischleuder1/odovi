@@ -27,14 +27,22 @@
   },
   "addressSearch": {
     "placeholder": "Adresse suchen…",
-    "searching": "Suche…"
+    "submit": "Suchen",
+    "searching": "Suche…",
+    "invalid": "Mindestens 3 Zeichen eingeben.",
+    "disabled": "Die Adresssuche ist deaktiviert.",
+    "activate": "In den Einstellungen aktivieren",
+    "rateLimited": "Die Suche ist ausgelastet. Bitte kurz warten und erneut versuchen.",
+    "empty": "Keine passende Adresse gefunden.",
+    "upstreamFailure": "Die Adresssuche ist gerade nicht erreichbar. Koordinaten können weiterhin manuell eingegeben werden.",
+    "cached": "Ein zwischengespeichertes Ergebnis wird angezeigt."
   },
   "form": {
     "name": "Name",
     "namePlaceholder": "z. B. Kunde Müller",
     "type": "Typ",
     "searchAddress": "Adresse suchen",
-    "searchAddressHint": "Sucht über OpenStreetMap (Nominatim). Auswahl setzt Position und Adresse unten.",
+    "searchAddressHint": "Beim Tippen wird nichts gesendet. Erst „Suchen“ nutzt den aktivierten Anbieter; die Auswahl setzt anschließend die Position.",
     "mapHint": "Klick auf die Karte oder Pin ziehen, um die Position zu setzen. Kartendaten ©",
     "latitude": "Breitengrad (lat)",
     "longitude": "Längengrad (lon)",

@@ -1,0 +1,9 @@
+{
+  "tag": "v0.1.1",
+  "tagObject": "0e85cbc879cc2d245d22341e73f52c38f57444e1",
+  "commit": "eeaab1ed41d723e8a295e3b82b2c447345d29f7f",
+  "url": "https://codeload.github.com/jsc2304/odovi/tar.gz/eeaab1ed41d723e8a295e3b82b2c447345d29f7f",
+  "sha256": "b37e43da3d6a9c393c272a80a0c879795356ea4257b48272bee6f34831b2de49",
+  "kind": "public-source-archive",
+  "note": "Pinned v0.1.1 source archive after documentation cleanup. Runtime sources, Dockerfiles and lockfile are unchanged."
+}

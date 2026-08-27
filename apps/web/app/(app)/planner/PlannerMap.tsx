@@ -2,10 +2,16 @@
 import { useEffect, useRef } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import type { ActiveMapTileConfig } from "../../../lib/locationProviders/clientConfig";
+import {
+  addConfiguredMapTiles,
+  createConfiguredMap,
+} from "../../../lib/locationProviders/mapTiles.client";
 
 export interface PlannerMapProps {
   /** Route-Polyline als [lat, lon]-Tupel (server-seitig ausgedünnt). */
   geometry: [number, number][];
+  mapTiles: ActiveMapTileConfig;
 }
 
 function markerIcon(color: string): L.DivIcon {
@@ -31,7 +37,7 @@ const END_ICON = markerIcon("#dc2626"); // red-600: Ziel
  * Seiten-Scroll über der Karte nicht gekapert wird. ResizeObserver zieht die
  * fitBounds einmal nach, falls der Container beim Init noch 0 Höhe hatte.
  */
-export function PlannerMap({ geometry }: PlannerMapProps) {
+export function PlannerMap({ geometry, mapTiles }: PlannerMapProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<L.Map | null>(null);
 
@@ -41,15 +47,12 @@ export function PlannerMap({ geometry }: PlannerMapProps) {
 
     const latLngs: L.LatLngTuple[] = geometry.map((p) => [p[0], p[1]]);
 
-    const map = L.map(containerRef.current, {
+    const map = createConfiguredMap(containerRef.current, {
       scrollWheelZoom: false,
       zoomControl: true,
     });
 
-    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      maxZoom: 19,
-      attribution: "&copy; OpenStreetMap contributors",
-    }).addTo(map);
+    addConfiguredMapTiles(map, mapTiles);
 
     const polyline = L.polyline(latLngs, {
       color: "#3441e3", // Odovi Route Cobalt

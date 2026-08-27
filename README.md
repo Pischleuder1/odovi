@@ -38,7 +38,7 @@ Tessie and similar services are good, but they come with subscription costs, ove
 - **Connection diagnostics** - Sync health per data source at a glance, optional direct TeslaMate test
 
 **Interface**
-- **German and English** - Switchable in the UI (German by default)
+- **English and German** - Browser-language detection, English fallback, and a saved manual choice in the UI
 - **Dark mode** - Light/dark/system switcher without flicker
 - **Mobile-first** - Installable as a PWA, 16px form fields (no iOS zoom), safe-area-aware bottom navigation
 
@@ -52,8 +52,9 @@ Tessie and similar services are good, but they come with subscription costs, ove
 No Tesla, no TeslaMate? The demo stack starts a fully populated app with six weeks of synthetic driving data:
 
 ```bash
+export ODOVI_SETUP_TOKEN="v1.$(date +%s).$(openssl rand -hex 32)"
 docker compose -f docker-compose.demo.yml up -d --build
-# -> http://localhost:3000, login: demo1234
+# -> http://localhost:3000; use the setup token above and choose a password
 ```
 
 Details: [docs/demo.md](docs/demo.md)
@@ -71,7 +72,7 @@ pnpm install
 pnpm dev:db                                # odovi-db :5432 + fixture teslamate-db :5433
 pnpm db:seed:teslamate                     # ~140 trips, charging, geofences (Zurich area)
 DATABASE_URL=postgres://odovi:odovi@localhost:5432/odovi pnpm db:migrate
-pnpm --filter @odovi/worker dev        # Sync loop (needs DATABASE_URL + TESLAMATE_DATABASE_URL, see .env.example)
+pnpm --filter @odovi/worker dev        # Sync loop (needs DATABASE_URL + TESLAMATE_DATABASE_URL, see .env.development.example)
 pnpm --filter @odovi/web dev           # http://localhost:3000
 ```
 
@@ -81,6 +82,14 @@ Tests: `pnpm test` · typecheck: `pnpm lint` · more: [CONTRIBUTING.md](CONTRIBU
 
 Docker Compose on a home server/NAS/Raspberry Pi in your LAN or VPN (for example Tailscale), connected to the existing TeslaMate Postgres through a read-only role.
 
+The supported public installation path is the immutable Compose asset attached
+to a Stable Self-hosted Release. It pins web and worker by digest and is
+promoted from an accepted Release Candidate without rebuilding. Until such a
+release is explicitly approved and published, the source-build steps below are
+for development and advanced operators; they do not describe a public release.
+The release mechanics and non-publishing dry run are documented in
+[`docs/releases/pipeline.md`](docs/releases/pipeline.md).
+
 Upgrading an installation created before the Odovi rename? Follow
 [`docs/rename-to-odovi.md`](docs/rename-to-odovi.md) before starting the renamed
 Compose stack so the existing PostgreSQL volume remains attached.
@@ -89,7 +98,9 @@ Compose stack so the existing PostgreSQL volume remains attached.
 
 - Docker + Docker Compose (plugin) on the target device (Raspberry Pi, NAS, home server)
 - >= 4 GB RAM
-- A running TeslaMate installation with reachable Postgres (LAN, VPN, or same Docker host)
+- A running TeslaMate v4.0.1 through v4.2.0 installation with reachable Postgres
+  (LAN, VPN, or same Docker host); see the
+  [tested compatibility matrix](docs/teslamate-compatibility.md)
 
 ### 0. No TeslaMate yet? Install it too
 
@@ -123,23 +134,74 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO odovi_ro;
 cp .env.example .env
 ```
 
-Set at least:
+The complete release contract, defaults, validation rules, and consumer mapping
+are in [`docs/runtime-configuration.md`](docs/runtime-configuration.md). Set at
+least:
 
 - `POSTGRES_PASSWORD` - password for the new Odovi-owned Postgres (required, no default)
 - `TESLAMATE_DATABASE_URL` - connection string for the `odovi_ro` role against the TeslaMate database (LAN/Tailscale host or Compose service name, see comments in `docker-compose.yml`)
-- optional `WEB_PORT` (default `3000`), `APP_TIMEZONE`, `SYNC_INTERVAL_SECONDS`, `OSRM_URL` (your own routing server for the planner)
+- optional behavior such as `WEB_PORT`, `APP_TIMEZONE`, `SYNC_INTERVAL_SECONDS`,
+  secure cookies, elevation, and Tesla provider settings only as
+  documented in the runtime configuration reference
 
 ### 3. Start the stack
+
+For development or an advanced source installation:
 
 ```bash
 docker compose up -d --build
 ```
 
-This builds `apps/web` and `apps/worker`, lets the `migrate` service apply Drizzle migrations once (`restart: "no"`, it must complete successfully), and then starts `db`, `web`, and `worker` permanently (`restart: unless-stopped`).
+This validates the release configuration once, builds `apps/web` and
+`apps/worker`, lets the `migrate` service apply Drizzle migrations once
+(`restart: "no"`, it must complete successfully), and then starts `db`, `web`,
+and `worker` permanently (`restart: unless-stopped`).
+
+### Operational status and recovery
+
+Odovi exposes two intentionally different unauthenticated probes:
+
+```bash
+curl -fsS http://localhost:${WEB_PORT:-3000}/api/health  # process liveness only
+curl -fsS http://localhost:${WEB_PORT:-3000}/api/ready   # product readiness
+```
+
+`/api/health` stays healthy while the HTTP process runs. `/api/ready` returns
+HTTP 503 (`not_ready`) when the Odovi database, required migration, or protected
+application schema is unavailable. A stopped/stale worker, incompatible or
+unreachable TeslaMate schema, or activated optional provider outage returns
+HTTP 200 with `degraded`: the Core Archive remains available while sync or the
+named optional capability needs attention. The public response contains stable
+codes and timestamps, never connection strings or raw upstream errors.
+
+Open **More → Diagnostics** for localized recovery steps. Useful first checks:
+
+```bash
+docker compose ps
+docker compose logs db migrate web worker
+docker compose up migrate
+docker compose up -d web worker
+```
+
+Do not rerun or manually edit migrations before taking a verified database
+backup. Optional weather, map, search, routing and elevation failures do not
+require restoring the database; check internet/DNS and the activated provider,
+or disable that capability under Provider Review.
 
 ### 4. First sign-in
 
-On first startup, an admin account is bootstrapped. Optionally set a password beforehand through `INITIAL_ADMIN_PASSWORD` in `.env`; otherwise one is set during the first login flow (with password confirmation).
+Generate a short-lived setup token on the Odovi host, copy it into `.env`, and
+restart the web service before opening the first-login form:
+
+```bash
+pnpm setup-token
+# copy the output to ODOVI_SETUP_TOKEN in .env
+docker compose up -d web
+```
+
+The token expires after 24 hours and can create only the first `admin` account.
+Remove `ODOVI_SETUP_TOKEN` from `.env` after setup. Future sign-ins use only the
+administrator password chosen in the form.
 
 ### 5. HTTPS / remote access
 
@@ -165,20 +227,22 @@ for a trip.
 
 ### Update
 
-```bash
-git pull
-docker compose up -d --build
-```
-
-Rebuilds images, applies new migrations through the `migrate` service, and rolls out `web`/`worker` again.
+Existing v0.1.1 installations must follow the
+[Supported Rename Upgrade](docs/rename-to-odovi.md), including a tested backup,
+the existing database/volume identity, mandatory Provider Review and rollback.
+Use accepted versioned release artifacts, not a moving branch or `latest`.
 
 ### Backup
 
-```bash
-docker compose exec db pg_dump -U odovi odovi > backup-$(date +%F).sql
-```
+Use `node scripts/database-backup.mjs inspect|backup|restore` with an explicit
+Compose project, file and environment. It resolves the configured database,
+refuses active writers or nonempty restore destinations, and produces a private,
+checksum-verified PostgreSQL archive. See the
+[upgrade/restore runbook](docs/rename-to-odovi.md) for exact commands.
 
-TeslaMate backs up the TeslaMate data itself - Odovi only backs up its own annotations, places, tags, rules, and sync state.
+The archive includes accounts, sessions, annotations, places, tags, rules,
+journeys, archive data and sync state. TeslaMate and external configuration /
+encryption keys require their own backups.
 
 ### Import history (Tessie)
 
@@ -202,7 +266,9 @@ Idempotent (safe to run multiple times), does not collide with TeslaMate data.
 ## Contributing and Security
 
 - Contributions: [CONTRIBUTING.md](CONTRIBUTING.md) · Issues are welcome in German or English
-- Please report security vulnerabilities privately: [SECURITY.md](SECURITY.md)
+- Support is provided on a Best-effort basis through [GitHub Issues](https://github.com/jsc2304/odovi/issues), without a response-time SLA. Copy the exact version and build identity from **More → About Odovi** into the report.
+- Please report security vulnerabilities privately through [GitHub Security Advisories](https://github.com/jsc2304/odovi/security/advisories/new), never as a public issue. See [SECURITY.md](SECURITY.md).
+- Release acceptance: [docs/release-acceptance.md](docs/release-acceptance.md)
 - Changes: [CHANGELOG.md](CHANGELOG.md)
 
 ## License

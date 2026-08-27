@@ -14,17 +14,19 @@ import { syncElevations } from "./elevation.js";
 import { syncDriveWeather } from "./driveWeather.js";
 import { applyClassificationRules } from "./classifyRules.js";
 import { applyAutoChargeCosts } from "./chargeCosts.js";
+import { loadWorkerLocationProviderPolicy } from "../locationProviders/policy.js";
 
-// Opt-out für die Open-Meteo Elevation-Anreicherung (z.B. offline-Setups).
-const ELEVATION_ENABLED = process.env.ELEVATION_ENABLED !== "false";
-// Für Verifikation lokal hochsetzbar; im Normalbetrieb bleibt der Default
-// (polite, siehe elevation.ts) unangetastet.
-const ELEVATION_MAX_POINTS_PER_CYCLE = process.env.ELEVATION_MAX_POINTS_PER_CYCLE
-  ? Number(process.env.ELEVATION_MAX_POINTS_PER_CYCLE)
-  : undefined;
+export interface SyncCycleOptions {
+  appTimezone: string;
+  elevationMaxPointsPerCycle?: number;
+}
 
 /** Ein kompletter Sync-Zyklus — genutzt vom Loop (index.ts) und der CLI. */
-export async function runSyncCycle(db: Db, tm: TeslamateSql): Promise<void> {
+export async function runSyncCycle(
+  db: Db,
+  tm: TeslamateSql,
+  options: SyncCycleOptions,
+): Promise<void> {
   const vehicleMap = await syncVehicles(db, tm);
   await syncVehicleStatus(db, tm, vehicleMap);
   const geofenceResult = await syncGeofenceImport(db, tm);
@@ -34,13 +36,19 @@ export async function runSyncCycle(db: Db, tm: TeslamateSql): Promise<void> {
   const chargeResult = await syncCharges(db, tm, vehicleMap, matchablePlaces);
   const chargePointsResult = await syncChargePoints(db, tm, chargeResult.upsertedRefs);
   const parkResult = await syncParks(db, matchablePlaces);
-  const rulesResult = await applyClassificationRules(db);
+  const rulesResult = await applyClassificationRules(db, options.appTimezone);
   const chargeCostsResult = await applyAutoChargeCosts(db);
   const softwareUpdatesResult = await syncSoftwareUpdates(db, tm, vehicleMap);
-  const elevationResult = ELEVATION_ENABLED
-    ? await syncElevations(db, ELEVATION_MAX_POINTS_PER_CYCLE)
+  const providerPolicy = await loadWorkerLocationProviderPolicy(db);
+  const elevationProvider = providerPolicy.resolve("elevation");
+  const weatherProvider = providerPolicy.resolve("weather");
+  const elevationResult = elevationProvider.status === "active"
+    ? await syncElevations(db, elevationProvider, options.elevationMaxPointsPerCycle)
     : { pointsFilled: 0 };
-  const driveWeatherResult = await syncDriveWeather(db);
+  const driveWeatherResult = await syncDriveWeather(
+    db,
+    weatherProvider.status === "active" ? weatherProvider : null,
+  );
 
   console.log(
     `[odovi-worker] sync ok: ${vehicleMap.size} vehicle(s), ` +

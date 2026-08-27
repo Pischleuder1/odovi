@@ -37,6 +37,8 @@
     "unknown": "Unbekannt"
   },
   "unavailable": "Wetter derzeit nicht verfügbar",
+  "disabled": "Wetter ist ausgeschaltet, bis du einen Anbieter aktivierst.",
+  "activate": "Wetteranbieter prüfen",
   "feelsLike": "gefühlt {temp}",
   "todayRange": "Heute {min} / {max}",
   "coldHint": "Kälte erhöht den Verbrauch spürbar."

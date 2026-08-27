@@ -5,9 +5,10 @@
  * day-boundary math and clock formatting resolves against this zone; the DB
  * always stores timestamptz in UTC.
  */
+import { parseAppTimezone } from "@odovi/runtime-config";
 
 /** IANA timezone used for all day-boundary math and clock display. */
-export const APP_TIMEZONE = process.env.APP_TIMEZONE ?? "Europe/Zurich";
+export const APP_TIMEZONE = parseAppTimezone(process.env.APP_TIMEZONE);
 
 /** Name of the httpOnly session cookie. */
 export const SESSION_COOKIE = "odovi_session";

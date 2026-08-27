@@ -1,11 +1,11 @@
 import { redirect } from "next/navigation";
-import { cookies } from "next/headers";
-import { getTranslations } from "next-intl/server";
-import { maybeSeedFromEnv, usersTableIsEmpty } from "../../lib/auth/actions";
+import { getLocale, getTranslations } from "next-intl/server";
+import { usersTableIsEmpty } from "../../lib/auth/bootstrapState";
 import { validateSession } from "../../lib/auth/session";
 import { BrandWordmark } from "../../components/BrandWordmark";
-import { LocaleSwitcher, type Locale } from "../../components/LocaleSwitcher";
+import { LocaleSwitcher } from "../../components/LocaleSwitcher";
 import { LoginForm } from "./LoginForm";
+import { DEFAULT_LOCALE, isLocale } from "../../lib/locale";
 
 export const dynamic = "force-dynamic";
 
@@ -15,17 +15,12 @@ export default async function LoginPage() {
     redirect("/");
   }
 
-  // Honour INITIAL_ADMIN_PASSWORD by seeding on first visit.
-  await maybeSeedFromEnv();
-
   const bootstrap = await usersTableIsEmpty();
-  const t = await getTranslations("auth");
-
-  const cookieStore = await cookies();
-  const cookieLocale =
-    cookieStore.get("odovi_locale")?.value ??
-    cookieStore.get("tripatlas_locale")?.value;
-  const locale: Locale = cookieLocale === "en" ? "en" : "de";
+  const [t, requestLocale] = await Promise.all([
+    getTranslations("auth"),
+    getLocale(),
+  ]);
+  const locale = isLocale(requestLocale) ? requestLocale : DEFAULT_LOCALE;
 
   return (
     <main className="relative flex min-h-dvh flex-col items-center justify-center gap-4 overflow-hidden bg-neutral-50 px-4 dark:bg-neutral-950">

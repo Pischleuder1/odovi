@@ -2,10 +2,14 @@
 import { Fragment, useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import {
+  DEFAULT_LOCALE,
+  LOCALE_COOKIE,
+  type Locale,
+} from "../lib/locale";
 
-export type Locale = "de" | "en";
+export type { Locale } from "../lib/locale";
 
-const COOKIE = "odovi_locale";
 const ONE_YEAR = 60 * 60 * 24 * 365;
 
 const OPTIONS: { value: Locale; label: string }[] = [
@@ -14,7 +18,7 @@ const OPTIONS: { value: Locale; label: string }[] = [
 ];
 
 function persist(locale: Locale) {
-  document.cookie = `${COOKIE}=${locale}; path=/; max-age=${ONE_YEAR}; SameSite=Lax`;
+  document.cookie = `${LOCALE_COOKIE}=${locale}; path=/; max-age=${ONE_YEAR}; SameSite=Lax`;
 }
 
 /**
@@ -28,7 +32,7 @@ function persist(locale: Locale) {
  * `variant="inline"`    — dezente Textumschaltung, z. B. unter dem Login-Formular.
  */
 export function LocaleSwitcher({
-  initial = "de",
+  initial = DEFAULT_LOCALE,
   variant = "segmented",
 }: {
   initial?: Locale;

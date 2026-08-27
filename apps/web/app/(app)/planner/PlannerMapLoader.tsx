@@ -1,5 +1,6 @@
 "use client";
 import dynamic from "next/dynamic";
+import { MapTileGate } from "../../../components/LocationProviderClientConfig";
 
 // Leaflet fasst window/document beim Import an, daher darf die Karte nie Teil des
 // server-gerenderten Bundles sein (Muster drives/[id]/DriveMapLoader.tsx).
@@ -20,5 +21,9 @@ export function PlannerMapLoader({
 }: {
   geometry: [number, number][];
 }) {
-  return <PlannerMap geometry={geometry} />;
+  return (
+    <MapTileGate className="h-64 w-full sm:h-[360px]">
+      {(mapTiles) => <PlannerMap geometry={geometry} mapTiles={mapTiles} />}
+    </MapTileGate>
+  );
 }

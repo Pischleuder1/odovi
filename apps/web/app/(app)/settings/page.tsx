@@ -1,4 +1,5 @@
 import { getLocale, getTranslations } from "next-intl/server";
+import { resolveBuildInfo } from "@odovi/core";
 import { APP_TIMEZONE } from "../../../lib/config";
 import { formatRelativeTime } from "../../../lib/day";
 import { getSyncState, getVehiclesDetailed } from "../../../lib/queries";
@@ -13,6 +14,9 @@ import { DiagnosticsCard } from "./DiagnosticsCard";
 import { TeslaIntegrationCard } from "./TeslaIntegrationCard";
 import { getTeslaIntegrationStatus } from "../../../lib/tesla/integration";
 import { MoreHub } from "./MoreHub";
+import { BuildInfoCard } from "./BuildInfoCard";
+import { getProviderReviewSnapshot } from "../../../lib/locationProviders/policy";
+import { ProviderReview } from "./ProviderReview";
 
 export const dynamic = "force-dynamic";
 
@@ -39,17 +43,22 @@ function maskVin(vin: string | null): string {
 }
 
 export default async function SettingsPage() {
-  const [t, locale, vehicles, syncRows, teslaStatus] = await Promise.all([
+  const [t, locale, vehicles, syncRows, teslaStatus, providerReview] = await Promise.all([
     getTranslations("settings"),
     getLocale(),
     getVehiclesDetailed(),
     getSyncState(),
     getTeslaIntegrationStatus(),
+    getProviderReviewSnapshot(),
   ]);
   const defaultVehicleId = vehicles[0]?.id;
   const softwareUpdates =
     defaultVehicleId != null ? await getSoftwareUpdates(defaultVehicleId) : [];
   const entityLabels = buildEntityLabels(t);
+  const buildInfo = resolveBuildInfo({
+    ODOVI_VERSION: process.env.ODOVI_VERSION,
+    ODOVI_COMMIT_SHA: process.env.ODOVI_COMMIT_SHA,
+  });
 
   return (
     <div className="mx-auto max-w-2xl">
@@ -61,6 +70,25 @@ export default async function SettingsPage() {
       <MoreHub />
 
       <DiagnosticsCard />
+
+      <BuildInfoCard
+        buildInfo={buildInfo}
+        labels={{
+          title: t("about.title"),
+          version: t("about.version"),
+          build: t("about.build"),
+          copy: t("about.copy"),
+          copied: t("about.copied"),
+          supportTitle: t("about.supportTitle"),
+          supportDescription: t("about.supportDescription"),
+          supportLink: t("about.supportLink"),
+          securityTitle: t("about.securityTitle"),
+          securityDescription: t("about.securityDescription"),
+          securityLink: t("about.securityLink"),
+        }}
+      />
+
+      <ProviderReview items={providerReview.items} />
 
       <TeslaIntegrationCard
         status={teslaStatus}

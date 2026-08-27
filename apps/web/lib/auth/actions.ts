@@ -1,14 +1,17 @@
 "use server";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { eq, sql } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { getTranslations } from "next-intl/server";
-import { users } from "@odovi/db";
+import { settings, users } from "@odovi/db";
 import { db } from "../db";
 import { hashPassword, verifyPassword } from "./password";
-import { createSession, destroySession } from "./session";
+import { createSession, destroySession, validateSession } from "./session";
+import { usersTableIsEmpty } from "./bootstrapState";
+import { setupTokenFingerprint, verifySetupToken } from "./setupToken";
 
 const ADMIN_USERNAME = "admin";
+const SETUP_TOKEN_SETTING_KEY = "admin_setup_token";
 
 // In-memory rate limit: max 5 failed attempts per 15 minutes. Keyed by a
 // constant (single-user app). Module-level Map survives across requests within
@@ -34,30 +37,6 @@ function recordFailure(key: string): void {
 
 function clearFailures(key: string): void {
   failedAttempts.delete(key);
-}
-
-/** Returns true when no user has been created yet (bootstrap state). */
-export async function usersTableIsEmpty(): Promise<boolean> {
-  const rows = await db
-    .select({ count: sql<number>`count(*)::int` })
-    .from(users);
-  return (rows[0]?.count ?? 0) === 0;
-}
-
-/**
- * Seeds the single admin user from INITIAL_ADMIN_PASSWORD if set and the users
- * table is empty. Idempotent. Returns true if a user now exists via this env.
- */
-export async function maybeSeedFromEnv(): Promise<boolean> {
-  const initial = process.env.INITIAL_ADMIN_PASSWORD;
-  if (!initial || initial.length < 8) return false;
-  if (!(await usersTableIsEmpty())) return false;
-  const passwordHash = await hashPassword(initial);
-  await db
-    .insert(users)
-    .values({ username: ADMIN_USERNAME, passwordHash })
-    .onConflictDoNothing();
-  return true;
 }
 
 type AuthT = Awaited<ReturnType<typeof getTranslations>>;
@@ -108,12 +87,42 @@ export async function bootstrapAdmin(
     return { error: parsed.error.issues[0]?.message ?? t("invalidPassword") };
   }
 
+  const configuredToken = process.env.ODOVI_SETUP_TOKEN;
+  if (!verifySetupToken(configuredToken, formData.get("setupToken"))) {
+    return { error: t("invalidSetupToken") };
+  }
+
+  const fingerprint = setupTokenFingerprint(configuredToken!);
+  const consumed = await db
+    .select({ value: settings.value })
+    .from(settings)
+    .where(eq(settings.key, SETUP_TOKEN_SETTING_KEY))
+    .limit(1);
+  if (
+    (consumed[0]?.value as { fingerprint?: unknown } | undefined)?.fingerprint === fingerprint
+  ) {
+    return { error: t("invalidSetupToken") };
+  }
+
   const passwordHash = await hashPassword(parsed.data.password);
-  const inserted = await db
-    .insert(users)
-    .values({ username: ADMIN_USERNAME, passwordHash })
-    .onConflictDoNothing()
-    .returning({ id: users.id });
+  const inserted = await db.transaction(async (tx) => {
+    const rows = await tx
+      .insert(users)
+      .values({ username: ADMIN_USERNAME, passwordHash })
+      .onConflictDoNothing()
+      .returning({ id: users.id });
+    if (!rows[0]) return rows;
+
+    const value = { fingerprint, consumedAt: new Date().toISOString() };
+    await tx
+      .insert(settings)
+      .values({ key: SETUP_TOKEN_SETTING_KEY, value })
+      .onConflictDoUpdate({
+        target: settings.key,
+        set: { value, updatedAt: new Date() },
+      });
+    return rows;
+  });
 
   const userId = inserted[0]?.id;
   if (!userId) {
@@ -166,6 +175,9 @@ export async function login(
 
 /** Logout: destroys the session and returns to the login page. */
 export async function logout(): Promise<void> {
+  if (!(await validateSession())) {
+    redirect("/login");
+  }
   await destroySession();
   redirect("/login");
 }
