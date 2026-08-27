@@ -5,6 +5,9 @@
 
 **Self-hosted trip archive and analytics for Tesla.** Pick a date, review every trip of the day, classify it, export it - your movement data stays on your server.
 
+Latest stable release: [Odovi 0.2.0](https://github.com/jsc2304/odovi/releases/tag/v0.2.0).
+[Install](#deployment) · [Upgrade from Tripatlas](docs/rename-to-odovi.md).
+
 Odovi reads the database of an existing [TeslaMate](https://github.com/teslamate-org/teslamate) installation in read-only mode and turns it into a searchable trip, parking, and charging archive with a daily timeline, places, tags, auto-classification, and business exports (CSV/PDF/GPX). Self-hosting requires no subscription or cloud service, and Odovi adds no product tracking.
 
 ## Why?
@@ -82,13 +85,12 @@ Tests: `pnpm test` · typecheck: `pnpm lint` · more: [CONTRIBUTING.md](CONTRIBU
 
 Docker Compose on a home server/NAS/Raspberry Pi in your LAN or VPN (for example Tailscale), connected to the existing TeslaMate Postgres through a read-only role.
 
-The supported public installation path is the immutable Compose asset attached
-to a Stable Self-hosted Release. It pins web and worker by digest and is
-promoted from an accepted Release Candidate without rebuilding. Until such a
-release is explicitly approved and published, the source-build steps below are
-for development and advanced operators; they do not describe a public release.
-The release mechanics and non-publishing dry run are documented in
-[`docs/releases/pipeline.md`](docs/releases/pipeline.md).
+Use the immutable Compose asset attached to the
+[0.2.0 stable release](https://github.com/jsc2304/odovi/releases/tag/v0.2.0).
+It pins the exact tested web and worker images for `linux/amd64` and
+`linux/arm64`; no GitHub login or local application build is needed.
+See the [acceptance summary](release/0.2.0/acceptance-summary.json) for the
+automated, native Raspberry Pi and upgrade checks.
 
 Upgrading an installation created before the Odovi rename? Follow
 [`docs/rename-to-odovi.md`](docs/rename-to-odovi.md) before starting the renamed
@@ -101,6 +103,21 @@ Compose stack so the existing PostgreSQL volume remains attached.
 - A running TeslaMate v4.0.1 through v4.2.0 installation with reachable Postgres
   (LAN, VPN, or same Docker host); see the
   [tested compatibility matrix](docs/teslamate-compatibility.md)
+
+For a **new installation**, create an empty directory and download the pinned
+Compose file and configuration template. Do not run these commands over an
+existing installation or `.env`:
+
+```bash
+mkdir odovi &&
+cd odovi &&
+curl -fL https://github.com/jsc2304/odovi/releases/download/v0.2.0/odovi-0.2.0-docker-compose.yml -o docker-compose.yml &&
+curl -fL https://raw.githubusercontent.com/jsc2304/odovi/v0.2.0/.env.example -o .env &&
+chmod 600 .env
+```
+
+The following steps assume this directory and the explicit Compose project
+name `odovi`. Keep that project name for future operations.
 
 ### 0. No TeslaMate yet? Install it too
 
@@ -130,9 +147,8 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO odovi_ro;
 
 ### 2. Configure `.env`
 
-```bash
-cp .env.example .env
-```
+Edit the downloaded `.env`. For a source checkout instead, copy
+`.env.example` to `.env` first.
 
 The complete release contract, defaults, validation rules, and consumer mapping
 are in [`docs/runtime-configuration.md`](docs/runtime-configuration.md). Set at
@@ -146,16 +162,21 @@ least:
 
 ### 3. Start the stack
 
-For development or an advanced source installation:
+For the stable release:
 
 ```bash
-docker compose up -d --build
+docker compose --project-name odovi pull
+docker compose --project-name odovi up -d
 ```
 
-This validates the release configuration once, builds `apps/web` and
-`apps/worker`, lets the `migrate` service apply Drizzle migrations once
+This validates the release configuration once, lets the `migrate` service
+apply Drizzle migrations once
 (`restart: "no"`, it must complete successfully), and then starts `db`, `web`,
 and `worker` permanently (`restart: unless-stopped`).
+
+Developers using the repository's source-build Compose file can run
+`docker compose --project-name odovi up -d --build` instead. Source builds are
+not the immutable release artifact.
 
 ### Operational status and recovery
 
@@ -177,10 +198,10 @@ codes and timestamps, never connection strings or raw upstream errors.
 Open **More → Diagnostics** for localized recovery steps. Useful first checks:
 
 ```bash
-docker compose ps
-docker compose logs db migrate web worker
-docker compose up migrate
-docker compose up -d web worker
+docker compose --project-name odovi ps
+docker compose --project-name odovi logs db migrate web worker
+docker compose --project-name odovi up migrate
+docker compose --project-name odovi up -d web worker
 ```
 
 Do not rerun or manually edit migrations before taking a verified database
@@ -194,9 +215,9 @@ Generate a short-lived setup token on the Odovi host, copy it into `.env`, and
 restart the web service before opening the first-login form:
 
 ```bash
-pnpm setup-token
+printf 'v1.%s.%s\n' "$(date +%s)" "$(openssl rand -hex 32)"
 # copy the output to ODOVI_SETUP_TOKEN in .env
-docker compose up -d web
+docker compose --project-name odovi up -d web
 ```
 
 The token expires after 24 hours and can create only the first `admin` account.
@@ -273,7 +294,7 @@ Idempotent (safe to run multiple times), does not collide with TeslaMate data.
 
 ## License
 
-The current `0.2.x` development line is available under
+The current `0.2.x` versions are available under
 [FSL-1.1-ALv2](LICENSE) © 2026 Jan Schultheiss. This is a Fair Source /
 source-available license: self-hosting, source inspection and modifications for
 non-competing purposes are permitted, while a competing commercial product or

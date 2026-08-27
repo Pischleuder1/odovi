@@ -39,7 +39,10 @@ check(compose.includes(`${metadata.images.web}@\${ODOVI_WEB_DIGEST:`), `${metada
 check(compose.includes(`${metadata.images.worker}@\${ODOVI_WORKER_DIGEST:`), `${metadata.compose} does not pin the worker repository by digest`);
 
 const changelog = readFileSync(resolveFrom(repoRoot, metadata.changelog), "utf8");
-check(changelog.includes(`## [${metadata.version}] - Unreleased`), `${metadata.changelog} lacks the ${metadata.version} release-candidate section`);
+const releaseHeading = `## [${metadata.version}] - `;
+check(changelog.split(/\r?\n/).some((line) => line.startsWith(releaseHeading) &&
+  /^(?:Unreleased|\d{4}-\d{2}-\d{2})$/.test(line.slice(releaseHeading.length))),
+  `${metadata.changelog} lacks the ${metadata.version} release section`);
 
 const releaseNotes = readFileSync(resolveFrom(repoRoot, metadata.releaseNotes), "utf8");
 check(releaseNotes.includes(`Release version: \`${metadata.version}\``), `${metadata.releaseNotes} has no matching release-version marker`);

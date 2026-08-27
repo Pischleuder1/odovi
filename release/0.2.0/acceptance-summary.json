@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "version": "0.2.0",
+  "sourceCommit": "0be129f02a862651d6de171c59a0785873106d81",
+  "date": "2026-08-27",
+  "images": {
+    "web": "ghcr.io/jsc2304/odovi-web@sha256:35a0092ee8805a06e4037e80939d73263029f7aa821fa24fe19152f9a95d6fcd",
+    "worker": "ghcr.io/jsc2304/odovi-worker@sha256:0dc66a70a6230201e114d228dd287374124094555fc4e25d0a43284e9337c22c"
+  },
+  "checks": [
+    {
+      "environment": "GitHub-hosted Ubuntu, linux/amd64",
+      "result": "passed",
+      "coverage": "Complete CI, production dependency audit, Compose validation, published-image application acceptance, and image identity/license checks for amd64 and arm64",
+      "workflowRun": "https://github.com/jsc2304/odovi/actions/runs/33079095807"
+    },
+    {
+      "environment": "Raspberry Pi 5, native linux/arm64",
+      "result": "passed",
+      "coverage": "Fresh administrator setup, synchronization, classification, export, desktop/mobile UI, provider activation, restart and recovery",
+      "readinessRecoveryObservations": 13,
+      "sourceAndImageIdentityVerified": true,
+      "unexpectedProviderRequests": 0
+    },
+    {
+      "environment": "OrbStack Linux containers, arm64",
+      "result": "passed",
+      "coverage": "Pinned v0.1.1 upgrade with preserved records/authentication/exports, restored current backup, and rollback to original runtime and schema",
+      "sourceAndImageIdentityVerified": true,
+      "unexpectedProviderRequests": 0
+    }
+  ],
+  "testData": "Synthetic fixtures only. Raw logs, traces, account state and database backups are not included."
+}
