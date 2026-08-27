@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { SESSION_COOKIE } from "./lib/config";
+import { LEGACY_SESSION_COOKIE, SESSION_COOKIE } from "./lib/config";
 
 /**
  * Presence-only auth gate. Redirects to /login when no session cookie is set.
@@ -7,7 +7,9 @@ import { SESSION_COOKIE } from "./lib/config";
  * session validation is done in server components/actions via validateSession.
  */
 export function middleware(request: NextRequest) {
-  const hasCookie = request.cookies.has(SESSION_COOKIE);
+  // Match server-side session validation during the supported rename window.
+  // https://nextjs.org/docs/15/app/api-reference/file-conventions/middleware#using-cookies
+  const hasCookie = request.cookies.has(SESSION_COOKIE) || request.cookies.has(LEGACY_SESSION_COOKIE);
   if (!hasCookie) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";

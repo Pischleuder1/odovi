@@ -7,7 +7,7 @@ import { auditLog, sessions, syncState, users, vehicles } from "@odovi/db";
 import { db } from "../db";
 import { validateSession } from "../auth/session";
 import { hashPassword, verifyPassword } from "../auth/password";
-import { SESSION_COOKIE } from "../config";
+import { LEGACY_SESSION_COOKIE, SESSION_COOKIE } from "../config";
 import { cookies } from "next/headers";
 import { createHash } from "node:crypto";
 
@@ -85,7 +85,7 @@ export async function changePassword(
   const newHash = await hashPassword(parsed.data.newPassword);
 
   const cookieStore = await cookies();
-  const token = cookieStore.get(SESSION_COOKIE)?.value;
+  const token = cookieStore.get(SESSION_COOKIE)?.value ?? cookieStore.get(LEGACY_SESSION_COOKIE)?.value;
   const currentSessionId = token
     ? createHash("sha256").update(token).digest("hex")
     : null;

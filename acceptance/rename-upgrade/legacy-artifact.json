@@ -1,0 +1,9 @@
+{
+  "tag": "v0.1.1",
+  "tagObject": "84e862b7084206933172e4f0ad9e7614e1685afd",
+  "commit": "abc0d15482c8abee342be688876f0e304b013e19",
+  "url": "https://codeload.github.com/jsc2304/odovi/tar.gz/abc0d15482c8abee342be688876f0e304b013e19",
+  "sha256": "9bf3b8add830bee16d04dca33d99947c663f3822e763737d4fe3935a0718086c",
+  "kind": "public-source-archive",
+  "note": "v0.1.1 was distributed as source, not immutable published containers. Its original Dockerfiles and lockfile are built unchanged."
+}

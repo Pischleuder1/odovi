@@ -227,20 +227,22 @@ for a trip.
 
 ### Update
 
-```bash
-git pull
-docker compose up -d --build
-```
-
-Rebuilds images, applies new migrations through the `migrate` service, and rolls out `web`/`worker` again.
+Existing v0.1.1 installations must follow the
+[Supported Rename Upgrade](docs/rename-to-odovi.md), including a tested backup,
+the existing database/volume identity, mandatory Provider Review and rollback.
+Use accepted versioned release artifacts, not a moving branch or `latest`.
 
 ### Backup
 
-```bash
-docker compose exec db pg_dump -U odovi odovi > backup-$(date +%F).sql
-```
+Use `node scripts/database-backup.mjs inspect|backup|restore` with an explicit
+Compose project, file and environment. It resolves the configured database,
+refuses active writers or nonempty restore destinations, and produces a private,
+checksum-verified PostgreSQL archive. See the
+[upgrade/restore runbook](docs/rename-to-odovi.md) for exact commands.
 
-TeslaMate backs up the TeslaMate data itself - Odovi only backs up its own annotations, places, tags, rules, and sync state.
+The archive includes accounts, sessions, annotations, places, tags, rules,
+journeys, archive data and sync state. TeslaMate and external configuration /
+encryption keys require their own backups.
 
 ### Import history (Tessie)
 
