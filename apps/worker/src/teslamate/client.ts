@@ -255,23 +255,32 @@ export async function probeTeslamateSchema(sql: TeslamateSql): Promise<void> {
     FROM information_schema.columns
     WHERE table_schema = 'public'
   `;
+  // table_constraints hides foreign keys from SELECT-only roles. Read the
+  // catalog instead; never require write privileges for the compatibility probe.
+  // https://www.postgresql.org/docs/17/infoschema-table-constraints.html
+  // https://www.postgresql.org/docs/17/catalog-pg-constraint.html
+  // Parallel unnest preserves source/target pairing for composite foreign keys:
+  // https://www.postgresql.org/docs/17/functions-array.html
   const relationships = await sql<SchemaRelationship[]>`
     SELECT
-      tc.table_name,
-      kcu.column_name,
-      ccu.table_name AS foreign_table_name,
-      ccu.column_name AS foreign_column_name
-    FROM information_schema.table_constraints tc
-    JOIN information_schema.key_column_usage kcu
-      ON tc.constraint_catalog = kcu.constraint_catalog
-      AND tc.constraint_schema = kcu.constraint_schema
-      AND tc.constraint_name = kcu.constraint_name
-    JOIN information_schema.constraint_column_usage ccu
-      ON tc.constraint_catalog = ccu.constraint_catalog
-      AND tc.constraint_schema = ccu.constraint_schema
-      AND tc.constraint_name = ccu.constraint_name
-    WHERE tc.table_schema = 'public'
-      AND tc.constraint_type = 'FOREIGN KEY'
+      source_table.relname AS table_name,
+      source_column.attname AS column_name,
+      target_table.relname AS foreign_table_name,
+      target_column.attname AS foreign_column_name
+    FROM pg_catalog.pg_constraint constraint_info
+    JOIN pg_catalog.pg_class source_table ON source_table.oid = constraint_info.conrelid
+    JOIN pg_catalog.pg_namespace source_schema ON source_schema.oid = source_table.relnamespace
+    JOIN pg_catalog.pg_class target_table ON target_table.oid = constraint_info.confrelid
+    JOIN pg_catalog.pg_namespace target_schema ON target_schema.oid = target_table.relnamespace
+    CROSS JOIN LATERAL unnest(constraint_info.conkey, constraint_info.confkey)
+      AS column_pair(source_number, target_number)
+    JOIN pg_catalog.pg_attribute source_column
+      ON source_column.attrelid = source_table.oid AND source_column.attnum = column_pair.source_number
+    JOIN pg_catalog.pg_attribute target_column
+      ON target_column.attrelid = target_table.oid AND target_column.attnum = column_pair.target_number
+    WHERE source_schema.nspname = 'public'
+      AND target_schema.nspname = 'public'
+      AND constraint_info.contype = 'f'
   `;
 
   assertTeslamateSchemaCompatibility(columns, relationships);

@@ -24,6 +24,23 @@ afterAll(async () => {
 });
 
 describe(`TeslaMate ${fixtureVersion} boundary fixture`, () => {
+  integrationIt("uses an actual SELECT-only role, not just read-only transactions", async () => {
+    const [privileges] = await sql!`
+      select
+        current_setting('transaction_read_only') as read_only,
+        r.rolsuper as superuser,
+        has_table_privilege(current_user, 'public.drives', 'SELECT') as can_read,
+        has_table_privilege(current_user, 'public.drives', 'INSERT,UPDATE,DELETE') as can_write
+      from pg_catalog.pg_roles r where r.rolname = current_user
+    `;
+    expect(privileges).toEqual({
+      read_only: "on",
+      superuser: false,
+      can_read: true,
+      can_write: false,
+    });
+  });
+
   integrationIt("passes the probe and every runtime synchronization query path", async () => {
     expect(sql).not.toBeNull();
     const tm = sql!;

@@ -63,7 +63,10 @@ for version in "${versions[@]}"; do
   database_url="postgres://teslamate:teslamate-compatibility@127.0.0.1:$port/teslamate"
   TESLAMATE_DATABASE_URL="$database_url" \
     corepack pnpm --filter @odovi/fixtures seed
-  TESLAMATE_COMPATIBILITY_DATABASE_URL="$database_url" \
+  docker exec -i "$container" psql -X -v ON_ERROR_STOP=1 -U teslamate -d teslamate \
+    < "$repo_root/dev/fixtures/teslamate/readonly-role.sql"
+  readonly_database_url="postgres://odovi_fixture_reader:fixture-reader-only@127.0.0.1:$port/teslamate"
+  TESLAMATE_COMPATIBILITY_DATABASE_URL="$readonly_database_url" \
     TESLAMATE_FIXTURE_VERSION="$version" \
     corepack pnpm --filter @odovi/worker exec vitest run \
       src/teslamate/compatibility.integration.test.ts
