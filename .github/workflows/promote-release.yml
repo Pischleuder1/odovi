@@ -26,6 +26,11 @@ concurrency:
 jobs:
   verify-candidate:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      # Downloading artifacts from a different workflow run requires this scope.
+      # https://github.com/actions/download-artifact/tree/v4#download-artifacts-from-other-workflow-runs-or-repositories
+      actions: read
     outputs:
       source_commit: ${{ steps.candidate.outputs.source_commit }}
       web_digest: ${{ steps.candidate.outputs.web_digest }}
