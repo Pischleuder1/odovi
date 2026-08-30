@@ -43,11 +43,12 @@ async function main(): Promise<void> {
     intervalMs: config.syncIntervalSeconds * 1000,
     runSlice: async () => {
       try {
-        await runSyncCycle(connection.db, tm, {
-        await runTeslaInvoiceImport(connection.db);
+await runSyncCycle(connection.db, tm, {
           appTimezone: config.appTimezone,
           elevationMaxPointsPerCycle: config.elevationMaxPointsPerCycle,
         });
+
+        await runTeslaInvoiceImport(connection.db);
         await recordSyncRun(connection.db, "odovi", "worker", {
           status: "ok",
           rowsUpserted: 0,
