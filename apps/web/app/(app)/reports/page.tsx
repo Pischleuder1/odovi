@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Download } from "lucide-react";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import {
   buildMonthReport,
   formatKm,
@@ -14,6 +14,11 @@ import { buttonClasses } from "../../../components/ui/Button";
 import { ReportFilters } from "./ReportFilters";
 import { getVehicles } from "../../../lib/queries";
 import { VehicleRequiredState } from "../../../components/VehicleRequiredState";
+import {
+  DUTY_RATE_EUR_PER_KM,
+  buildDutySummary,
+  reimbursementForDistance,
+} from "../../../lib/dutyReport";
 
 export const dynamic = "force-dynamic";
 
@@ -52,8 +57,11 @@ export default async function ReportsPage({
 }: {
   searchParams: Promise<{ month?: string; classification?: string }>;
 }) {
-  const t = await getTranslations("reports");
-  const tc = await getTranslations("common");
+  const [t, tc, locale] = await Promise.all([
+    getTranslations("reports"),
+    getTranslations("common"),
+    getLocale(),
+  ]);
   const sp = await searchParams;
   const month = sp.month && isValidMonthParam(sp.month) ? sp.month : currentMonthInAppTz();
   const selected = parseSelected(sp.classification);
@@ -71,6 +79,24 @@ export default async function ReportsPage({
 
   const data = await loadMonthReportData(month, selected);
   const report = buildMonthReport(data.drives, month, data.meta, selected);
+  const showDutyReport = selected.includes("business");
+  const dutySummary = buildDutySummary(report.rows);
+  const dutyAnnotations = new Map(
+    data.drives.map((drive) => [
+      drive.id,
+      {
+        customer: drive.customer?.trim() || null,
+        purpose: drive.purpose?.trim() || null,
+      },
+    ]),
+  );
+
+  const euro = new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency: "EUR",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
 
   const exportQuery = `?classification=${selected.join(",")}`;
 
@@ -85,7 +111,7 @@ export default async function ReportsPage({
         <ReportFilters month={month} selected={selected} />
       </div>
 
-      <div className="mt-4 flex gap-1.5">
+      <div className="mt-4 flex flex-wrap gap-1.5">
         <a
           href={`/api/export/month/${month}${exportQuery}&format=csv`}
           className={buttonClasses("ghost", "sm")}
@@ -100,7 +126,73 @@ export default async function ReportsPage({
           <Download aria-hidden size={14} />
           {t("exportPdf")}
         </a>
+        {showDutyReport && (
+          <>
+            <a
+              href={`/api/export/duty-month/${month}?format=csv`}
+              className={buttonClasses("ghost", "sm")}
+            >
+              <Download aria-hidden size={14} />
+              {t("duty.exportCsv")}
+            </a>
+            <a
+              href={`/api/export/duty-month/${month}?format=pdf`}
+              className={buttonClasses("ghost", "sm")}
+            >
+              <Download aria-hidden size={14} />
+              {t("duty.exportPdf")}
+            </a>
+          </>
+        )}
       </div>
+
+      {showDutyReport && (
+        <section className="mt-6">
+          <div className="flex flex-wrap items-end justify-between gap-2">
+            <div>
+              <h2 className="text-lg font-semibold">{t("duty.title")}</h2>
+              <p className="text-sm text-neutral-500 dark:text-neutral-400">
+                {t("duty.rateHint", {
+                  rate: euro.format(DUTY_RATE_EUR_PER_KM),
+                })}
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <div className="rounded-xl border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
+              <p className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
+                {t("duty.driveCount")}
+              </p>
+              <p className="mt-1 text-xl font-semibold tabular-nums">
+                {dutySummary.driveCount}
+              </p>
+            </div>
+            <div className="rounded-xl border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
+              <p className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
+                {t("duty.distance")}
+              </p>
+              <p className="mt-1 text-xl font-semibold tabular-nums">
+                {formatKm(dutySummary.distanceKm)}
+              </p>
+            </div>
+            <div className="rounded-xl border border-neutral-300 bg-neutral-50 p-4 dark:border-neutral-700 dark:bg-neutral-800">
+              <p className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
+                {t("duty.reimbursement")}
+              </p>
+              <p className="mt-1 text-xl font-semibold tabular-nums">
+                {euro.format(dutySummary.reimbursementEur)}
+              </p>
+            </div>
+          </div>
+
+          {dutySummary.hasIncompleteDistance && (
+            <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-400">
+              {t("duty.incomplete")}
+            </p>
+          )}
+        </section>
+      )}
 
       <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5">
         {ALL_CLASSIFICATIONS.filter((c) => selected.includes(c)).map((c) => {
@@ -148,7 +240,9 @@ export default async function ReportsPage({
               <th className="px-3 py-2">{t("table.date")}</th>
               <th className="px-3 py-2">{t("table.time")}</th>
               <th className="px-3 py-2">{t("table.route")}</th>
+              <th className="px-3 py-2">{t("table.customerPurpose")}</th>
               <th className="px-3 py-2 text-right">{t("table.km")}</th>
+              <th className="px-3 py-2 text-right">{t("table.reimbursement")}</th>
               <th className="px-3 py-2">{t("table.classification")}</th>
             </tr>
           </thead>
@@ -156,7 +250,7 @@ export default async function ReportsPage({
             {report.rows.length === 0 ? (
               <tr>
                 <td
-                  colSpan={5}
+                  colSpan={7}
                   className="px-3 py-8 text-center text-neutral-500 dark:text-neutral-400"
                 >
                   {t("table.empty")}
@@ -181,8 +275,23 @@ export default async function ReportsPage({
                     {row.startPlace} <span className="text-neutral-400">→</span>{" "}
                     {row.endPlace}
                   </td>
+                  <td className="px-3 py-2">
+                    {(() => {
+                      const annotation = dutyAnnotations.get(row.id);
+                      const parts = [annotation?.customer, annotation?.purpose].filter(Boolean);
+                      return parts.length > 0 ? parts.join(" · ") : "–";
+                    })()}
+                  </td>
                   <td className="whitespace-nowrap px-3 py-2 text-right tabular-nums">
                     {row.distanceKm != null ? formatKm(row.distanceKm) : "–"}
+                  </td>
+                  <td className="whitespace-nowrap px-3 py-2 text-right tabular-nums">
+                    {row.classification === "business"
+                      ? (() => {
+                          const amount = reimbursementForDistance(row.distanceKm);
+                          return amount != null ? euro.format(amount) : "–";
+                        })()
+                      : "–"}
                   </td>
                   <td className="whitespace-nowrap px-3 py-2">
                     {tc(`classification.${row.classification}`)}

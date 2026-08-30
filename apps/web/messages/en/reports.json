@@ -12,11 +12,26 @@
     "route": "Start → Destination",
     "km": "Km",
     "classification": "Classification",
-    "empty": "No drives for this period and classification."
+    "empty": "No drives for this period and classification.",
+    "customerPurpose": "Customer / purpose",
+    "reimbursement": "Reimbursement"
   },
   "filters": {
     "prevMonth": "Previous month",
     "nextMonth": "Next month",
     "selectMonth": "Select month"
+  },
+  "duty": {
+    "title": "Business mileage reimbursement",
+    "month": "Month",
+    "driveCount": "Business drives",
+    "distance": "Business kilometres",
+    "rate": "Mileage rate",
+    "reimbursement": "Reimbursement",
+    "rateHint": "Calculated at {rate} per business kilometre.",
+    "incomplete": "At least one business drive has incomplete distance data; reimbursement may be understated.",
+    "exportCsv": "Business CSV",
+    "exportPdf": "Business PDF",
+    "generated": "Generated"
   }
 }

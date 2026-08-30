@@ -12,11 +12,26 @@
     "route": "Start → Ziel",
     "km": "Km",
     "classification": "Klassifizierung",
-    "empty": "Keine Fahrten für diesen Zeitraum und diese Klassifizierung."
+    "empty": "Keine Fahrten für diesen Zeitraum und diese Klassifizierung.",
+    "customerPurpose": "Kunde / Zweck",
+    "reimbursement": "Erstattung"
   },
   "filters": {
     "prevMonth": "Vorheriger Monat",
     "nextMonth": "Nächster Monat",
     "selectMonth": "Monat wählen"
+  },
+  "duty": {
+    "title": "Dienstfahrten-Abrechnung",
+    "month": "Monat",
+    "driveCount": "Dienstliche Fahrten",
+    "distance": "Dienstliche Kilometer",
+    "rate": "Kilometersatz",
+    "reimbursement": "Erstattung",
+    "rateHint": "Berechnung mit {rate} je dienstlichem Kilometer.",
+    "incomplete": "Mindestens eine dienstliche Fahrt hat keine vollständige Distanz; die Erstattung kann dadurch zu niedrig sein.",
+    "exportCsv": "Dienstfahrten CSV",
+    "exportPdf": "Dienstfahrten PDF",
+    "generated": "Erstellt"
   }
 }
