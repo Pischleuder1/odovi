@@ -17,6 +17,8 @@
     "auditHistory": "Verlauf"
   },
   "metrics": {
+    "avgSpeed": "Ø Geschwindigkeit",
+    "batteryUsed": "Batterieverbrauch",
     "distance": "Distanz",
     "duration": "Dauer",
     "avgConsumption": "Ø-Verbrauch",

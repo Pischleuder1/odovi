@@ -17,6 +17,8 @@
     "auditHistory": "History"
   },
   "metrics": {
+    "avgSpeed": "Average speed",
+    "batteryUsed": "Battery used",
     "distance": "Distance",
     "duration": "Duration",
     "avgConsumption": "Avg. consumption",

@@ -103,11 +103,27 @@ export default async function DriveDetailPage({
   const dateStr = toDateParam(drive.startTime);
   const classification = drive.classification as Classification;
 
+  const avgSpeedKmh =
+    drive.distanceKm != null &&
+    drive.durationSeconds != null &&
+    drive.durationSeconds > 0
+      ? drive.distanceKm / (drive.durationSeconds / 3600)
+      : null;
+
+  const batteryUsedPercentagePoints =
+    drive.startSoc != null && drive.endSoc != null
+      ? drive.startSoc - drive.endSoc
+      : null;
+
   const kennzahlen: Array<[string, React.ReactNode]> = [
     [t("metrics.distance"), drive.distanceKm != null ? formatKm(drive.distanceKm) : "—"],
     [
       t("metrics.duration"),
       drive.durationSeconds != null ? formatDuration(drive.durationSeconds) : "—",
+    ],
+    [
+      t("metrics.avgSpeed"),
+      avgSpeedKmh != null ? formatSpeed(avgSpeedKmh) : "—",
     ],
     [
       t("metrics.avgConsumption"),
@@ -126,6 +142,12 @@ export default async function DriveDetailPage({
       drive.startSoc != null ? formatSoc(drive.startSoc) : "—",
     ],
     [t("metrics.endSoc"), drive.endSoc != null ? formatSoc(drive.endSoc) : "—"],
+    [
+      t("metrics.batteryUsed"),
+      batteryUsedPercentagePoints != null
+        ? `${batteryUsedPercentagePoints.toLocaleString(locale, { maximumFractionDigits: 1 })} %`
+        : "—",
+    ],
     [
       t("metrics.startOdometer"),
       drive.startOdometerKm != null ? (
