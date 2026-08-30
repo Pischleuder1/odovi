@@ -1,0 +1,65 @@
+{
+  "nav": "Invoices",
+  "title": "Tesla invoice archive",
+  "subtitle": "Archive original receipts from Tesla app exports and match them to charging sessions.",
+  "back": "Back to charging",
+  "month": "Month",
+  "show": "Show",
+  "exportZip": "Monthly ZIP",
+  "openPdf": "Original PDF",
+  "unknownLocation": "Unknown charging location",
+  "stats": {
+    "invoices": "Invoices",
+    "matched": "Clearly matched",
+    "energy": "Energy",
+    "amount": "Invoice amount"
+  },
+  "columns": {
+    "energy": "Energy",
+    "amount": "Amount",
+    "session": "Odovi charge"
+  },
+  "status": {
+    "matched": "matched",
+    "probable": "probable",
+    "unmatched": "unresolved"
+  },
+  "upload": {
+    "title": "Upload Tesla invoices",
+    "hint": "Upload individual Tesla PDFs or a ZIP export directly here. Odovi stores them safely in the import folder and processes them automatically.",
+    "drop": "Drop PDF or ZIP files here",
+    "choose": "Choose files",
+    "supported": "PDF or ZIP · max 25 MB per file · up to 20 files",
+    "button": "Start import",
+    "uploading": "Uploading …",
+    "success": "Files uploaded successfully:",
+    "queued": "They will be processed automatically during the next worker cycle.",
+    "invalid": "At least one file is not a supported PDF or ZIP.",
+    "tooLarge": "At least one file exceeds the 25 MB file limit.",
+    "failed": "The upload could not be completed.",
+    "selected": "Selected",
+    "clear": "Clear selection"
+  },
+  "import": {
+    "title": "Alternative: automatic import folder",
+    "hint": "PDF or ZIP files can still be copied directly into the mounted import folder. The Odovi worker picks them up during the next sync cycle."
+  },
+  "empty": {
+    "title": "No Tesla invoices for this month yet",
+    "hint": "Export invoices in the Tesla app and upload the PDF or ZIP directly to Odovi above."
+  },
+  "delete": {
+    "select": "Select invoice",
+    "selected": "{count} selected",
+    "selectAll": "Select all",
+    "clearSelection": "Clear selection",
+    "one": "Delete",
+    "selectedButton": "Delete selected",
+    "confirmOne": "Really delete this invoice? The original PDF and its charging-session link will be removed. This cannot be undone.",
+    "confirmMany": "Really delete {count} invoices? Their original PDFs and charging-session links will be removed. This cannot be undone.",
+    "deleting": "Deleting …",
+    "failed": "The invoice(s) could not be fully deleted.",
+    "success": "Deleted {count} invoice(s).",
+    "costWarning": "At least one automatically imported charging cost could not be reset; please review the affected charging session."
+  }
+}

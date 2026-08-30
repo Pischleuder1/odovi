@@ -1,0 +1,32 @@
+{
+  "navLabel": "Heatmap",
+  "eyebrow": "Orte entdecken",
+  "title": "Besuchte Orte",
+  "subtitle": "Die Karte verdichtet deine Fahrtziele zu einer Besuchs-Heatmap. Häufig angefahrene Orte erscheinen größer und intensiver.",
+  "openWrapped": "Jahresrückblick",
+  "filters": {
+    "year": "Jahr",
+    "classification": "Fahrttyp",
+    "all": "Alle Fahrten",
+    "apply": "Anzeigen"
+  },
+  "stats": {
+    "visits": "Zielankünfte",
+    "locations": "Unterschiedliche Orte",
+    "topPlace": "Meistbesucht"
+  },
+  "map": {
+    "visitLabel": "Besuche",
+    "emptyLabel": "Noch keine Fahrdaten vorhanden. Sobald Odovi Zielorte synchronisiert hat, erscheinen sie hier."
+  },
+  "top": {
+    "title": "Deine meistbesuchten Orte",
+    "subtitle": "Gezählt werden abgeschlossene Fahrten nach Zielort.",
+    "visits": "{count} Besuche"
+  },
+  "empty": {
+    "title": "Für diese Auswahl gibt es noch keine Ziele.",
+    "hint": "Sobald Fahrten mit Zielkoordinaten vorhanden sind, erscheint hier die Heatmap."
+  },
+  "methodHint": "Bekannte Places werden über ihre Geofence-Mitte zusammengefasst. Unbekannte Ziele werden auf ungefähr 100-Meter-Zellen gebündelt. Dadurch bleiben wiederholte Besuche auch ohne angelegten Place erkennbar."
+}

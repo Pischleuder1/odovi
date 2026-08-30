@@ -1,7 +1,8 @@
 "use client";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { BarChart3, ChevronLeft, ChevronRight, ReceiptText } from "lucide-react";
 import { buttonClasses } from "../../../components/ui/Button";
 
 function shiftMonth(month: string, delta: number): string {
@@ -15,13 +16,14 @@ function shiftMonth(month: string, delta: number): string {
 export function ChargeMonthFilters({ month }: { month: string }) {
   const router = useRouter();
   const t = useTranslations("charges");
+  const ti = useTranslations("invoices");
 
   function goTo(nextMonth: string) {
     router.push(`/charges?month=${nextMonth}`);
   }
 
   return (
-    <div className="flex items-center gap-1">
+    <div className="flex flex-wrap items-center gap-1">
       <button
         type="button"
         aria-label={t("filters.prevMonth")}
@@ -47,6 +49,20 @@ export function ChargeMonthFilters({ month }: { month: string }) {
       >
         <ChevronRight aria-hidden size={18} />
       </button>
+      <Link
+        href="/charges/analysis"
+        className={buttonClasses("secondary", "md", "ml-2 !h-10")}
+      >
+        <BarChart3 aria-hidden size={17} />
+        {t("filters.analysis")}
+      </Link>
+      <Link
+        href="/charges/invoices"
+        className={buttonClasses("secondary", "md", "!h-10")}
+      >
+        <ReceiptText aria-hidden size={17} />
+        {ti("nav")}
+      </Link>
     </div>
   );
 }

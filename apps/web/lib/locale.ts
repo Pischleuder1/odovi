@@ -27,6 +27,9 @@ export const MESSAGE_NAMESPACES = [
   "rules",
   "planner",
   "exports",
+  "heatmap",
+  "wrapped",
+  "invoices",
 ] as const;
 
 export function isLocale(value: string | null | undefined): value is Locale {

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-import { Plus, MapPin } from "lucide-react";
+import { Map, MapPin, Plus, Sparkles } from "lucide-react";
 import { formatDuration } from "@odovi/core";
 import { getAllPlacesWithUsage } from "../../../lib/queries";
 import { getPlaceDwellStats } from "../../../lib/parkAnalytics";
@@ -10,7 +10,11 @@ import { EmptyState } from "../../../components/ui/EmptyState";
 export const dynamic = "force-dynamic";
 
 export default async function PlacesPage() {
-  const t = await getTranslations("places");
+  const [t, th, tw] = await Promise.all([
+    getTranslations("places"),
+    getTranslations("heatmap"),
+    getTranslations("wrapped"),
+  ]);
   const placeRows = await getAllPlacesWithUsage();
   const dwellStatsByPlaceId = await getPlaceDwellStats();
 
@@ -23,14 +27,25 @@ export default async function PlacesPage() {
             {t("description")}
           </p>
         </div>
-        <Button
-          href="/places/new"
-          variant="primary"
-          className="shrink-0"
-          icon={<Plus aria-hidden size={16} />}
-        >
-          {t("newPlace")}
-        </Button>
+        <div className="flex shrink-0 flex-wrap justify-end gap-2">
+          <Button
+            href="/places/heatmap"
+            variant="ghost"
+            icon={<Map aria-hidden size={16} />}
+          >
+            {th("navLabel")}
+          </Button>
+          <Button
+            href="/wrapped"
+            variant="ghost"
+            icon={<Sparkles aria-hidden size={16} />}
+          >
+            {tw("navLabel")}
+          </Button>
+          <Button href="/places/new" variant="primary" icon={<Plus aria-hidden size={16} />}>
+            {t("newPlace")}
+          </Button>
+        </div>
       </div>
 
       <div className="mt-6 flex flex-col gap-2">

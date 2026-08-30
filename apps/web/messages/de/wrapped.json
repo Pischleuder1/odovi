@@ -1,0 +1,55 @@
+{
+  "navLabel": "Wrapped",
+  "eyebrow": "Odovi Wrapped",
+  "title": "Jahresrückblick",
+  "heroTitle": "Dein Jahr {year}",
+  "subtitle": "{vehicle}: dein Fahr-, Lade- und Orte-Rückblick in Odovi.",
+  "openHeatmap": "Heatmap",
+  "print": "Drucken / PDF",
+  "year": "Jahr",
+  "showYear": "Anzeigen",
+  "hero": {
+    "distance": "Gefahren",
+    "drives": "Fahrten",
+    "consumption": "Ø Verbrauch",
+    "charged": "Geladen"
+  },
+  "empty": {
+    "title": "Noch kein Wrapped für dieses Jahr.",
+    "hint": "Für {year} sind noch keine abgeschlossenen Fahrten vorhanden."
+  },
+  "highlights": {
+    "title": "Highlights",
+    "longestDrive": "Längste Fahrt",
+    "favoriteDestination": "Lieblingsziel",
+    "visits": "{count} Besuche",
+    "farthest": "Weitester Zielpunkt",
+    "fromHome": "{km} km Luftlinie von Zuhause"
+  },
+  "classification": {
+    "title": "So warst du unterwegs"
+  },
+  "charging": {
+    "title": "Laden",
+    "sessions": "Ladevorgänge",
+    "dcSessions": "DC-Ladungen",
+    "maxDc": "Stärkster DC-Peak",
+    "energy": "Energie",
+    "favoritePlace": "Häufigster Ladeort",
+    "visits": "{count} Ladevorgänge",
+    "costs": "Erfasste Ladekosten",
+    "unknownCurrency": "Währung unbekannt"
+  },
+  "months": {
+    "title": "Kilometer durchs Jahr",
+    "busiest": "Stärkster Monat: {month} mit {km} km"
+  },
+  "map": {
+    "title": "Deine Orte {year}",
+    "subtitle": "Wo dein Jahr stattgefunden hat – direkt aus deinen Fahrtzielen.",
+    "details": "Große Heatmap öffnen",
+    "visitLabel": "Besuche",
+    "empty": "Noch keine Zielorte für die Karte."
+  },
+  "footer": "{vehicle} · {year} – das war dein Odovi Jahr."
+}

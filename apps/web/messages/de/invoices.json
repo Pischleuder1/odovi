@@ -1,0 +1,65 @@
+{
+  "nav": "Rechnungen",
+  "title": "Tesla-Rechnungsarchiv",
+  "subtitle": "Originalbelege aus dem Tesla-App-Export automatisch archivieren und Ladevorgängen zuordnen.",
+  "back": "Zur Ladeübersicht",
+  "month": "Monat",
+  "show": "Anzeigen",
+  "exportZip": "Monats-ZIP",
+  "openPdf": "Original-PDF",
+  "unknownLocation": "Unbekannter Ladeort",
+  "stats": {
+    "invoices": "Rechnungen",
+    "matched": "Eindeutig zugeordnet",
+    "energy": "Energie",
+    "amount": "Rechnungsbetrag"
+  },
+  "columns": {
+    "energy": "Energie",
+    "amount": "Betrag",
+    "session": "Odovi-Ladung"
+  },
+  "status": {
+    "matched": "eindeutig",
+    "probable": "wahrscheinlich",
+    "unmatched": "ungeklärt"
+  },
+  "upload": {
+    "title": "Tesla-Rechnungen hochladen",
+    "hint": "Lade einzelne Tesla-PDFs oder einen Sammel-Export als ZIP direkt hier hoch. Odovi legt sie sicher im Importordner ab und verarbeitet sie automatisch.",
+    "drop": "PDF oder ZIP hier ablegen",
+    "choose": "Dateien auswählen",
+    "supported": "PDF oder ZIP · maximal 25 MB pro Datei · bis zu 20 Dateien",
+    "button": "Import starten",
+    "uploading": "Wird hochgeladen …",
+    "success": "Dateien erfolgreich hochgeladen:",
+    "queued": "Die Verarbeitung erfolgt automatisch im nächsten Worker-Zyklus.",
+    "invalid": "Mindestens eine Datei ist kein unterstütztes PDF oder ZIP.",
+    "tooLarge": "Mindestens eine Datei überschreitet die zulässige Größe von 25 MB.",
+    "failed": "Der Upload konnte nicht abgeschlossen werden.",
+    "selected": "Ausgewählt",
+    "clear": "Auswahl leeren"
+  },
+  "import": {
+    "title": "Alternativ: automatischer Importordner",
+    "hint": "PDF- oder ZIP-Dateien können weiterhin direkt in den eingebundenen Importordner kopiert werden. Der Odovi-Worker übernimmt sie beim nächsten Synchronisationszyklus."
+  },
+  "empty": {
+    "title": "Noch keine Tesla-Rechnungen in diesem Monat",
+    "hint": "Exportiere die Rechnungen in der Tesla-App und lade PDF oder ZIP oben direkt in Odovi hoch."
+  },
+  "delete": {
+    "select": "Rechnung auswählen",
+    "selected": "{count} ausgewählt",
+    "selectAll": "Alle auswählen",
+    "clearSelection": "Auswahl aufheben",
+    "one": "Löschen",
+    "selectedButton": "Ausgewählte löschen",
+    "confirmOne": "Rechnung wirklich löschen? Das Original-PDF und die Zuordnung zur Ladesession werden entfernt. Dieser Vorgang kann nicht rückgängig gemacht werden.",
+    "confirmMany": "{count} Rechnungen wirklich löschen? Die Original-PDFs und Zuordnungen werden entfernt. Dieser Vorgang kann nicht rückgängig gemacht werden.",
+    "deleting": "Wird gelöscht …",
+    "failed": "Die Rechnung(en) konnten nicht vollständig gelöscht werden.",
+    "success": "{count} Rechnung(en) gelöscht.",
+    "costWarning": "Mindestens eine automatisch übernommene Ladesumme konnte nicht zurückgesetzt werden; bitte die betroffene Ladesession prüfen."
+  }
+}

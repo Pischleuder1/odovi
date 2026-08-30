@@ -1,0 +1,55 @@
+{
+  "navLabel": "Wrapped",
+  "eyebrow": "Odovi Wrapped",
+  "title": "Year in review",
+  "heroTitle": "Your {year}",
+  "subtitle": "{vehicle}: your driving, charging and places recap in Odovi.",
+  "openHeatmap": "Heatmap",
+  "print": "Print / PDF",
+  "year": "Year",
+  "showYear": "Show",
+  "hero": {
+    "distance": "Driven",
+    "drives": "Drives",
+    "consumption": "Avg. consumption",
+    "charged": "Charged"
+  },
+  "empty": {
+    "title": "No Wrapped for this year yet.",
+    "hint": "There are no completed drives for {year} yet."
+  },
+  "highlights": {
+    "title": "Highlights",
+    "longestDrive": "Longest drive",
+    "favoriteDestination": "Favourite destination",
+    "visits": "{count} visits",
+    "farthest": "Farthest destination",
+    "fromHome": "{km} km as the crow flies from Home"
+  },
+  "classification": {
+    "title": "How you travelled"
+  },
+  "charging": {
+    "title": "Charging",
+    "sessions": "Charging sessions",
+    "dcSessions": "DC charges",
+    "maxDc": "Strongest DC peak",
+    "energy": "Energy",
+    "favoritePlace": "Most used charging place",
+    "visits": "{count} charging sessions",
+    "costs": "Recorded charging costs",
+    "unknownCurrency": "currency unknown"
+  },
+  "months": {
+    "title": "Kilometres through the year",
+    "busiest": "Biggest month: {month} with {km} km"
+  },
+  "map": {
+    "title": "Your places {year}",
+    "subtitle": "Where your year happened – directly from your drive destinations.",
+    "details": "Open full heatmap",
+    "visitLabel": "visits",
+    "empty": "No destinations for the map yet."
+  },
+  "footer": "{vehicle} · {year} – that was your Odovi year."
+}

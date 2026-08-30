@@ -32,7 +32,49 @@
   "filters": {
     "prevMonth": "Vorheriger Monat",
     "nextMonth": "Nächster Monat",
-    "selectMonth": "Monat wählen"
+    "selectMonth": "Monat wählen",
+    "analysis": "Analyse"
+  },
+  "analysis": {
+    "title": "Erweiterte Ladeanalyse",
+    "subtitle": "DC-Ladekurven, 10–80-%-Zeiten, Ladeorte und Auffälligkeiten aus deiner eigenen Historie.",
+    "back": "Zur Ladeübersicht",
+    "noVehicle": "Kein Fahrzeug vorhanden.",
+    "noDcTitle": "Noch keine DC-Ladedaten",
+    "noDcHint": "Sobald DC-Ladevorgänge inklusive Ladekurve synchronisiert wurden, erscheinen hier die Auswertungen.",
+    "unknownLocation": "Unbekannter Ladeort",
+    "stats": {
+      "median1080": "Median 10–80 %",
+      "eligible": "{count} auswertbare Sitzungen",
+      "medianPeak": "Median Peak-Leistung",
+      "recentScope": "aus den letzten DC-Sitzungen",
+      "dcSessions": "DC-Sitzungen analysiert",
+      "maxScope": "maximal die letzten 50"
+    },
+    "curves": {
+      "title": "DC-Ladekurven im Vergleich",
+      "hint": "Leistung über SoC; die neueste Sitzung ist hervorgehoben.",
+      "last": "Letzte {count}",
+      "aria": "Vergleich mehrerer DC-Ladekurven: Leistung in Kilowatt über Ladestand",
+      "noData": "Für die letzten DC-Ladevorgänge liegen noch keine ausreichenden Kurvendaten vor."
+    },
+    "locations": {
+      "title": "Ladeort-Rangliste",
+      "noData": "Noch keine Ladeorte auswertbar.",
+      "location": "Ladeort",
+      "sessions": "Sitzungen",
+      "medianPeak": "Median Peak",
+      "bestPeak": "Bester Peak",
+      "median1080": "Median 10–80 %"
+    },
+    "alerts": {
+      "title": "Auffällige Ladevorgänge",
+      "none": "Keine deutlich langsameren DC-Ladevorgänge in den auswertbaren Daten erkannt.",
+      "window": "20–60 %: {actual} · Vergleichsmedian {median}",
+      "peers": "Vergleich mit {count} ähnlichen Sitzungen",
+      "temperature": "Außentemperatur {value}",
+      "disclaimer": "Hinweis: Die Erkennung ist eine statistische Auffälligkeit, keine Diagnose des Fahrzeugs oder Ladeparks. Verglichen wird bevorzugt mit Sitzungen bei ähnlicher Außentemperatur."
+    }
   },
   "detail": {
     "toDayView": "Zur Tagesansicht ({date})",

@@ -1,0 +1,32 @@
+{
+  "navLabel": "Heatmap",
+  "eyebrow": "Explore places",
+  "title": "Visited places",
+  "subtitle": "The map condenses your drive destinations into a visit heatmap. Frequently visited places appear larger and more intense.",
+  "openWrapped": "Year in review",
+  "filters": {
+    "year": "Year",
+    "classification": "Drive type",
+    "all": "All drives",
+    "apply": "Show"
+  },
+  "stats": {
+    "visits": "Arrivals",
+    "locations": "Unique locations",
+    "topPlace": "Most visited"
+  },
+  "map": {
+    "visitLabel": "visits",
+    "emptyLabel": "No drive data yet. As soon as Odovi syncs destinations, they will appear here."
+  },
+  "top": {
+    "title": "Your most visited places",
+    "subtitle": "Completed drives are counted by destination.",
+    "visits": "{count} visits"
+  },
+  "empty": {
+    "title": "No destinations for this selection yet.",
+    "hint": "The heatmap will appear as soon as drives with destination coordinates are available."
+  },
+  "methodHint": "Known Places are grouped by their geofence centre. Unknown destinations are grouped into roughly 100-metre cells, so repeat visits remain visible even without a saved Place."
+}

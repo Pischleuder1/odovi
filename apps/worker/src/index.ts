@@ -6,6 +6,7 @@ import { workerErrorCode } from "./operationalStatus.js";
 import { runSyncCycle } from "./sync/cycle.js";
 import { recordSyncRun } from "./sync/state.js";
 import { createTeslamateClient, probeTeslamateSchema } from "./teslamate/client.js";
+import { runTeslaInvoiceImport } from "./invoices/importer.js";
 
 async function main(): Promise<void> {
   // Validate before opening clients or entering a long-running retry loop.
@@ -43,6 +44,7 @@ async function main(): Promise<void> {
     runSlice: async () => {
       try {
         await runSyncCycle(connection.db, tm, {
+        await runTeslaInvoiceImport(connection.db);
           appTimezone: config.appTimezone,
           elevationMaxPointsPerCycle: config.elevationMaxPointsPerCycle,
         });
