@@ -46,6 +46,7 @@ test("public location-provider hosts exist only in the provider registry", () =>
 
 test("global fetch sites cannot hide a location-provider bypass", () => {
   const approved = [
+"apps/web/app/(app)/charges/invoices/InvoiceList.tsx",
 "apps/web/app/(app)/charges/invoices/InvoiceUpload.tsx",
     "apps/web/app/api/tesla/callback/route.ts",
     "apps/web/lib/actions/tesla.ts",
