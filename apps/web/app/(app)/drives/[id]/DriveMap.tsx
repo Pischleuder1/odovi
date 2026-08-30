@@ -49,7 +49,7 @@ function pointSummary(point: RoutePointTuple): string {
 }
 
 function addSpeedLegend(map: L.Map): L.Control {
-  const legend = L.control({ position: "bottomright" });
+  const legend = new L.Control({ position: "bottomright" });
 
   legend.onAdd = () => {
     const container = L.DomUtil.create("div", "leaflet-control");
