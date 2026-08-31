@@ -32,7 +32,49 @@
   "filters": {
     "prevMonth": "Previous month",
     "nextMonth": "Next month",
-    "selectMonth": "Choose month"
+    "selectMonth": "Choose month",
+    "analysis": "Analysis"
+  },
+  "analysis": {
+    "title": "Advanced charging analysis",
+    "subtitle": "DC charging curves, 10–80% times, charging locations and anomalies from your own history.",
+    "back": "Back to charging overview",
+    "noVehicle": "No vehicle available.",
+    "noDcTitle": "No DC charging data yet",
+    "noDcHint": "Once DC charging sessions with curve data have been synced, the analysis will appear here.",
+    "unknownLocation": "Unknown charging location",
+    "stats": {
+      "median1080": "Median 10–80%",
+      "eligible": "{count} eligible sessions",
+      "medianPeak": "Median peak power",
+      "recentScope": "from recent DC sessions",
+      "dcSessions": "DC sessions analysed",
+      "maxScope": "the selected latest completed DC sessions"
+    },
+    "curves": {
+      "title": "DC charging curve comparison",
+      "hint": "Power over SoC; the newest session is highlighted.",
+      "last": "Last {count}",
+      "aria": "Comparison of multiple DC charging curves: power in kilowatts over state of charge",
+      "noData": "There is not enough curve data for the latest DC charging sessions yet."
+    },
+    "locations": {
+      "title": "Charging location ranking",
+      "noData": "No charging locations can be evaluated yet.",
+      "location": "Location",
+      "sessions": "Sessions",
+      "medianPeak": "Median peak",
+      "bestPeak": "Best peak",
+      "median1080": "Median 10–80%"
+    },
+    "alerts": {
+      "title": "Unusual charging sessions",
+      "none": "No clearly slower DC charging sessions were detected in the eligible data.",
+      "window": "20–60%: {actual} · comparison median {median}",
+      "peers": "Compared with {count} similar sessions",
+      "temperature": "Outside temperature {value}",
+      "disclaimer": "Note: this is a statistical anomaly, not a diagnosis of the vehicle or charging site. Sessions at similar outside temperatures are preferred for comparison."
+    }
   },
   "detail": {
     "toDayView": "Go to day view ({date})",
