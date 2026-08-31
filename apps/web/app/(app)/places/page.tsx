@@ -15,19 +15,21 @@ export default async function PlacesPage() {
     getTranslations("heatmap"),
     getTranslations("wrapped"),
   ]);
+
   const placeRows = await getAllPlacesWithUsage();
   const dwellStatsByPlaceId = await getPlaceDwellStats();
 
   return (
     <div className="mx-auto max-w-2xl">
-      <div className="flex items-start justify-between gap-3">
-        <div>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0 w-full sm:flex-1">
           <h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
-          <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
+          <p className="mt-1 w-full text-sm leading-relaxed text-neutral-500 dark:text-neutral-400">
             {t("description")}
           </p>
         </div>
-        <div className="flex shrink-0 flex-wrap justify-end gap-2">
+
+        <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto sm:shrink-0 sm:justify-end">
           <Button
             href="/places/heatmap"
             variant="ghost"
@@ -35,6 +37,7 @@ export default async function PlacesPage() {
           >
             {th("navLabel")}
           </Button>
+
           <Button
             href="/wrapped"
             variant="ghost"
@@ -42,9 +45,16 @@ export default async function PlacesPage() {
           >
             {tw("navLabel")}
           </Button>
-          <Button href="/places/new" variant="primary" icon={<Plus aria-hidden size={16} />}>
-            {t("newPlace")}
-          </Button>
+
+          <div className="w-full sm:w-auto">
+            <Button
+              href="/places/new"
+              variant="primary"
+              icon={<Plus aria-hidden size={16} />}
+            >
+              {t("newPlace")}
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -61,10 +71,16 @@ export default async function PlacesPage() {
             }}
           />
         )}
+
         {placeRows.map((place) => {
           const totalUsage =
-            place.driveStartCount + place.driveEndCount + place.chargeCount + place.parkCount;
+            place.driveStartCount +
+            place.driveEndCount +
+            place.chargeCount +
+            place.parkCount;
+
           const dwell = dwellStatsByPlaceId.get(place.id);
+
           return (
             <Link
               key={place.id}
@@ -80,6 +96,7 @@ export default async function PlacesPage() {
                     {t(`placeTypes.${place.type}`)}
                   </span>
                 </div>
+
                 <span className="shrink-0 text-xs text-neutral-500 dark:text-neutral-400">
                   {t("list.radius", { radius: place.radiusM })}
                 </span>
@@ -98,18 +115,21 @@ export default async function PlacesPage() {
                     {place.driveStartCount}
                   </dd>
                 </div>
+
                 <div>
                   <dt>{t("list.destination")}</dt>
                   <dd className="mt-0.5 font-medium tabular-nums text-neutral-900 dark:text-neutral-100">
                     {place.driveEndCount}
                   </dd>
                 </div>
+
                 <div>
                   <dt>{t("list.charging")}</dt>
                   <dd className="mt-0.5 font-medium tabular-nums text-neutral-900 dark:text-neutral-100">
                     {place.chargeCount}
                   </dd>
                 </div>
+
                 <div>
                   <dt>{t("list.parking")}</dt>
                   <dd className="mt-0.5 font-medium tabular-nums text-neutral-900 dark:text-neutral-100">
@@ -126,10 +146,13 @@ export default async function PlacesPage() {
                       {formatDuration(dwell.avgDwellSeconds)}
                     </dd>
                   </div>
+
                   <div className="hidden sm:block">
                     <dt>{t("list.totalVampireLoss")}</dt>
                     <dd className="mt-0.5 font-medium tabular-nums text-neutral-900 dark:text-neutral-100">
-                      {t("list.vampireLoss", { pct: dwell.totalVampireLossPct })}
+                      {t("list.vampireLoss", {
+                        pct: dwell.totalVampireLossPct,
+                      })}
                     </dd>
                   </div>
                 </dl>
